@@ -1,0 +1,1952 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="images/workspace1.jpg">
+<title>STOLEN MØBLER — 椅子と美芸</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Noto+Sans+JP:wght@200;300;400;500;700&family=Noto+Serif+JP:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --black: #0a0a0a;
+  --dark: #141414;
+  --dark2: #1c1c1c;
+  --dark3: #252525;
+  --gold: #C4A265;
+  --gold-light: #D4B87A;
+  --gold-dark: #A88B4A;
+  --beige: #F5F0EB;
+  --white: #FFFFFF;
+  --gray: #666;
+  --gray-light: #999;
+  --text: #F5F0EB;
+  --text-sub: #888;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --transition: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+html { font-size: 16px; -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: #000;
+  color: var(--text);
+  overflow: hidden;
+  height: 100dvh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+a { text-decoration: none; color: inherit; }
+img { display: block; width: 100%; height: 100%; object-fit: cover; }
+button { border: none; background: none; cursor: pointer; font-family: inherit; color: inherit; }
+
+/* ===== APP SHELL ===== */
+.app {
+  width: 100%;
+  max-width: 430px;
+  height: 100dvh;
+  max-height: 932px;
+  background: var(--black);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== MOBILE: フルスクリーン ===== */
+@media (max-width: 430px) {
+  body {
+    background: var(--black);
+  }
+  .app {
+    max-height: none;
+    border-radius: 0;
+  }
+}
+
+/* ===== DESKTOP: デバイスフレーム ===== */
+@media (min-width: 431px) {
+  body {
+    background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 50%, #1a1a2e 100%);
+  }
+  body::before {
+    content: 'STOLEN MØBLER — Demo Preview';
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    letter-spacing: 4px;
+    color: rgba(196,162,101,0.3);
+    z-index: 0;
+  }
+  body::after {
+    content: 'モバイル端末でご覧いただくと実際の表示をご確認いただけます';
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.2);
+    white-space: nowrap;
+    z-index: 0;
+  }
+  .app {
+    border-radius: 40px;
+    box-shadow: 0 0 0 10px #1a1a1a, 0 0 0 12px rgba(196,162,101,0.15), 0 40px 80px rgba(0,0,0,0.6);
+    margin: 10px 0;
+  }
+  .tab-bar {
+    border-radius: 0 0 40px 40px;
+  }
+  .app-header {
+    border-radius: 40px 40px 0 0;
+  }
+  .app-header.scrolled {
+    border-radius: 40px 40px 0 0;
+  }
+}
+
+/* ===== HEADER ===== */
+.app-header {
+  position: fixed;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 100%; max-width: 430px;
+  z-index: 100;
+  padding: 14px 20px 24px;
+  padding-top: max(14px, env(safe-area-inset-top));
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.5s ease;
+}
+@media (max-width: 430px) {
+  .app-header {
+    left: 0;
+    transform: none;
+    max-width: none;
+  }
+}
+.app-header.scrolled {
+  background: rgba(10,10,10,0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: 18px;
+  letter-spacing: 4px;
+  color: var(--beige);
+}
+.logo span { color: var(--gold); font-weight: 400; }
+.header-icons { display: flex; gap: 14px; }
+.header-icons button {
+  width: 38px; height: 38px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(10px);
+  transition: var(--transition);
+  position: relative;
+}
+.header-icons button:active { transform: scale(0.9); }
+.header-icons svg { width: 17px; height: 17px; fill: none; stroke: var(--beige); stroke-width: 1.5; }
+.badge {
+  position: absolute;
+  top: 6px; right: 6px;
+  width: 7px; height: 7px;
+  background: #E74C3C;
+  border-radius: 50%;
+  border: 1.5px solid var(--black);
+}
+
+/* ===== PAGES ===== */
+.page {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: calc(85px + env(safe-area-inset-bottom));
+  display: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+.page.active { display: block; animation: pageFadeIn 0.4s ease; }
+.page::-webkit-scrollbar { display: none; }
+@keyframes pageFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ===== TAB BAR ===== */
+.tab-bar {
+  position: fixed;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 100%; max-width: 430px;
+  z-index: 100;
+  background: rgba(10,10,10,0.92);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border-top: 1px solid rgba(255,255,255,0.04);
+  display: flex;
+  padding: 6px 0 max(10px, env(safe-area-inset-bottom));
+}
+@media (max-width: 430px) {
+  .tab-bar {
+    left: 0;
+    transform: none;
+    max-width: none;
+  }
+}
+.tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 0;
+  transition: var(--transition);
+  position: relative;
+}
+.tab-item svg { width: 21px; height: 21px; fill: none; stroke: var(--gray); stroke-width: 1.5; transition: var(--transition); }
+.tab-item span { font-size: 9px; color: var(--gray); letter-spacing: 1.5px; transition: var(--transition); font-weight: 300; }
+.tab-item.active svg { stroke: var(--gold); }
+.tab-item.active span { color: var(--gold); font-weight: 400; }
+.tab-item.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%; transform: translateX(-50%);
+  width: 20px; height: 2px;
+  background: var(--gold);
+  border-radius: 1px;
+  animation: tabIndicator 0.3s var(--ease-out);
+}
+@keyframes tabIndicator { from { width: 0; opacity: 0; } to { width: 20px; opacity: 1; } }
+.tab-item:active { transform: scale(0.85); }
+
+/* ===== SCROLL REVEAL ===== */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+/* ========================================
+   HOME PAGE
+   ======================================== */
+
+/* --- Hero with Ken Burns --- */
+.hero-section {
+  position: relative;
+  height: 580px;
+  overflow: hidden;
+}
+.hero-slides {
+  position: absolute;
+  inset: 0;
+}
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+.hero-slide.active { opacity: 1; }
+.hero-slide img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  animation: kenBurns 12s ease infinite alternate;
+}
+.hero-slide:nth-child(1) img { animation-delay: 0s; transform-origin: 30% 40%; }
+.hero-slide:nth-child(2) img { animation-delay: -4s; transform-origin: 70% 30%; }
+.hero-slide:nth-child(3) img { animation-delay: -8s; transform-origin: 50% 60%; }
+@keyframes kenBurns {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.15); }
+}
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(10,10,10,0.4) 0%,
+    rgba(10,10,10,0.05) 30%,
+    rgba(10,10,10,0.3) 60%,
+    rgba(10,10,10,0.95) 100%
+  );
+}
+.hero-content {
+  position: absolute;
+  bottom: 50px;
+  left: 24px; right: 24px;
+  z-index: 2;
+}
+.hero-tag {
+  display: inline-block;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 10px;
+  letter-spacing: 5px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  border: 1px solid rgba(196,162,101,0.3);
+  padding: 5px 14px;
+  border-radius: 2px;
+  animation: heroTagIn 1s 0.3s var(--ease-out) both;
+}
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 34px;
+  font-weight: 300;
+  line-height: 1.25;
+  letter-spacing: 2px;
+  margin-bottom: 14px;
+  animation: heroTitleIn 1s 0.5s var(--ease-out) both;
+}
+.hero-desc {
+  font-size: 13px;
+  font-weight: 200;
+  color: rgba(245,240,235,0.7);
+  line-height: 1.7;
+  animation: heroDescIn 1s 0.7s var(--ease-out) both;
+}
+.hero-cta {
+  margin-top: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--gold);
+  padding: 10px 0;
+  animation: heroDescIn 1s 0.9s var(--ease-out) both;
+}
+.hero-cta-line {
+  width: 32px; height: 1px;
+  background: var(--gold);
+  transition: width 0.3s ease;
+}
+.hero-cta:hover .hero-cta-line { width: 48px; }
+@keyframes heroTagIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes heroTitleIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes heroDescIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Hero progress bar */
+.hero-progress {
+  position: absolute;
+  bottom: 20px;
+  left: 24px; right: 24px;
+  display: flex;
+  gap: 8px;
+  z-index: 3;
+}
+.hero-progress-bar {
+  flex: 1; height: 2px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 1px;
+  overflow: hidden;
+  cursor: pointer;
+}
+.hero-progress-fill {
+  height: 100%; width: 0;
+  background: var(--gold);
+  border-radius: 1px;
+}
+.hero-progress-bar.active .hero-progress-fill {
+  animation: progressFill 5s linear forwards;
+}
+.hero-progress-bar.done .hero-progress-fill { width: 100%; }
+@keyframes progressFill { from { width: 0; } to { width: 100%; } }
+
+/* --- Stories Section --- */
+.stories-section {
+  padding: 24px 0 0 0;
+}
+.stories-scroll {
+  display: flex;
+  gap: 16px;
+  padding: 0 20px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+}
+.stories-scroll::-webkit-scrollbar { display: none; }
+.story-item {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  scroll-snap-align: start;
+  cursor: pointer;
+}
+.story-ring {
+  width: 68px; height: 68px;
+  border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light), var(--gold-dark));
+  animation: storyRingPulse 3s ease-in-out infinite;
+}
+.story-ring.viewed {
+  background: var(--dark3);
+  animation: none;
+}
+@keyframes storyRingPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(196,162,101,0.3); }
+  50% { box-shadow: 0 0 0 4px rgba(196,162,101,0); }
+}
+.story-ring-inner {
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--black);
+}
+.story-label {
+  font-size: 10px;
+  color: var(--text-sub);
+  letter-spacing: 0.5px;
+  max-width: 68px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- Featured Brand Marquee --- */
+.brand-marquee {
+  padding: 28px 0;
+  overflow: hidden;
+  position: relative;
+}
+.brand-marquee::before, .brand-marquee::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 60px;
+  z-index: 2;
+}
+.brand-marquee::before { left: 0; background: linear-gradient(90deg, var(--black), transparent); }
+.brand-marquee::after { right: 0; background: linear-gradient(270deg, var(--black), transparent); }
+.marquee-track {
+  display: flex;
+  gap: 48px;
+  animation: marqueeScroll 20s linear infinite;
+  width: max-content;
+}
+.marquee-item {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  letter-spacing: 4px;
+  color: rgba(196,162,101,0.35);
+  white-space: nowrap;
+  font-weight: 400;
+}
+@keyframes marqueeScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* --- Concept Section --- */
+.concept-section {
+  padding: 40px 24px;
+  text-align: center;
+}
+.concept-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 10px;
+  letter-spacing: 6px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.concept-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 22px;
+  font-weight: 300;
+  line-height: 1.8;
+  margin-bottom: 16px;
+  letter-spacing: 2px;
+}
+.concept-desc {
+  font-size: 13px;
+  font-weight: 200;
+  color: var(--text-sub);
+  line-height: 2;
+  max-width: 320px;
+  margin: 0 auto;
+}
+.concept-divider {
+  width: 40px; height: 1px;
+  background: var(--gold);
+  margin: 24px auto 0;
+}
+
+/* --- Full Bleed Image --- */
+.fullbleed-image {
+  position: relative;
+  height: 400px;
+  overflow: hidden;
+}
+.fullbleed-image img {
+  transition: transform 0.5s ease;
+}
+.fullbleed-image .parallax-img {
+  height: 120%;
+  width: 100%;
+  object-fit: cover;
+  will-change: transform;
+}
+.fullbleed-caption {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 60px 24px 24px;
+  background: linear-gradient(transparent, rgba(10,10,10,0.9));
+}
+.fullbleed-caption h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px;
+  font-weight: 300;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+}
+.fullbleed-caption p {
+  font-size: 12px;
+  color: var(--text-sub);
+  font-weight: 200;
+}
+
+/* Section styles */
+.section { padding: 36px 20px; }
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 22px;
+}
+.section-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 10px;
+  letter-spacing: 5px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.section-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 18px;
+  font-weight: 300;
+  letter-spacing: 2px;
+}
+.section-more {
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition);
+}
+.section-more:hover { gap: 10px; }
+.section-more svg { width: 14px; height: 14px; stroke: var(--gold); fill: none; stroke-width: 1.5; }
+
+/* --- News Cards (horizontal scroll) --- */
+.news-scroll {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 20px 10px;
+  scroll-snap-type: x mandatory;
+}
+.news-scroll::-webkit-scrollbar { display: none; }
+.news-card {
+  flex-shrink: 0;
+  width: 280px;
+  background: var(--dark);
+  border-radius: var(--radius);
+  overflow: hidden;
+  scroll-snap-align: start;
+  transition: transform 0.3s ease;
+}
+.news-card:active { transform: scale(0.97); }
+.news-card-img {
+  height: 160px;
+  overflow: hidden;
+  position: relative;
+}
+.news-card-img img { transition: transform 0.5s ease; }
+.news-card:hover .news-card-img img { transform: scale(1.05); }
+.news-card-badge {
+  position: absolute;
+  top: 12px; left: 12px;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--black);
+  background: var(--gold);
+  padding: 3px 10px;
+  border-radius: 2px;
+  font-weight: 500;
+}
+.news-card-body { padding: 16px; }
+.news-card-date { font-size: 11px; color: var(--text-sub); letter-spacing: 1px; margin-bottom: 8px; }
+.news-card-title { font-size: 14px; font-weight: 400; line-height: 1.5; }
+
+/* --- Gallery Preview (masonry) --- */
+.gallery-mosaic {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 200px 140px 200px;
+  gap: 4px;
+  padding: 0 4px;
+}
+.gallery-mosaic-item {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+.gallery-mosaic-item:first-child {
+  grid-row: span 2;
+}
+.gallery-mosaic-item img { transition: transform 0.6s ease; }
+.gallery-mosaic-item:hover img { transform: scale(1.08); }
+.gallery-mosaic-item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, rgba(10,10,10,0.7) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.gallery-mosaic-item:hover::after { opacity: 1; }
+.gallery-mosaic-label {
+  position: absolute;
+  bottom: 12px; left: 14px;
+  z-index: 1;
+  font-size: 12px;
+  letter-spacing: 1px;
+  font-weight: 300;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+}
+.gallery-mosaic-item:hover .gallery-mosaic-label {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* --- Access Card --- */
+.access-card {
+  background: var(--dark);
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.access-map {
+  height: 160px;
+  position: relative;
+  overflow: hidden;
+}
+.access-map img { opacity: 0.3; transition: transform 0.5s ease; }
+.access-card:hover .access-map img { transform: scale(1.05); }
+.access-map-overlay {
+  position: absolute; inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.access-pin {
+  width: 40px; height: 40px;
+  background: rgba(196,162,101,0.15);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pinPulse 2s ease-in-out infinite;
+}
+.access-pin svg { width: 20px; height: 20px; fill: var(--gold); }
+@keyframes pinPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(196,162,101,0.3); transform: scale(1); }
+  50% { box-shadow: 0 0 0 12px rgba(196,162,101,0); transform: scale(1.05); }
+}
+.access-map-label { font-size: 11px; color: var(--gold); letter-spacing: 2px; }
+.access-info { padding: 20px; }
+.access-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  letter-spacing: 3px;
+  margin-bottom: 14px;
+  color: var(--beige);
+}
+.access-detail { font-size: 12px; color: var(--text-sub); line-height: 2.2; font-weight: 300; }
+.access-detail strong { color: var(--beige); font-weight: 400; }
+
+/* Divider */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(196,162,101,0.15), transparent);
+  margin: 0 24px;
+}
+
+/* ========================================
+   GALLERY PAGE
+   ======================================== */
+.gallery-header-space { height: 56px; }
+.gallery-tabs {
+  display: flex;
+  gap: 0;
+  padding: 8px 20px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.gallery-tabs::-webkit-scrollbar { display: none; }
+.gallery-tab {
+  padding: 10px 16px;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--text-sub);
+  white-space: nowrap;
+  border-bottom: 1.5px solid transparent;
+  transition: var(--transition);
+  font-weight: 300;
+}
+.gallery-tab.active { color: var(--gold); border-bottom-color: var(--gold); font-weight: 400; }
+.gallery-search {
+  margin: 8px 20px 12px;
+  padding: 11px 16px;
+  background: var(--dark);
+  border-radius: 28px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.gallery-search svg { width: 16px; height: 16px; stroke: var(--gray); fill: none; stroke-width: 1.5; flex-shrink: 0; }
+.gallery-search span { font-size: 13px; color: var(--gray); font-weight: 200; }
+.gallery-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+  padding: 0 3px;
+}
+.gallery-item {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  cursor: pointer;
+}
+.gallery-item img { transition: transform 0.6s ease; }
+.gallery-item:hover img { transform: scale(1.06); }
+.gallery-item .fav-btn {
+  position: absolute;
+  top: 10px; right: 10px;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 2;
+  transition: var(--transition);
+}
+.gallery-item .fav-btn:active { transform: scale(0.8); }
+.gallery-item .fav-btn svg { width: 16px; height: 16px; stroke: white; fill: none; stroke-width: 1.5; transition: var(--transition); }
+.gallery-item .fav-btn.active svg { fill: var(--gold); stroke: var(--gold); }
+.gallery-item .fav-btn.active { animation: heartPop 0.4s ease; }
+@keyframes heartPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+.gallery-item-label {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 30px 12px 10px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.6));
+  font-size: 11px;
+  letter-spacing: 1px;
+  font-weight: 300;
+}
+.gallery-item-brand {
+  font-size: 9px;
+  color: var(--gold);
+  letter-spacing: 2px;
+  margin-bottom: 2px;
+}
+
+/* ========================================
+   TICKET PAGE
+   ======================================== */
+.ticket-header-space { height: 64px; }
+.ticket-hero {
+  text-align: center;
+  padding: 0 24px 24px;
+}
+.ticket-hero-icon {
+  width: 48px; height: 48px;
+  margin: 0 auto 12px;
+  background: linear-gradient(135deg, rgba(196,162,101,0.15), rgba(196,162,101,0.05));
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.ticket-hero-icon svg { width: 22px; height: 22px; stroke: var(--gold); fill: none; stroke-width: 1.5; }
+.ticket-hero h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 300;
+  letter-spacing: 3px;
+  margin-bottom: 6px;
+}
+.ticket-hero p { font-size: 12px; color: var(--text-sub); font-weight: 200; }
+.ticket-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  background: rgba(196,162,101,0.1);
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--gold);
+}
+.ticket-list { padding: 0 20px; display: flex; flex-direction: column; gap: 14px; }
+.ticket-card {
+  background: var(--dark);
+  border-radius: var(--radius);
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(255,255,255,0.04);
+  transition: transform 0.2s ease;
+}
+.ticket-card:active { transform: scale(0.98); }
+.ticket-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--gold), var(--gold-dark));
+}
+.ticket-card-inner {
+  padding: 20px 16px 20px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.ticket-info { flex: 1; }
+.ticket-name { font-size: 15px; font-weight: 400; margin-bottom: 4px; letter-spacing: 0.5px; }
+.ticket-desc { font-size: 12px; color: var(--text-sub); margin-bottom: 10px; font-weight: 200; }
+.ticket-expiry {
+  font-size: 10px; color: var(--gold);
+  display: flex; align-items: center; gap: 5px;
+  letter-spacing: 0.5px;
+}
+.ticket-expiry svg { width: 13px; height: 13px; stroke: var(--gold); fill: none; stroke-width: 1.5; }
+.ticket-badge {
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 14px;
+  box-shadow: 0 4px 16px rgba(196,162,101,0.3);
+}
+.ticket-badge-num { font-size: 22px; font-weight: 700; color: var(--black); line-height: 1; }
+.ticket-badge-unit { font-size: 8px; color: var(--black); letter-spacing: 1px; font-weight: 600; }
+.ticket-section-label {
+  padding: 24px 20px 12px;
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--text-sub);
+  font-family: 'Cormorant Garamond', serif;
+  text-transform: uppercase;
+}
+
+/* ========================================
+   SHOP PAGE
+   ======================================== */
+.shop-hero {
+  height: 240px;
+  position: relative;
+  overflow: hidden;
+}
+.shop-hero img { animation: kenBurns 15s ease infinite alternate; transform-origin: 60% 40%; }
+.shop-hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(10,10,10,0.2) 0%, rgba(10,10,10,0.9) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 28px 24px;
+}
+.shop-hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 30px;
+  font-weight: 300;
+  letter-spacing: 4px;
+  margin-bottom: 6px;
+}
+.shop-hero-sub { font-size: 12px; color: var(--text-sub); letter-spacing: 3px; font-weight: 200; }
+.shop-categories {
+  display: flex;
+  gap: 8px;
+  padding: 20px 20px 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.shop-categories::-webkit-scrollbar { display: none; }
+.shop-cat {
+  padding: 8px 18px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 24px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  transition: var(--transition);
+  font-weight: 300;
+}
+.shop-cat.active {
+  background: var(--gold);
+  color: var(--black);
+  border-color: var(--gold);
+  font-weight: 500;
+}
+.shop-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  padding: 0 20px 20px;
+}
+.shop-item {
+  background: var(--dark);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+.shop-item:active { transform: scale(0.97); }
+.shop-item-img {
+  aspect-ratio: 1;
+  overflow: hidden;
+  position: relative;
+}
+.shop-item-img img { transition: transform 0.5s ease; }
+.shop-item:hover .shop-item-img img { transform: scale(1.05); }
+.shop-item-new {
+  position: absolute;
+  top: 10px; left: 10px;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--black);
+  background: var(--gold);
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-weight: 500;
+}
+.shop-item-body { padding: 14px; }
+.shop-item-brand { font-size: 9px; color: var(--gold); letter-spacing: 2px; margin-bottom: 4px; font-weight: 400; }
+.shop-item-name { font-size: 13px; font-weight: 300; margin-bottom: 8px; line-height: 1.4; }
+.shop-item-price { font-family: 'Cormorant Garamond', serif; font-size: 17px; color: var(--beige); }
+.shop-item-price small { font-size: 10px; color: var(--text-sub); margin-left: 2px; }
+
+/* ========================================
+   MY PAGE
+   ======================================== */
+.my-header-area { height: 64px; }
+.member-card {
+  margin: 0 20px 24px;
+  background: linear-gradient(135deg, #181818 0%, #242424 40%, #1a1a1a 100%);
+  border-radius: 20px;
+  padding: 28px 24px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(196,162,101,0.12);
+}
+.member-card::before {
+  content: '';
+  position: absolute;
+  top: -30%; right: -30%;
+  width: 70%; height: 70%;
+  background: radial-gradient(circle, rgba(196,162,101,0.06) 0%, transparent 70%);
+  animation: cardShimmer 4s ease-in-out infinite alternate;
+}
+@keyframes cardShimmer {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(-20%, 20%); }
+}
+.member-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 28px;
+  position: relative;
+}
+.member-card-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px;
+  letter-spacing: 4px;
+  color: var(--gold);
+}
+.member-card-rank {
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--gold);
+  border: 1px solid rgba(196,162,101,0.3);
+  padding: 3px 12px;
+  border-radius: 2px;
+}
+.member-card-name {
+  font-size: 15px;
+  letter-spacing: 3px;
+  margin-bottom: 4px;
+  position: relative;
+  font-weight: 300;
+}
+.member-card-id {
+  font-size: 11px;
+  color: var(--text-sub);
+  letter-spacing: 3px;
+  position: relative;
+  font-weight: 200;
+}
+.member-barcode {
+  margin: 22px 0 0;
+  text-align: center;
+  background: var(--white);
+  border-radius: 10px;
+  padding: 18px;
+  position: relative;
+}
+.barcode-lines {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5px;
+  margin-bottom: 8px;
+}
+.barcode-lines span { display: inline-block; height: 100%; background: var(--black); }
+.barcode-num { font-size: 12px; color: #333; letter-spacing: 4px; font-family: 'Cormorant Garamond', serif; }
+
+/* Points Section */
+.points-section {
+  margin: 0 20px 24px;
+  background: var(--dark);
+  border-radius: var(--radius);
+  padding: 24px;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.points-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.points-label { font-size: 12px; color: var(--text-sub); letter-spacing: 1px; font-weight: 300; }
+.points-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 38px;
+  color: var(--gold);
+  line-height: 1;
+}
+.points-value small { font-size: 14px; margin-left: 4px; color: var(--text-sub); }
+.points-progress {
+  height: 3px;
+  background: var(--dark3);
+  border-radius: 2px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+.points-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold-dark), var(--gold));
+  border-radius: 2px;
+  width: 0;
+  transition: width 1.5s var(--ease-out);
+}
+.points-next-rank {
+  font-size: 11px;
+  color: var(--text-sub);
+  text-align: right;
+  margin-bottom: 18px;
+  font-weight: 200;
+}
+.points-next-rank em { color: var(--gold); font-style: normal; }
+.points-actions { display: flex; gap: 10px; }
+.points-action-btn {
+  flex: 1;
+  padding: 14px 8px;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius-sm);
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 1px;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-weight: 300;
+}
+.points-action-btn svg { width: 20px; height: 20px; stroke: var(--gold); fill: none; stroke-width: 1.5; }
+.points-action-btn:active { background: rgba(196,162,101,0.1); border-color: rgba(196,162,101,0.2); transform: scale(0.95); }
+
+/* My Menu */
+.my-menu { padding: 0 20px; }
+.my-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  transition: var(--transition);
+}
+.my-menu-item:active { opacity: 0.6; }
+.my-menu-icon {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  background: var(--dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.my-menu-icon svg { width: 18px; height: 18px; stroke: var(--gold); fill: none; stroke-width: 1.5; }
+.my-menu-text { flex: 1; }
+.my-menu-text span { font-size: 14px; font-weight: 300; }
+.my-menu-text p { font-size: 11px; color: var(--text-sub); margin-top: 2px; font-weight: 200; }
+.my-menu-arrow { color: var(--text-sub); font-size: 16px; font-weight: 200; }
+
+/* ===== Story Modal ===== */
+.story-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--black);
+  max-width: 430px;
+  margin: 0 auto;
+}
+@media (max-width: 430px) {
+  .story-modal {
+    max-width: none;
+  }
+  .story-modal-progress {
+    top: max(12px, env(safe-area-inset-top));
+  }
+  .story-modal-close {
+    top: max(24px, calc(env(safe-area-inset-top) + 8px));
+  }
+  .story-modal-content {
+    bottom: max(60px, calc(env(safe-area-inset-bottom) + 40px));
+  }
+}
+.story-modal.active { display: block; animation: storyIn 0.3s ease; }
+@keyframes storyIn { from { opacity: 0; transform: scale(1.05); } to { opacity: 1; transform: scale(1); } }
+.story-modal-img {
+  position: absolute;
+  inset: 0;
+}
+.story-modal-img img { animation: kenBurns 8s ease infinite alternate; }
+.story-modal-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(10,10,10,0.4) 0%, transparent 30%, transparent 60%, rgba(10,10,10,0.8) 100%);
+}
+.story-modal-progress {
+  position: absolute;
+  top: 12px; left: 12px; right: 12px;
+  display: flex;
+  gap: 4px;
+}
+.story-modal-progress-bar {
+  flex: 1; height: 2px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 1px;
+  overflow: hidden;
+}
+.story-modal-progress-fill {
+  height: 100%; width: 0;
+  background: white;
+  border-radius: 1px;
+}
+.story-modal-progress-bar.active .story-modal-progress-fill {
+  animation: progressFill 4s linear forwards;
+}
+.story-modal-progress-bar.done .story-modal-progress-fill { width: 100%; }
+.story-modal-close {
+  position: absolute;
+  top: 24px; right: 16px;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 10;
+}
+.story-modal-close svg { width: 20px; height: 20px; stroke: white; fill: none; stroke-width: 2; }
+.story-modal-content {
+  position: absolute;
+  bottom: 60px; left: 24px; right: 24px;
+  z-index: 5;
+}
+.story-modal-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 300;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+.story-modal-desc {
+  font-size: 13px;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.7;
+  font-weight: 200;
+}
+.story-modal-cta {
+  margin-top: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--gold);
+  letter-spacing: 2px;
+  padding: 10px 20px;
+  border: 1px solid rgba(196,162,101,0.4);
+  border-radius: 4px;
+  transition: var(--transition);
+}
+.story-modal-cta:hover { background: rgba(196,162,101,0.1); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- HEADER -->
+  <header class="app-header" id="appHeader">
+    <div class="logo">STOLEN <span>MØBLER</span></div>
+    <div class="header-icons">
+      <button>
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="badge"></span>
+      </button>
+      <button>
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============ HOME ============ -->
+  <div class="page active" id="page-home">
+
+    <!-- Hero with Ken Burns -->
+    <div class="hero-section" id="heroSection">
+      <div class="hero-slides">
+        <div class="hero-slide active">
+          <img src="images/workspace1.jpg" alt="">
+          <div class="hero-overlay"></div>
+          <div class="hero-content">
+            <span class="hero-tag">New Collection 2026</span>
+            <h1 class="hero-title">春の新作<br>コレクション</h1>
+            <p class="hero-desc">北欧の美意識と日本の空間美が融合する、<br>新しい暮らしのかたち。</p>
+            <a class="hero-cta" href="#"><span class="hero-cta-line"></span>VIEW COLLECTION</a>
+          </div>
+        </div>
+        <div class="hero-slide">
+          <img src="images/midcentury1.jpg" alt="">
+          <div class="hero-overlay"></div>
+          <div class="hero-content">
+            <span class="hero-tag">Exhibition</span>
+            <h1 class="hero-title">椅子と美芸の<br>世界展</h1>
+            <p class="hero-desc">世界中から厳選した名作チェアを一堂に。<br>期間限定の特別展示。</p>
+            <a class="hero-cta" href="#"><span class="hero-cta-line"></span>LEARN MORE</a>
+          </div>
+        </div>
+        <div class="hero-slide">
+          <img src="images/designer-chair2.jpg" alt="">
+          <div class="hero-overlay"></div>
+          <div class="hero-content">
+            <span class="hero-tag">Members Only</span>
+            <h1 class="hero-title">会員限定<br>プライベートサロン</h1>
+            <p class="hero-desc">美芸会員だけの特別な空間で、<br>至福のインテリア体験を。</p>
+            <a class="hero-cta" href="#"><span class="hero-cta-line"></span>JOIN US</a>
+          </div>
+        </div>
+      </div>
+      <div class="hero-progress" id="heroProgress">
+        <div class="hero-progress-bar active"><div class="hero-progress-fill"></div></div>
+        <div class="hero-progress-bar"><div class="hero-progress-fill"></div></div>
+        <div class="hero-progress-bar"><div class="hero-progress-fill"></div></div>
+      </div>
+    </div>
+
+    <!-- Stories -->
+    <div class="stories-section reveal">
+      <div class="stories-scroll">
+        <div class="story-item" data-story="0">
+          <div class="story-ring">
+            <div class="story-ring-inner"><img src="images/leather-chair1.jpg" alt=""></div>
+          </div>
+          <span class="story-label">新作入荷</span>
+        </div>
+        <div class="story-item" data-story="1">
+          <div class="story-ring">
+            <div class="story-ring-inner"><img src="images/gallery-white1.jpg" alt=""></div>
+          </div>
+          <span class="story-label">ディスプレイ</span>
+        </div>
+        <div class="story-item" data-story="2">
+          <div class="story-ring">
+            <div class="story-ring-inner"><img src="images/dining1.jpg" alt=""></div>
+          </div>
+          <span class="story-label">ダイニング</span>
+        </div>
+        <div class="story-item" data-story="3">
+          <div class="story-ring viewed">
+            <div class="story-ring-inner"><img src="images/plant-room1.jpg" alt=""></div>
+          </div>
+          <span class="story-label">店内風景</span>
+        </div>
+        <div class="story-item" data-story="4">
+          <div class="story-ring viewed">
+            <div class="story-ring-inner"><img src="images/minimalist1.jpg" alt=""></div>
+          </div>
+          <span class="story-label">ソファ</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Brand Marquee -->
+    <div class="brand-marquee reveal">
+      <div class="marquee-track">
+        <span class="marquee-item">CARL HANSEN & SØN</span>
+        <span class="marquee-item">FRITZ HANSEN</span>
+        <span class="marquee-item">PP MØBLER</span>
+        <span class="marquee-item">LOUIS POULSEN</span>
+        <span class="marquee-item">GETAMA</span>
+        <span class="marquee-item">FREDERICIA</span>
+        <span class="marquee-item">HAY</span>
+        <span class="marquee-item">MUUTO</span>
+        <span class="marquee-item">CARL HANSEN & SØN</span>
+        <span class="marquee-item">FRITZ HANSEN</span>
+        <span class="marquee-item">PP MØBLER</span>
+        <span class="marquee-item">LOUIS POULSEN</span>
+        <span class="marquee-item">GETAMA</span>
+        <span class="marquee-item">FREDERICIA</span>
+        <span class="marquee-item">HAY</span>
+        <span class="marquee-item">MUUTO</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Concept -->
+    <div class="concept-section reveal">
+      <p class="concept-label">Concept</p>
+      <h2 class="concept-title">椅子と美芸の<br>デジタルギャラリー</h2>
+      <p class="concept-desc">一脚の椅子が空間を変え、暮らしを変える。<br>STOLEN MØBLERは、北欧デザインと<br>日本の美意識が出会う場所です。</p>
+      <div class="concept-divider"></div>
+    </div>
+
+    <!-- Full Bleed Image -->
+    <div class="fullbleed-image reveal">
+      <img class="parallax-img" src="images/nordic-chair1.jpg" alt="" id="parallaxImg1">
+      <div class="fullbleed-caption">
+        <h3>Craftsmanship</h3>
+        <p>職人の手から生まれる、唯一無二の美しさ</p>
+      </div>
+    </div>
+
+    <div class="divider" style="margin-top: 32px;"></div>
+
+    <!-- News -->
+    <div class="section reveal">
+      <div class="section-header">
+        <div>
+          <p class="section-label">News</p>
+          <h2 class="section-title">お知らせ</h2>
+        </div>
+        <a class="section-more" href="#">すべて見る <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></a>
+      </div>
+    </div>
+    <div class="news-scroll reveal">
+      <div class="news-card">
+        <div class="news-card-img">
+          <img src="images/midcentury1.jpg" alt="">
+          <span class="news-card-badge">EVENT</span>
+        </div>
+        <div class="news-card-body">
+          <span class="news-card-date">2026.03.01</span>
+          <p class="news-card-title">春の新作フェア開催<br>3月15日〜31日</p>
+        </div>
+      </div>
+      <div class="news-card">
+        <div class="news-card-img">
+          <img src="images/designer-chair2.jpg" alt="">
+          <span class="news-card-badge">SALON</span>
+        </div>
+        <div class="news-card-body">
+          <span class="news-card-date">2026.02.25</span>
+          <p class="news-card-title">会員限定サロンイベント<br>参加受付開始</p>
+        </div>
+      </div>
+      <div class="news-card">
+        <div class="news-card-img">
+          <img src="images/gallery-white1.jpg" alt="">
+          <span class="news-card-badge">INFO</span>
+        </div>
+        <div class="news-card-body">
+          <span class="news-card-date">2026.02.20</span>
+          <p class="news-card-title">3月の営業時間<br>変更のお知らせ</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider" style="margin-top: 24px;"></div>
+
+    <!-- Gallery Mosaic -->
+    <div class="section reveal">
+      <div class="section-header">
+        <div>
+          <p class="section-label">Gallery</p>
+          <h2 class="section-title">ギャラリー</h2>
+        </div>
+        <a class="section-more" href="#">すべて見る <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></a>
+      </div>
+    </div>
+    <div class="gallery-mosaic reveal">
+      <div class="gallery-mosaic-item"><img src="images/leather-chair1.jpg" alt=""><span class="gallery-mosaic-label">Velvet Chair</span></div>
+      <div class="gallery-mosaic-item"><img src="images/gallery-white1.jpg" alt=""><span class="gallery-mosaic-label">Display</span></div>
+      <div class="gallery-mosaic-item"><img src="images/dining1.jpg" alt=""><span class="gallery-mosaic-label">Dining</span></div>
+      <div class="gallery-mosaic-item"><img src="images/minimalist1.jpg" alt=""><span class="gallery-mosaic-label">Lounge</span></div>
+    </div>
+
+    <!-- Full Bleed Image 2 -->
+    <div class="fullbleed-image reveal" style="margin-top: 32px;">
+      <img class="parallax-img" src="images/hero-wide1.jpg" alt="" id="parallaxImg2">
+      <div class="fullbleed-caption">
+        <h3>Living with Art</h3>
+        <p>アートと暮らす、豊かな日常</p>
+      </div>
+    </div>
+
+    <div class="divider" style="margin-top: 32px;"></div>
+
+    <!-- Access -->
+    <div class="section reveal">
+      <div class="section-header">
+        <div>
+          <p class="section-label">Access</p>
+          <h2 class="section-title">アクセス</h2>
+        </div>
+      </div>
+      <div class="access-card">
+        <div class="access-map">
+          <img src="images/showroom2.jpg" alt="">
+          <div class="access-map-overlay">
+            <div class="access-pin">
+              <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <span class="access-map-label">MAP を開く</span>
+          </div>
+        </div>
+        <div class="access-info">
+          <h3 class="access-name">STOLEN MØBLER</h3>
+          <div class="access-detail">
+            <strong>住所</strong>　山口県周南市銀座1-32 TOKUYAMA DECK 2F<br>
+            <strong>電話</strong>　0833-77-1818<br>
+            <strong>営業</strong>　12:00 — 18:00<br>
+            <strong>定休</strong>　月曜・火曜
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ GALLERY ============ -->
+  <div class="page" id="page-gallery">
+    <div class="gallery-header-space"></div>
+    <div class="gallery-tabs">
+      <button class="gallery-tab active" data-tab="all">ALL</button>
+      <button class="gallery-tab" data-tab="chair">CHAIR</button>
+      <button class="gallery-tab" data-tab="table">TABLE</button>
+      <button class="gallery-tab" data-tab="sofa">SOFA</button>
+      <button class="gallery-tab" data-tab="light">LIGHTING</button>
+      <button class="gallery-tab" data-tab="art">ART</button>
+    </div>
+    <div class="gallery-search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <span>作品名・ブランド名で検索</span>
+    </div>
+    <div class="gallery-grid" id="galleryGrid">
+      <div class="gallery-item" data-cat="chair">
+        <img src="images/leather-chair1.jpg" alt="">
+        <button class="fav-btn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        <div class="gallery-item-label"><span class="gallery-item-brand">CARL HANSEN</span><br>CH24 Wishbone Chair</div>
+      </div>
+      <div class="gallery-item" data-cat="chair">
+        <img src="images/designer-chair2.jpg" alt="">
+        <button class="fav-btn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        <div class="gallery-item-label"><span class="gallery-item-brand">FRITZ HANSEN</span><br>Wingback Chair</div>
+      </div>
+      <div class="gallery-item" data-cat="sofa">
+        <img src="images/minimalist1.jpg" alt="">
+        <button class="fav-btn active"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        <div class="gallery-item-label"><span class="gallery-item-brand">FREDERICIA</span><br>Leather Sofa</div>
+      </div>
+      <div class="gallery-item" data-cat="art">
+        <img src="images/gallery-white1.jpg" alt="">
+        <button class="fav-btn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        <div class="gallery-item-label"><span class="gallery-item-brand">GALLERY</span><br>Wood Art Display</div>
+      </div>
+      <div class="gallery-item" data-cat="table">
+        <img src="images/dining1.jpg" alt="">
+        <button class="fav-btn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        <div class="gallery-item-label"><span class="gallery-item-brand">FREDERICIA</span><br>Dining Set Nordic</div>
+      </div>
+      <div class="gallery-item" data-cat="light">
+        <img src="images/workspace1.jpg" alt="">
+        <button class="fav-btn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        <div class="gallery-item-label"><span class="gallery-item-brand">LOUIS POULSEN</span><br>Showroom Lighting</div>
+      </div>
+      <div class="gallery-item" data-cat="chair">
+        <img src="images/plant-room1.jpg" alt="">
+        <button class="fav-btn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        <div class="gallery-item-label"><span class="gallery-item-brand">HAY</span><br>Wooden Stool</div>
+      </div>
+      <div class="gallery-item" data-cat="sofa">
+        <img src="images/midcentury1.jpg" alt="">
+        <button class="fav-btn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        <div class="gallery-item-label"><span class="gallery-item-brand">MUUTO</span><br>Modern Living Set</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TICKET ============ -->
+  <div class="page" id="page-ticket">
+    <div class="ticket-header-space"></div>
+    <div class="ticket-hero">
+      <div class="ticket-hero-icon">
+        <svg viewBox="0 0 24 24"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2m0 4v2m0 4v2"/></svg>
+      </div>
+      <h2>YOUR TICKETS</h2>
+      <p>お持ちのクーポン・チケット</p>
+      <div class="ticket-count">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--gold);fill:none;stroke-width:1.5;"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg>
+        3枚のチケットが利用可能
+      </div>
+    </div>
+    <div class="ticket-list">
+      <div class="ticket-card">
+        <div class="ticket-card-inner">
+          <div class="ticket-info">
+            <h3 class="ticket-name">春の新生活応援クーポン</h3>
+            <p class="ticket-desc">全商品に使える特別割引クーポン</p>
+            <div class="ticket-expiry">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              2026.03.31 まで
+            </div>
+          </div>
+          <div class="ticket-badge">
+            <span class="ticket-badge-num">10</span>
+            <span class="ticket-badge-unit">%OFF</span>
+          </div>
+        </div>
+      </div>
+      <div class="ticket-card">
+        <div class="ticket-card-inner">
+          <div class="ticket-info">
+            <h3 class="ticket-name">会員限定ドリンクチケット</h3>
+            <p class="ticket-desc">サロンでのドリンク1杯無料</p>
+            <div class="ticket-expiry">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              2026.04.30 まで
+            </div>
+          </div>
+          <div class="ticket-badge">
+            <span class="ticket-badge-num">1</span>
+            <span class="ticket-badge-unit">FREE</span>
+          </div>
+        </div>
+      </div>
+      <div class="ticket-card">
+        <div class="ticket-card-inner">
+          <div class="ticket-info">
+            <h3 class="ticket-name">バースデー特別クーポン</h3>
+            <p class="ticket-desc">お誕生日月にご利用いただける特別割引</p>
+            <div class="ticket-expiry">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              2026.03.31 まで
+            </div>
+          </div>
+          <div class="ticket-badge">
+            <span class="ticket-badge-num">15</span>
+            <span class="ticket-badge-unit">%OFF</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="ticket-section-label" style="margin-top: 24px;">Used Tickets</p>
+    <div style="text-align:center; padding: 40px 20px; color: var(--text-sub); font-size: 13px; font-weight: 200;">
+      使用済みのチケットはありません
+    </div>
+  </div>
+
+  <!-- ============ SHOP ============ -->
+  <div class="page" id="page-shop">
+    <div class="shop-hero">
+      <img src="images/hero-wide1.jpg" alt="">
+      <div class="shop-hero-overlay">
+        <h2 class="shop-hero-title">ONLINE SHOP</h2>
+        <p class="shop-hero-sub">厳選された名作をお手元に</p>
+      </div>
+    </div>
+    <div class="shop-categories">
+      <button class="shop-cat active">すべて</button>
+      <button class="shop-cat">定額課金</button>
+      <button class="shop-cat">椅子</button>
+      <button class="shop-cat">テーブル</button>
+      <button class="shop-cat">照明</button>
+      <button class="shop-cat">展示品</button>
+    </div>
+    <div class="shop-grid">
+      <div class="shop-item">
+        <div class="shop-item-img">
+          <img src="images/leather-chair1.jpg" alt="">
+          <span class="shop-item-new">NEW</span>
+        </div>
+        <div class="shop-item-body">
+          <p class="shop-item-brand">CARL HANSEN & SØN</p>
+          <p class="shop-item-name">CH24 Wishbone Chair</p>
+          <p class="shop-item-price">¥158,000<small>（税込）</small></p>
+        </div>
+      </div>
+      <div class="shop-item">
+        <div class="shop-item-img"><img src="images/designer-chair2.jpg" alt=""></div>
+        <div class="shop-item-body">
+          <p class="shop-item-brand">FRITZ HANSEN</p>
+          <p class="shop-item-name">Heritage Wingback</p>
+          <p class="shop-item-price">¥298,000<small>（税込）</small></p>
+        </div>
+      </div>
+      <div class="shop-item">
+        <div class="shop-item-img"><img src="images/gallery-white1.jpg" alt=""></div>
+        <div class="shop-item-body">
+          <p class="shop-item-brand">LOUIS POULSEN</p>
+          <p class="shop-item-name">PH 5 Pendant</p>
+          <p class="shop-item-price">¥128,000<small>（税込）</small></p>
+        </div>
+      </div>
+      <div class="shop-item">
+        <div class="shop-item-img"><img src="images/showroom2.jpg" alt=""></div>
+        <div class="shop-item-body">
+          <p class="shop-item-brand">PP MØBLER</p>
+          <p class="shop-item-name">Rustic Dining Table</p>
+          <p class="shop-item-price">¥480,000<small>（税込）</small></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MY ============ -->
+  <div class="page" id="page-my">
+    <div class="my-header-area"></div>
+    <div class="member-card">
+      <div class="member-card-top">
+        <div class="member-card-brand">STOLEN MØBLER</div>
+        <span class="member-card-rank">GOLD</span>
+      </div>
+      <p class="member-card-name">田中 太郎</p>
+      <p class="member-card-id">No. 0000-1234-5678</p>
+      <div class="member-barcode">
+        <div class="barcode-lines" id="barcodeLines"></div>
+        <p class="barcode-num">0000 1234 5678</p>
+      </div>
+    </div>
+
+    <div class="points-section">
+      <div class="points-header">
+        <span class="points-label">保有ポイント</span>
+        <div class="points-value" id="pointsCounter">0<small>pt</small></div>
+      </div>
+      <div class="points-progress"><div class="points-progress-fill" id="pointsProgressFill"></div></div>
+      <p class="points-next-rank">あと <em>550pt</em> で Platinum ランクへ</p>
+      <div class="points-actions">
+        <button class="points-action-btn">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          QR読取
+        </button>
+        <button class="points-action-btn">
+          <svg viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-5m-1.414-9.414a2 2 0 1 1 2.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          手入力
+        </button>
+        <button class="points-action-btn">
+          <svg viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+          履歴
+        </button>
+      </div>
+    </div>
+
+    <div class="my-menu">
+      <div class="my-menu-item">
+        <div class="my-menu-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <div class="my-menu-text"><span>会員情報</span><p>プロフィール・アカウント設定</p></div>
+        <span class="my-menu-arrow">›</span>
+      </div>
+      <div class="my-menu-item">
+        <div class="my-menu-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <div class="my-menu-text"><span>友達紹介</span><p>紹介で500ptプレゼント</p></div>
+        <span class="my-menu-arrow">›</span>
+      </div>
+      <div class="my-menu-item">
+        <div class="my-menu-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+        <div class="my-menu-text"><span>設定</span><p>通知・プライバシー・ヘルプ</p></div>
+        <span class="my-menu-arrow">›</span>
+      </div>
+      <div class="my-menu-item">
+        <div class="my-menu-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <div class="my-menu-text"><span>よくある質問</span><p>FAQ・お問い合わせ</p></div>
+        <span class="my-menu-arrow">›</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Story Modal -->
+  <div class="story-modal" id="storyModal">
+    <div class="story-modal-img"><img id="storyModalImg" src="" alt=""></div>
+    <div class="story-modal-overlay"></div>
+    <div class="story-modal-progress" id="storyModalProgress"></div>
+    <button class="story-modal-close" id="storyModalClose">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="story-modal-content">
+      <h2 class="story-modal-title" id="storyModalTitle"></h2>
+      <p class="story-modal-desc" id="storyModalDesc"></p>
+      <button class="story-modal-cta">DISCOVER MORE</button>
+    </div>
+  </div>
+
+  <!-- TAB BAR -->
+  <nav class="tab-bar">
+    <button class="tab-item active" data-page="home">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>HOME</span>
+    </button>
+    <button class="tab-item" data-page="gallery">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <span>GALLERY</span>
+    </button>
+    <button class="tab-item" data-page="ticket">
+      <svg viewBox="0 0 24 24"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2m0 4v2m0 4v2"/></svg>
+      <span>TICKET</span>
+    </button>
+    <button class="tab-item" data-page="shop">
+      <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      <span>SHOP</span>
+    </button>
+    <button class="tab-item" data-page="my">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>MY</span>
+    </button>
+  </nav>
+</div>
+
+<script>
+// ===== Tab Navigation =====
+document.querySelectorAll('.tab-item').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    const page = document.getElementById('page-' + tab.dataset.page);
+    page.classList.add('active');
+    page.scrollTop = 0;
+    // Trigger reveal animations for the new page
+    setTimeout(() => observeReveals(), 100);
+  });
+});
+
+// ===== Hero Slider (Instagram Stories style) =====
+let heroIndex = 0;
+const heroSlides = document.querySelectorAll('.hero-slide');
+const heroBars = document.querySelectorAll('.hero-progress-bar');
+const HERO_DURATION = 5000;
+
+function setHeroSlide(idx) {
+  heroSlides.forEach((s, i) => s.classList.toggle('active', i === idx));
+  heroBars.forEach((b, i) => {
+    b.classList.remove('active', 'done');
+    if (i < idx) b.classList.add('done');
+    if (i === idx) b.classList.add('active');
+  });
+}
+setHeroSlide(0);
+setInterval(() => {
+  heroIndex = (heroIndex + 1) % 3;
+  setHeroSlide(heroIndex);
+}, HERO_DURATION);
+
+// Click on progress bar to jump
+heroBars.forEach((bar, i) => {
+  bar.addEventListener('click', () => { heroIndex = i; setHeroSlide(i); });
+});
+
+// ===== Scroll Reveal (Intersection Observer) =====
+function observeReveals() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal:not(.visible)').forEach(el => observer.observe(el));
+}
+observeReveals();
+
+// ===== Parallax on scroll =====
+const homePage = document.getElementById('page-home');
+homePage.addEventListener('scroll', () => {
+  const scrollY = homePage.scrollTop;
+  // Header background
+  document.getElementById('appHeader').classList.toggle('scrolled', scrollY > 80);
+  // Parallax images
+  document.querySelectorAll('.parallax-img').forEach(img => {
+    const rect = img.getBoundingClientRect();
+    const speed = 0.15;
+    const yPos = -(rect.top * speed);
+    img.style.transform = `translateY(${yPos}px)`;
+  });
+});
+
+// ===== Gallery Tab Filter =====
+document.querySelectorAll('.gallery-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.gallery-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const cat = tab.dataset.tab;
+    document.querySelectorAll('.gallery-item').forEach(item => {
+      if (cat === 'all' || item.dataset.cat === cat) {
+        item.style.display = '';
+        item.style.animation = 'pageFadeIn 0.4s ease';
+      } else {
+        item.style.display = 'none';
+      }
+    });
+  });
+});
+
+// ===== Favorite Toggle =====
+document.querySelectorAll('.fav-btn').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    btn.classList.toggle('active');
+  });
+});
+
+// ===== Barcode =====
+const barcodeContainer = document.getElementById('barcodeLines');
+const pattern = [2,1,1,3,1,2,1,1,3,2,1,1,2,1,3,1,1,2,1,1,3,1,2,1,1,2,3,1,1,2,1,1,2,3,1,2,1,1,2,1,3,1,1,2,1,1,3,2,1,1,2,1];
+pattern.forEach(w => {
+  const bar = document.createElement('span');
+  bar.style.width = w + 'px';
+  barcodeContainer.appendChild(bar);
+});
+
+// ===== Points Counter Animation =====
+function animateCounter(el, target) {
+  let current = 0;
+  const step = target / 60;
+  const timer = setInterval(() => {
+    current += step;
+    if (current >= target) {
+      current = target;
+      clearInterval(timer);
+    }
+    el.innerHTML = Math.floor(current).toLocaleString() + '<small>pt</small>';
+  }, 16);
+}
+
+// ===== Points Progress Bar =====
+let pointsAnimated = false;
+const myTab = document.querySelector('[data-page="my"]');
+myTab.addEventListener('click', () => {
+  if (!pointsAnimated) {
+    pointsAnimated = true;
+    setTimeout(() => {
+      animateCounter(document.getElementById('pointsCounter'), 2450);
+      document.getElementById('pointsProgressFill').style.width = '72%';
+    }, 300);
+  }
+});
+
+// ===== Shop Categories =====
+document.querySelectorAll('.shop-cat').forEach(cat => {
+  cat.addEventListener('click', () => {
+    document.querySelectorAll('.shop-cat').forEach(c => c.classList.remove('active'));
+    cat.classList.add('active');
+  });
+});
+
+// ===== Story Modal =====
+const storyData = [
+  { img: 'images/leather-chair1.jpg', title: '新作チェア入荷', desc: 'Carl Hansen & Sønの新作ウィッシュボーンチェアが入荷しました。限定カラーも。' },
+  { img: 'images/gallery-white1.jpg', title: 'ディスプレイ更新', desc: '店内ディスプレイを一新。木のぬくもりと光が調和する空間をご体感ください。' },
+  { img: 'images/dining1.jpg', title: 'ダイニングフェア', desc: '北欧ダイニングセットの特別展示を開催中。実際に座ってお試しいただけます。' },
+  { img: 'images/plant-room1.jpg', title: '店内リニューアル', desc: '2階ギャラリースペースをリニューアルしました。ぜひお立ち寄りください。' },
+  { img: 'images/minimalist1.jpg', title: 'ソファコレクション', desc: '厳選されたレザーソファの新コレクション。上質な革の手触りをお確かめください。' }
+];
+
+const storyModal = document.getElementById('storyModal');
+const storyModalImg = document.getElementById('storyModalImg');
+const storyModalTitle = document.getElementById('storyModalTitle');
+const storyModalDesc = document.getElementById('storyModalDesc');
+const storyModalProgress = document.getElementById('storyModalProgress');
+
+document.querySelectorAll('.story-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const idx = parseInt(item.dataset.story);
+    const data = storyData[idx];
+    storyModalImg.src = data.img;
+    storyModalTitle.textContent = data.title;
+    storyModalDesc.textContent = data.desc;
+    // Progress bars
+    storyModalProgress.innerHTML = '';
+    storyData.forEach((_, i) => {
+      const bar = document.createElement('div');
+      bar.className = 'story-modal-progress-bar' + (i < idx ? ' done' : '') + (i === idx ? ' active' : '');
+      bar.innerHTML = '<div class="story-modal-progress-fill"></div>';
+      storyModalProgress.appendChild(bar);
+    });
+    storyModal.classList.add('active');
+    // Mark as viewed
+    item.querySelector('.story-ring').classList.add('viewed');
+  });
+});
+
+document.getElementById('storyModalClose').addEventListener('click', () => {
+  storyModal.classList.remove('active');
+});
+storyModal.addEventListener('click', (e) => {
+  if (e.target === storyModal || e.target.classList.contains('story-modal-overlay')) {
+    storyModal.classList.remove('active');
+  }
+});
+</script>
+</body>
+</html>
