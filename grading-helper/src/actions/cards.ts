@@ -469,7 +469,8 @@ export async function importCardMasterBatch(
     rarity: string;
     packName?: string;
     year?: number;
-  }[]
+  }[],
+  overrideTcgGame?: string  // 指定した場合はauto-detectionを上書き
 ): Promise<{ imported: number }> {
   await getUser();
   const supabase = await createClient();
@@ -493,7 +494,7 @@ export async function importCardMasterBatch(
     const batch = rows.slice(i, i + batchSize);
 
     const records = batch.map((row) => {
-      const tcgGameId = detectTcgGame(row.setCode);
+      const tcgGameId = overrideTcgGame ?? detectTcgGame(row.setCode);
       const cardNumberPadded = row.cardNumber.padStart(3, "0");
 
       // 年の決定: 明示指定 → パック名から抽出 → null

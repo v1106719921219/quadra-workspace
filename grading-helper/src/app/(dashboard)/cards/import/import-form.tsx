@@ -288,7 +288,7 @@ export function ImportForm({ games }: ImportFormProps) {
           packName: row.packName || undefined,
         }));
 
-        const result = await importCardMasterBatch(rows);
+        const result = await importCardMasterBatch(rows, tcgGameId);
         totalImported += result.imported;
 
         const progress = Math.min(
