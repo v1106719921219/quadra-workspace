@@ -285,6 +285,7 @@ export function ImportForm({ games }: ImportFormProps) {
           cardNumber: row.cardNumber,
           cardName: row.cardName,
           rarity: row.rarity,
+          packName: row.packName || undefined,
         }));
 
         const result = await importCardMasterBatch(rows);

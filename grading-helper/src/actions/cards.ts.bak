@@ -437,27 +437,6 @@ export async function importCardMasterCsv(csvText: string): Promise<{
 }
 
 /**
- * セットコードからTCGゲーム種別を判定する
- * ワンピース: OP-XX, ST-XX, EB-XX, P-XXX（3桁数字プロモ）
- * それ以外はポケモンとして扱う
- */
-function detectTcgGame(setCode: string): string {
-  const code = setCode.toUpperCase();
-  if (/^(OP|ST|EB)-\d+/.test(code)) return "onepiece";
-  if (/^P-\d{3,}$/.test(code)) return "onepiece";
-  return "pokemon";
-}
-
-/**
- * パック名または任意の文字列から年（西暦）を抽出する
- * 例: "マクドナルド ハッピーセット2025" → 2025
- */
-function extractYearFromText(text: string): number | null {
-  const match = text.match(/20(\d{2})/);
-  return match ? parseInt(match[0]) : null;
-}
-
-/**
  * パース済みカードマスタデータを一括インポート（チャンク受信用）
  * カード名 → 英語名（grading_name）も自動生成してDBに保存
  */
@@ -467,8 +446,6 @@ export async function importCardMasterBatch(
     cardNumber: string;
     cardName: string;
     rarity: string;
-    packName?: string;
-    year?: number;
   }[]
 ): Promise<{ imported: number }> {
   await getUser();
@@ -493,20 +470,12 @@ export async function importCardMasterBatch(
     const batch = rows.slice(i, i + batchSize);
 
     const records = batch.map((row) => {
-      const tcgGameId = detectTcgGame(row.setCode);
-      const cardNumberPadded = row.cardNumber.padStart(3, "0");
-
-      // 年の決定: 明示指定 → パック名から抽出 → null
-      const year = row.year
-        ?? (row.packName ? extractYearFromText(row.packName) : null)
-        ?? null;
-
-      // ポケモンカードのみ英語名・grading_name を生成
+      // ポケモン英語名を検索して name_en に保存
       let nameEn: string | null = null;
-      let gradingName: string | null = null;
-
-      if (tcgGameId === "pokemon" && row.cardName) {
+      let suffix = "";
+      if (row.cardName) {
         const extracted = extractSuffix(row.cardName);
+        suffix = extracted.suffix;
         const { name: strippedName, megaPrefix } = extractMega(extracted.baseName);
         const matched = findPokemonName(strippedName, nameDict);
 
@@ -514,32 +483,18 @@ export async function importCardMasterBatch(
           nameEn = megaPrefix
             ? `${megaPrefix} ${matched.name_en}`
             : matched.name_en;
-          if (extracted.suffix) nameEn += ` ${extracted.suffix}`;
-        }
-
-        // grading_name は年がある場合のみ生成
-        if (year && nameEn) {
-          const result = generateGradingName(
-            {
-              setNumber: `${row.setCode}-${row.cardNumber}`,
-              cardName: row.cardName,
-              year,
-            },
-            nameDict
-          );
-          gradingName = result.gradingName;
+          if (suffix) nameEn += ` ${suffix}`;
         }
       }
 
       return {
-        tcg_game_id: tcgGameId,
+        tcg_game_id: "pokemon",
         set_code: row.setCode,
-        card_number: cardNumberPadded,
+        card_number: row.cardNumber.padStart(3, "0"),
         name_ja: row.cardName || null,
         name_en: nameEn,
         rarity: row.rarity || null,
-        year,
-        grading_name: gradingName,
+        grading_name: null,
       };
     });
 
