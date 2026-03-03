@@ -11,6 +11,7 @@ import {
   Award,
   Sparkles,
   Upload,
+RefreshCw,
 } from "lucide-react";
 
 const navigation = [
@@ -18,6 +19,7 @@ const navigation = [
   { name: "英語名生成", href: "/generate", icon: Sparkles },
   { name: "カードDB", href: "/cards", icon: Database },
   { name: "カードインポート", href: "/cards/import", icon: Upload },
+  { name: "TCGdex同期", href: "/cards/sync", icon: RefreshCw },
   { name: "提出リスト", href: "/submissions", icon: FileText },
   { name: "設定", href: "/settings", icon: Settings },
 ];
