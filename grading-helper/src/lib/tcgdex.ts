@@ -143,7 +143,22 @@ export async function fetchSetDetail(
       next: { revalidate: 86400 },
     });
     if (!res.ok) return null;
-    return await res.json();
+    const data = await res.json();
+
+    // /sets/{id} の cards が空の場合、/cards?set={id} エンドポイントで補完
+    if (!data.cards || data.cards.length === 0) {
+      const cardsRes = await fetch(`${TCGDEX_BASE}/${lang}/cards?set=${setId}`, {
+        next: { revalidate: 86400 },
+      });
+      if (cardsRes.ok) {
+        const cards = await cardsRes.json();
+        if (Array.isArray(cards) && cards.length > 0) {
+          data.cards = cards;
+        }
+      }
+    }
+
+    return data;
   } catch {
     return null;
   }

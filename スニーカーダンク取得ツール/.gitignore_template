@@ -1,0 +1,4 @@
+# Google OAuth credentials (DO NOT COMMIT)
+configs/google.json
+.inner_datas/
+*.pkl
