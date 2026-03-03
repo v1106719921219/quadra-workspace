@@ -4,163 +4,295 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>STOLEN MØBLER — サービス料金表</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Noto+Sans+JP:wght@200;300;400;500&family=Noto+Serif+JP:wght@200;300;400&display=swap" rel="stylesheet">
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --black: #080808;
+  --dark: #111111;
+  --gold: #C4A265;
+  --gold-light: #D4B87A;
+  --beige: #F5F0EB;
+  --text-dim: rgba(245,240,235,0.55);
+  --border: rgba(196,162,101,0.18);
+}
+html, body { height: 100%; }
 body {
   font-family: 'Noto Sans JP', sans-serif;
-  background: #0a0a0a;
-  color: #f5f0eb;
+  background: var(--black);
+  color: var(--beige);
+  font-weight: 300;
+  line-height: 1.8;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 72px 64px;
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
+  position: relative;
 }
-.card {
-  max-width: 640px;
-  width: 100%;
-  background: #141414;
-  border: 1px solid rgba(196,162,101,0.2);
-  border-radius: 20px;
-  padding: 48px 40px;
+
+/* ── Header ── */
+.header {
+  text-align: center;
+  margin-bottom: 56px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--border);
 }
-.logo {
+.eyebrow {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 22px;
-  letter-spacing: 6px;
-  color: #C4A265;
-  text-align: center;
-  margin-bottom: 4px;
-}
-.tagline {
-  text-align: center;
   font-size: 11px;
-  letter-spacing: 3px;
-  color: rgba(245,240,235,0.4);
-  margin-bottom: 36px;
-}
-.divider { height: 1px; background: rgba(196,162,101,0.15); margin: 24px 0; }
-.gift-box {
-  background: rgba(196,162,101,0.08);
-  border: 1px solid rgba(196,162,101,0.3);
-  border-radius: 12px;
-  padding: 20px 24px;
-  text-align: center;
-  margin-bottom: 32px;
-}
-.gift-label { font-size: 11px; letter-spacing: 3px; color: #C4A265; margin-bottom: 8px; }
-.gift-title { font-family: 'Cormorant Garamond', serif; font-size: 26px; letter-spacing: 2px; }
-.gift-note { font-size: 12px; color: rgba(245,240,235,0.5); margin-top: 6px; }
-.section-title {
-  font-size: 11px;
-  letter-spacing: 4px;
-  color: #C4A265;
+  letter-spacing: 8px;
+  color: var(--gold);
+  text-transform: uppercase;
   margin-bottom: 16px;
+}
+.brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 42px;
+  font-weight: 300;
+  letter-spacing: 8px;
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+.brand span { color: var(--gold); }
+.subtitle {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 14px;
+  font-weight: 200;
+  letter-spacing: 4px;
+  color: var(--text-dim);
+}
+
+/* ── Gift Banner ── */
+.gift {
+  background: linear-gradient(135deg, rgba(196,162,101,0.1) 0%, rgba(196,162,101,0.04) 100%);
+  border: 1px solid rgba(196,162,101,0.35);
+  border-radius: 4px;
+  padding: 32px 40px;
+  text-align: center;
+  margin-bottom: 56px;
+  position: relative;
+  overflow: hidden;
+}
+.gift::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.gift-tag {
+  font-size: 10px;
+  letter-spacing: 5px;
+  color: var(--gold);
+  margin-bottom: 10px;
   text-transform: uppercase;
 }
-.plans { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
-.plan {
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 12px;
-  padding: 18px 20px;
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
+.gift-main {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 34px;
+  font-weight: 300;
+  letter-spacing: 3px;
+  margin-bottom: 8px;
 }
-.plan.recommended {
+.gift-main em { color: var(--gold); font-style: normal; }
+.gift-note {
+  font-size: 12px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+/* ── Section Label ── */
+.section-label {
+  font-size: 10px;
+  letter-spacing: 6px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+/* ── Plans ── */
+.plans { margin-bottom: 48px; }
+.plan {
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 2px;
+  padding: 28px 32px;
+  margin-bottom: 12px;
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 32px;
+  align-items: start;
+  background: rgba(255,255,255,0.015);
+  transition: border-color .3s;
+}
+.plan.top {
   border-color: rgba(196,162,101,0.4);
   background: rgba(196,162,101,0.04);
+  position: relative;
 }
-.plan-left { min-width: 110px; }
-.plan-name { font-family: 'Cormorant Garamond', serif; font-size: 18px; letter-spacing: 1px; }
-.plan-price { font-size: 22px; color: #C4A265; font-weight: 300; margin-top: 2px; }
-.plan-price small { font-size: 12px; color: rgba(245,240,235,0.5); }
-.badge {
-  display: inline-block;
-  background: #C4A265;
-  color: #0a0a0a;
+.plan.top::before {
+  content: 'RECOMMENDED';
+  position: absolute;
+  top: -11px; left: 32px;
+  background: var(--gold);
+  color: #080808;
   font-size: 9px;
+  letter-spacing: 3px;
+  padding: 3px 14px;
+  font-weight: 500;
+}
+.plan-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px;
   letter-spacing: 2px;
-  padding: 2px 8px;
-  border-radius: 20px;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
-.plan-features { font-size: 12px; color: rgba(245,240,235,0.7); line-height: 2; }
-.plan-features li { list-style: none; }
-.plan-features li::before { content: "✓ "; color: #C4A265; }
-.conditions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
+.plan-price {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px;
+  color: var(--gold);
+  font-weight: 300;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.plan-price small {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 12px;
+  color: var(--text-dim);
+  font-weight: 300;
+}
+.plan-note { font-size: 11px; color: var(--text-dim); }
+.plan-features { list-style: none; }
+.plan-features li {
+  font-size: 13px;
+  color: rgba(245,240,235,0.8);
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.plan-features li:last-child { border-bottom: none; }
+.plan-features li::before {
+  content: '';
+  width: 4px; height: 4px;
+  background: var(--gold);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Conditions ── */
+.conditions {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 48px;
+  padding: 20px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
 .cond {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 12px; color: rgba(245,240,235,0.6);
+  display: flex; align-items: center; gap: 10px;
+  font-size: 12px; color: var(--text-dim);
 }
-.cond::before { content: "✅"; font-size: 12px; }
+.cond-icon { color: var(--gold); font-size: 14px; }
+
+/* ── Footer ── */
 .footer {
   text-align: center;
   font-size: 11px;
-  color: rgba(245,240,235,0.3);
-  letter-spacing: 1px;
-  line-height: 2;
-  margin-top: 8px;
+  color: rgba(245,240,235,0.25);
+  letter-spacing: 2px;
+  line-height: 2.4;
 }
+.footer strong { color: var(--gold); font-weight: 400; }
+
+/* ── Corner ornament ── */
+.corner {
+  position: absolute;
+  width: 40px; height: 40px;
+  border-color: rgba(196,162,101,0.25);
+  border-style: solid;
+}
+.corner.tl { top: 32px; left: 32px; border-width: 1px 0 0 1px; }
+.corner.tr { top: 32px; right: 32px; border-width: 1px 1px 0 0; }
+.corner.bl { bottom: 32px; left: 32px; border-width: 0 0 1px 1px; }
+.corner.br { bottom: 32px; right: 32px; border-width: 0 1px 1px 0; }
+
 @media print {
-  body { background: white; }
-  .card { background: white; color: #333; border: 1px solid #ddd; }
-  .logo, .plan-price, .section-title, .gift-label, .plan-features li::before { color: #8B6914; }
-  .gift-box { background: #faf7f0; border-color: #C4A265; }
+  body { background: #080808; }
+  .page { padding: 60px 56px; }
 }
 </style>
 </head>
 <body>
-<div class="card">
-  <div class="logo">STOLEN MØBLER</div>
-  <div class="tagline">WEB MAINTENANCE SERVICE</div>
+<div class="page">
+  <!-- コーナー装飾 -->
+  <div class="corner tl"></div>
+  <div class="corner tr"></div>
+  <div class="corner bl"></div>
+  <div class="corner br"></div>
 
-  <div class="gift-box">
-    <div class="gift-label">🎁 Special Offer</div>
-    <div class="gift-title">初期構築費　0円</div>
-    <div class="gift-note">通常50万円相当を特別無償提供</div>
+  <!-- ヘッダー -->
+  <div class="header">
+    <div class="eyebrow">Web Maintenance Service</div>
+    <div class="brand">STOLEN <span>MØBLER</span></div>
+    <div class="subtitle">サービス料金のご案内</div>
   </div>
 
-  <div class="section-title">Monthly Plans</div>
+  <!-- 初期費用0円 -->
+  <div class="gift">
+    <div class="gift-tag">Special Offer</div>
+    <div class="gift-main">初期構築費　<em>¥0</em></div>
+    <div class="gift-note">通常 50万円相当の制作費を、特別に無償提供いたします</div>
+  </div>
+
+  <!-- プラン -->
+  <div class="section-label">Monthly Plans</div>
   <div class="plans">
 
-    <div class="plan recommended">
-      <div class="plan-left">
-        <div class="badge">RECOMMENDED</div>
+    <div class="plan top">
+      <div>
         <div class="plan-name">Premium</div>
-        <div class="plan-price">¥30,000<small>/月</small></div>
+        <div class="plan-price">¥30,000<small> / 月</small></div>
+        <div class="plan-note">フルサポートプラン</div>
       </div>
       <ul class="plan-features">
         <li>コンテンツ更新　無制限</li>
-        <li>Instagram投稿サポート（月4回）</li>
-        <li>SEO対策・月次改善提案</li>
-        <li>EC・新機能追加対応</li>
+        <li>Instagram 投稿サポート（月4回）</li>
+        <li>SEO 対策・月次改善提案</li>
+        <li>EC カート・新機能追加対応</li>
         <li>専任担当・優先サポート</li>
+        <li>月次分析レポート</li>
       </ul>
     </div>
 
     <div class="plan">
-      <div class="plan-left">
+      <div>
         <div class="plan-name">Standard</div>
-        <div class="plan-price">¥20,000<small>/月</small></div>
+        <div class="plan-price">¥20,000<small> / 月</small></div>
+        <div class="plan-note">SNS 運用込みプラン</div>
       </div>
       <ul class="plan-features">
         <li>コンテンツ更新　月3回</li>
-        <li>Instagram投稿サポート（月4回）</li>
+        <li>Instagram 投稿サポート（月4回）</li>
         <li>Google Analytics 分析レポート</li>
+        <li>セキュリティ・SSL 管理</li>
         <li>チャット・電話サポート</li>
       </ul>
     </div>
 
     <div class="plan">
-      <div class="plan-left">
+      <div>
         <div class="plan-name">Basic</div>
-        <div class="plan-price">¥10,000<small>/月</small></div>
+        <div class="plan-price">¥10,000<small> / 月</small></div>
+        <div class="plan-note">安定運用プラン</div>
       </div>
       <ul class="plan-features">
         <li>コンテンツ更新　月1回</li>
-        <li>セキュリティ・SSL管理</li>
+        <li>セキュリティ・SSL 管理</li>
         <li>サーバー・ドメイン管理</li>
         <li>月次アクセスレポート</li>
       </ul>
@@ -168,15 +300,16 @@ body {
 
   </div>
 
-  <div class="divider"></div>
-
+  <!-- 条件 -->
   <div class="conditions">
-    <span class="cond">縛りなし（解約1ヶ月前通知）</span>
-    <span class="cond">ドメインお持ちなら追加費用なし</span>
+    <div class="cond"><span class="cond-icon">◈</span>縛りなし — 解約は1ヶ月前のご連絡のみ</div>
+    <div class="cond"><span class="cond-icon">◈</span>ドメインお持ちの場合、追加費用なし</div>
   </div>
 
+  <!-- フッター -->
   <div class="footer">
-    合同会社クアドラ　|　Web制作・保守サブスクリプション事業<br>
+    <strong>合同会社クアドラ</strong><br>
+    Web制作・保守サブスクリプション事業<br>
     2026年3月
   </div>
 </div>
