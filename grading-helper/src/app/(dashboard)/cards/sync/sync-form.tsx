@@ -24,9 +24,15 @@ export function SyncForm({ sets }: SyncFormProps) {
   const [syncing, setSyncing] = useState<string | null>(null);
   const [synced, setSynced] = useState<Set<string>>(new Set());
 
-  // SVシリーズのみ表示（日本語名あり）
+  // 日本語名があるセットを全て表示（重複除去）
+  const seen = new Set<string>();
   const svSets = sets
-    .filter((s) => s.id.toUpperCase().startsWith("SV") && s.nameJa)
+    .filter((s) => {
+      if (!s.nameJa) return false;
+      if (seen.has(s.id)) return false;
+      seen.add(s.id);
+      return true;
+    })
     .sort((a, b) => a.id.localeCompare(b.id));
 
   const handleSync = async (setId: string) => {
