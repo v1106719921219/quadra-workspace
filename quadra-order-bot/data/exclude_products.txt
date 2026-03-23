@@ -1,0 +1,53 @@
+# 除外キーワード（商品名にこれらが含まれていたら除外）
+# 行頭の # はコメント、空行は無視
+
+# 一般除外
+潰れ
+穴あき
+パック
+サーチ済み
+シュリンク無し
+シュリンクなし
+
+# Pop Mart / フィギュア系
+POP MART
+ポップマート
+POPMART
+Molly
+モリー
+LABUBU
+ラブブ
+DIMOO
+ディムー
+PUCKY
+パッキー
+SKULLPANDA
+スカルパンダ
+HIRONO
+ヒロノ
+ZIMOMO
+ジモモ
+CRYBABY
+クライベイビー
+THE MONSTERS
+ザ モンスターズ
+ザモンスターズ
+HACIPUPU
+ハチププ
+KUBO
+クボ
+PIN FOR LOVE
+ROMANTIC RING BOX
+Wacky Mart
+ワッキー
+WHY
+EXCITING MACARON
+Have A Seat
+Monster Tears
+テレタビーズ
+フォールインワイルド
+ミャクミャク
+ロックザユニバース
+ちいかわ
+コカ・コーラ
+ロルカナ

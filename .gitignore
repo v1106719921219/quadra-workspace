@@ -15,3 +15,6 @@ node_modules/
 # その他
 .DS_Store
 *.log
+*.log.*.old
+*.pid
+supabase/.temp/
