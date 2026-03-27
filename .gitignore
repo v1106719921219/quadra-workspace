@@ -1,20 +1,33 @@
-# 環境変数（絶対にGitHubにあげてはいけない）
+# 環境変数
 .env
+.env.*
 .env.local
+.env.*.local
 .env.development.local
 .env.test.local
 .env.production.local
 
-# Next.js
-.next/
-out/
+# OS
+.DS_Store
+Thumbs.db
 
 # 依存パッケージ
 node_modules/
 
-# その他
-.DS_Store
+# Build
+.next/
+dist/
+build/
+out/
+
+# Logs
 *.log
 *.log.*.old
 *.pid
+
+# Keys
+*.pem
+*.key
+
+# Supabase
 supabase/.temp/

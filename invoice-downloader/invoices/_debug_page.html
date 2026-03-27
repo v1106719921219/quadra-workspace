@@ -1,0 +1,7638 @@
+<!DOCTYPE html><html lang="ja" xmlns:og="http://ogp.me/ns#"><head>
+	
+	
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+
+
+
+<!--  <script src="https://code.jquery.com/jquery-1.11.3.min.js" type="text/javascript"></script>
+<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js" type="text/javascript"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+ -->
+
+<!-- <script th:src="@{/js/plugin/jquery/jquery-ui-1.10.1.custom.min.js}" type="text/javascript"></script> -->
+<!-- <script th:src="@{/js/plugin/jquery/jquery.validate.min.js}" type="text/javascript"></script> -->
+<!-- <link th:href="@{/css/plugin/jquery-ui.css}" rel="stylesheet" type="text/css" /> -->
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
+<!-- jQuery UI（ドラッグ、移動、リサイズなど）  -->
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+
+
+
+
+
+<!-- デザインの方で取得している  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script> -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+
+
+
+<link rel="stylesheet" href="/quadra-order-mng/v1.3.0/design-template/assets/css/style.css">
+<link rel="stylesheet" href="/quadra-order-mng/v1.3.0/design-template/assets/css/components.css">
+<!-- General JS Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.nicescroll/3.7.6/jquery.nicescroll.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+<script src="/quadra-order-mng/v1.3.0/design-template/assets/js/stisla.js"></script>
+<!-- Template JS File -->
+<script src="/quadra-order-mng/v1.3.0/design-template/assets/js/scripts.js"></script>
+<script src="/quadra-order-mng/v1.3.0/design-template/assets/js/custom.js"></script>
+<!-- Page Specific JS File -->
+<script src="/quadra-order-mng/v1.3.0/design-template/assets/js/page/index.js"></script>
+<link rel="stylesheet" href="/quadra-order-mng/v1.3.0/design-template/design-custom.css">
+
+
+
+
+
+
+
+
+
+<link type="text/css" href="/quadra-order-mng/v1.3.0/css/common/bootstrap-custom.css" rel="stylesheet">
+
+
+<link rel="stylesheet" type="text/css" href="/quadra-order-mng/v1.3.0/assets/fontawesome/css/all.css">
+
+
+
+<link type="text/css" href="/quadra-order-mng/v1.3.0/css/common/cmn.css" rel="stylesheet">
+<script src="/quadra-order-mng/v1.3.0/js/common.js" type="text/javascript"></script>
+<script src="/quadra-order-mng/v1.3.0/js/mng/mngCommon.js" type="text/javascript"></script>
+
+
+
+
+<script src="/quadra-order-mng/v1.3.0/js/plugin/jquery-toast-plugin/jquery.toast.min.js" type="text/javascript"></script>
+<link href="/quadra-order-mng/v1.3.0/js/plugin/jquery-toast-plugin/jquery.toast.min.css" type="text/css" rel="stylesheet">
+
+
+
+
+
+	
+
+
+
+
+
+<meta name="robots" content="noindex">
+
+
+	
+	<link type="text/css" href="/quadra-order-mng/v1.3.0/css/common/cmn-mng-only.css" rel="stylesheet">
+
+
+	
+	
+
+	<!-- 日付ピッカー  -->
+	<script src="/quadra-order-mng/v1.3.0/js/plugin/datetimepicker/jquery.datetimepicker.full.js"></script>
+	<link rel="stylesheet" href="/quadra-order-mng/v1.3.0/js/plugin/datetimepicker/jquery.datetimepicker.min.css">
+
+	<!-- 見出し固定  -->
+	<script src="/quadra-order-mng/v1.3.0/js/plugin/fixed_midashi/fixed_midashi.js" type="text/javascript"></script>
+
+	<!-- セレクトボックス -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/i18n/ja.js"></script>
+
+	<!-- 画面固有js  -->
+	<script src="/quadra-order-mng/v1.3.0/js/mng/orderMng/orderMngList.js" type="text/javascript"></script>
+
+
+	
+
+	
+		<title>発注サイト</title>
+</head>
+
+<body class="fadeout">
+
+  <!-- 読込中モーダル部品  -->
+  
+
+<!-- blockUIフラグがONの場合、初期表示しておく  -->
+<div id="loadingUI" class="d-none ">
+	<div class="modalOverLay"></div>
+
+	<div class="modalContent">
+		<div class="spinner-border text-primary" role="status">
+		  <span class="sr-only">Loading...</span>
+		</div>
+	</div>
+</div>
+
+
+
+  <!-- リダイレクトトーストがセッションあれば、表示  -->
+  
+
+
+
+  <div id="app">
+    <div class="main-wrapper">
+      <div class="navbar-bg"></div>
+      <nav class="navbar navbar-expand-lg main-navbar px-0">
+        <form class="form-inline mr-auto">
+
+          <ul class="navbar-nav mr-3 d-flex align-items-center">
+            <li class="mr-3">
+            	<a href="#" data-toggle="sidebar" class="nav-link nav-link-lg">
+					<img class=" menu_img" src="/quadra-order-mng/v1.3.0/images/icon-menu.png" alt="menu">
+            	</a>
+            </li>
+
+            <!-- 各機能で生成されたボタン等（新規登録など）がJavaScriptで移動してくるエリア  -->
+            <li class=" top-nav-area ">
+				<button type="button" class=" ml-3 fs-13 btn btn-primary py-1  rounded-pill " onclick="openSelectCustomerModal()">受注登録</button>
+			</li>
+
+          </ul>
+        </form>
+
+		<button type="button" class=" mr-md-5 fs-13 btn btn-warning pt-1 pb-1  rounded-pill mt-1 fc-black" onclick="windowReload()">再読み込み</button>
+
+        <ul class="navbar-nav navbar-right">
+
+          <li class="dropdown">
+          	<!-- ログインユーザ名  -->
+          	<a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
+            <span class="d-none d-lg-inline-block">貞弘</span>
+            </a>
+
+            <div class="dropdown-menu dropdown-menu-right">
+
+              <span class="dropdown-item has-icon px-2 d-lg-none fs-12 bd">
+                <i class="fas fa-user fs-20 ml-2 mr-3 mt-1"></i> <span>貞弘</span>
+              </span>
+
+			  
+
+              <div class="dropdown-divider"></div>
+              <a href="#" class="dropdown-item has-icon" onclick="initPasswordUpdate();">
+                <i class="fas fa-cog fs-20"></i> パスワード変更
+              </a>
+
+              <div class="dropdown-divider"></div>
+              <a href="#" class="dropdown-item has-icon text-danger" onclick="logout();">
+                <i class="fas fa-sign-out-alt fs-20"></i> ログアウト
+              </a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+
+      <!-- サイドメニュー  -->
+      <div class="main-sidebar d-none d-lg-block" tabindex="1" style="overflow: hidden; outline: none;">
+        <aside id="sidebar-wrapper">
+          <div class="sidebar-brand " style="">
+
+            <a class="" href="#" onclick="accessUrl('/mng/top')">
+            	発注サイト
+            </a>
+
+          </div>
+          <div class="sidebar-brand sidebar-brand-sm">
+            <a href="index.html"></a>
+          </div>
+          <ul class="sidebar-menu">
+
+              
+
+
+			 <li class="d-none">
+			 	<span class=" nav-link d-inline-block menu-elm  pointer w-100" onclick="accessUrl('/mng/top')">
+			 		<span class="d-inline-block ml-1">トップページ</span>
+			 	</span>
+			 </li>
+
+			<li class="menu-header mt-0">メインメニュー</li>
+
+			<li class="">
+			 	<span class=" nav-link d-inline-block menu-elm  pointer w-100" onclick="accessUrl('/mng/orderMng/list/init')">
+			 		<i class="fas fa-clipboard-list mr-1"></i><span class="d-inline-block ml-1">受注管理</span>
+			 	</span>
+			</li>
+
+			<li class="">
+			 	<span class=" nav-link d-inline-block menu-elm  pointer w-100" onclick="accessUrl('/mng/shippingMng/list/init')">
+			 		<i class="fas fa-truck mr-1"></i><span class="d-inline-block ml-1">発送管理</span>
+			 	</span>
+			</li>
+
+			<li class="">
+			 	<span class=" nav-link d-inline-block menu-elm  pointer" onclick="accessUrl('/mng/itemMng/list/init')">
+			 		<i class="fas fa-gift mr-1"></i><span class="d-inline-block ml-1">商品管理</span>
+			 	</span>
+			 	<span class="  d-inline-block no-hover text-center">
+			 		<i class="fas fa-plus-circle fc-white hover pointer fs-20 " onclick="accessUrl('/mng/itemMng/detail/create')"></i>
+			 	</span>
+			</li>
+
+			<li class="menu-header mt-0">管理メニュー</li>
+
+			<li class="">
+			 	<span class=" nav-link d-inline-block menu-elm  pointer" onclick="accessUrl('/mng/officeMng/list/init')">
+			 		<i class="fas fa-truck mr-1"></i><span class="d-inline-block ml-1">発送事務所管理</span>
+			 	</span>
+			 	<span class="  d-inline-block no-hover text-center">
+			 		<i class="fas fa-plus-circle fc-white hover pointer fs-20 " onclick="accessUrl('/mng/officeMng/detail/create')"></i>
+			 	</span>
+			</li>
+
+			<li class="">
+			 	<span class=" nav-link d-inline-block menu-elm  pointer w-100" onclick="accessUrl('/mng/stockLinkMng/list/init')">
+			 		<i class="fas fa-exchange-alt mr-1"></i><span class="d-inline-block ml-1">在庫連携</span>
+			 	</span>
+			</li>
+
+			<li class="">
+			 	<span class=" nav-link d-inline-block menu-elm  pointer w-100" onclick="accessUrl('/mng/priceLinkMng/list/init')">
+			 		<i class="fas fa-yen-sign mr-1"></i><span class="d-inline-block ml-1">価格連携</span>
+			 	</span>
+			</li>
+
+			<li class="">
+			 	<span class=" nav-link d-inline-block menu-elm  pointer" onclick="accessUrl('/mng/customerMng/list/init')">
+			 		<i class="fas fa-user mr-1"></i><span class="d-inline-block ml-1">会員管理</span>
+			 	</span>
+			 	<span class="  d-inline-block no-hover text-center">
+			 		<i class="fas fa-plus-circle fc-white hover pointer fs-20 " onclick="accessUrl('/mng/customerMng/detail/create')"></i>
+			 	</span>
+			</li>
+
+			<li class="">
+			 	<span class=" nav-link d-inline-block menu-elm  pointer" onclick="accessUrl('/mng/userMng/list/init')">
+			 		<i class="fas fa-user-cog mr-1"></i><span class="d-inline-block ml-1">システムユーザ管理</span>
+			 	</span>
+			 	<span class="  d-inline-block no-hover text-center">
+			 		<i class="fas fa-plus-circle fc-white hover pointer fs-20 " onclick="accessUrl('/mng/userMng/detail/create')"></i>
+			 	</span>
+			</li>
+
+
+
+          </ul>
+
+            <div class="mt-4 hide-sidebar-mini  p-3 bg-white fs-14">
+	            動作保証環境は<span class="d-none">PCの・スマホ・タブレットいずれも</span><span class="bd">Google Chrome（最新版）</span>となります。
+
+
+
+            </div>
+
+
+
+			
+
+
+        </aside>
+      </div>
+
+      <!-- メインコンテンツ -->
+      <div class="main-content" style="min-height: 662px;">
+
+		
+		
+
+<form id="formId" method="post" class="section">
+
+	<div class="section-header mb-2 justify-content-between">
+		<h2 class="fs-20 pl-lg-3 m-0 w-100">受注一覧</h2>
+
+		<div class="row p-1">
+			<div class="col move-top-area d-none">
+				<button type="button" class=" ml-3 fs-13 btn btn-primary py-1  rounded-pill " onclick="openSelectCustomerModal()">受注登録</button>
+			</div>
+			<!-- ヘッダに移動  -->
+			<script>$('.top-nav-area').html($('.move-top-area').html()); $('.move-top-area').addClass('d-none  ');</script>
+		</div>
+	</div>
+
+	<div class="container-fluid ">
+		<div class="row">
+
+			
+			<div class="col-12 col-lg-9">
+
+				<div class="row px-2">
+
+					<div class="col-12 col-lg-6 px-3 ">
+
+						<div class="form-group mb-4">
+							<div class="w120 fs-14 bd mb-2">
+								発送日<span class="fs-13 ml-1">[期間検索]</span>
+							</div>
+
+							<div class="d-sm-flex align-items-center mb-3">
+								<div class="w120 fs-12 bd pl-4">FROM</div>
+								<div class="flex_w_auto">
+									<input type="text" class="form-control d-inline-block w120 text-center js_datepicker f_shippingFrom" autocomplete="off" id="sDto.shippingFrom" name="sDto.shippingFrom" value="" style="">
+									<i class="fa fa-backspace fs-20 pointer mr-2 " style="vertical-align: middle;" onclick="$('.f_shippingFrom').val('')"></i>
+								</div>
+
+								<div class="w50 fs-12 bd pl-4">TO</div>
+								<div class="flex_w_auto">
+									<input type="text" class="form-control d-inline-block w120 text-center js_datepicker f_shippingTo" autocomplete="off" id="sDto.shippingTo" name="sDto.shippingTo" value="" style="">
+									<i class="fa fa-backspace fs-20 pointer mr-2" style="vertical-align: middle;" onclick="$('.f_shippingTo').val('')"></i>
+
+									<button type="button" class="btn rounded-pill btn-info py-0 px-2 fs-13 text-nowrap" onclick="(function(){
+												const today = new Date().toLocaleDateString('en-CA');
+												$('.f_shippingFrom, .f_shippingTo').val(today);
+											})()">
+										当日
+									</button>
+								</div>
+						    </div>
+						</div>
+
+					</div>
+
+					<div class="col-12 col-lg-6 px-3 ">
+
+						<div class="form-group mb-4">
+							<div class="w120 fs-14 bd mb-2">
+								発注日<span class="fs-13 ml-1">[期間検索]</span>
+							</div>
+
+							<div class="d-sm-flex align-items-center mb-3">
+								<div class="w120 fs-12 bd pl-4">FROM</div>
+								<div class="flex_w_auto">
+									<input type="text" class="form-control d-inline-block w120 text-center js_datepicker f_orderFrom" autocomplete="off" id="sDto.orderFrom" name="sDto.orderFrom" value="" style="">
+									<i class="fa fa-backspace fs-20 pointer mr-2 " style="vertical-align: middle;" onclick="$('.f_orderFrom').val('')"></i>
+								</div>
+
+								<div class="w50 fs-12 bd pl-4">TO</div>
+								<div class="flex_w_auto">
+									<input type="text" class="form-control d-inline-block w120 text-center js_datepicker f_orderTo" autocomplete="off" id="sDto.orderTo" name="sDto.orderTo" value="" style="">
+									<i class="fa fa-backspace fs-20 pointer mr-2" style="vertical-align: middle;" onclick="$('.f_orderTo').val('')"></i>
+
+									<button type="button" class="btn rounded-pill btn-info py-0 px-2 fs-13 text-nowrap" onclick="(function(){
+												const today = new Date().toLocaleDateString('en-CA');
+												$('.f_orderFrom, .f_orderTo').val(today);
+											})()">
+										当日
+									</button>
+								</div>
+						    </div>
+						</div>
+
+					</div>
+
+				</div>
+
+				<div class="row p-2">
+
+					<div class="col-12 col-lg-6  px-3 ">
+
+						<div class=" d-sm-flex align-items-center mb-2">
+							<div class="w120 fs-14 bd">会員</div>
+							<select class="form-control search_select2" id="sDto.oInfo.linkCustomerSrId" name="sDto.oInfo.linkCustomerSrId">
+								<option value="">　</option>
+								<option value="186">株式会社ALICE</option>
+								<option value="196">RoseWood</option>
+								<option value="207">井上岳人</option>
+								<option value="218">谷健太郎</option>
+								<option value="187">谷澤　伸吾</option>
+								<option value="197">富士の株式会社</option>
+								<option value="208">ナノハナ</option>
+								<option value="219">田中菜都子</option>
+								<option value="75">株式会社エクシムティーシージー</option>
+								<option value="198">垣内海志鍼灸院</option>
+								<option value="209">株式会社KWN</option>
+								<option value="118">株式会社Reed Well</option>
+								<option value="188">板谷祥光</option>
+								<option value="199">JP花いちご</option>
+								<option value="210">合同会社坂田商事</option>
+								<option value="189">株式会社ベガ</option>
+								<option value="3">BEYOND株式会社</option>
+								<option value="5">FUJI SHOP JAPAN合同会社</option>
+								<option value="200">株式会社Malbek</option>
+								<option value="211">山下　直樹</option>
+								<option value="7">MJP株式会社</option>
+								<option value="1">al.japan株式会社</option>
+								<option value="2">ALC株式会社</option>
+								<option value="4">Cocofulオンラインストア</option>
+								<option value="6">合同会社Stravk</option>
+								<option value="8">Nicology</option>
+								<option value="9">Playfirst株式会社</option>
+								<option value="10">S.Oインターナショナルトレード株式会社</option>
+								<option value="11">株式会社Animac</option>
+								<option value="14">イズミ産業株式会社</option>
+								<option value="15">ちーまなSHOP</option>
+								<option value="16">てんてんショップ</option>
+								<option value="17">フューチャーズ株式会社</option>
+								<option value="18">プレミアムソリューション合同会社</option>
+								<option value="37">株式会社ファーストコネクション</option>
+								<option value="20">株式会社fun labo</option>
+								<option value="21">株式会社Future Growth</option>
+								<option value="24">株式会社K</option>
+								<option value="25">株式会社KAMEGEN</option>
+								<option value="26">株式会社N&amp;U</option>
+								<option value="28">株式会社TCG JAPAN</option>
+								<option value="29">株式会社TSURUOKAYA</option>
+								<option value="31">株式会社グローレンジ</option>
+								<option value="33">株式会社MagiTech Tool Lab</option>
+								<option value="34">株式会社セレスティ</option>
+								<option value="36">株式会社パラビアコーポレーション</option>
+								<option value="38">株式会社ヨコクボ</option>
+								<option value="39">株式会社KXオンライン</option>
+								<option value="41">株式会社稚日女</option>
+								<option value="190">杉浦かおり</option>
+								<option value="40">株式会社カワレ</option>
+								<option value="201">株式会社Zero Mile</option>
+								<option value="35">株式会社はなまる気分</option>
+								<option value="27">株式会社Rita</option>
+								<option value="12">YMC Trading合同会社</option>
+								<option value="30">株式会社オンリーシャイン</option>
+								<option value="212">船山　公次郎</option>
+								<option value="23">株式会社JUSDIT</option>
+								<option value="13">株式会社ストアエージェント</option>
+								<option value="46">合同会社SMCU</option>
+								<option value="47">株式会社REX</option>
+								<option value="48">合同会社クレイ</option>
+								<option value="49">合同会社トワラック</option>
+								<option value="50">合同会社ルックアップ</option>
+								<option value="76">合同会社SFA</option>
+								<option value="77">株式会社時遊人</option>
+								<option value="53">株式会社ASPIRE</option>
+								<option value="83">サンウィッチ合同会社</option>
+								<option value="78">株式会社ENTOY</option>
+								<option value="62">有限会社M&amp;A</option>
+								<option value="63">株式会社ランパレード</option>
+								<option value="202">合同会社クアドラ</option>
+								<option value="54">株式会社晴日屋</option>
+								<option value="80">合同会社Turtles098</option>
+								<option value="67">happy shop</option>
+								<option value="213">株式会社 GENERAL MERCHANT EXCLUSIVE</option>
+								<option value="72">株式会社AiGIVE</option>
+								<option value="73">株式会社B&amp;W</option>
+								<option value="74">株式会社OHANA SPORTS</option>
+								<option value="84">株式会社ファイン・コーポレーション</option>
+								<option value="85">A.Y vision合同会社</option>
+								<option value="86">ACW株式会社</option>
+								<option value="117">株式会社PAPP</option>
+								<option value="88">合同会社Mandi</option>
+								<option value="89">Mois</option>
+								<option value="90">Nexus Mart</option>
+								<option value="91">ON YOUR MARK</option>
+								<option value="92">pekomanshop</option>
+								<option value="93">pinzou-japan</option>
+								<option value="94">Nexus Trading 合同会社</option>
+								<option value="97">Ryo 合同会社</option>
+								<option value="99">TRYREXT株式会社</option>
+								<option value="101">エムアイストア株式会社</option>
+								<option value="100">イヤシロチ株式会社</option>
+								<option value="96">RUITETTO株式会社</option>
+								<option value="108">株式会社 弥栄</option>
+								<option value="109">合同会社アントネスト</option>
+								<option value="110">株式会社CLJ</option>
+								<option value="111">株式会社EVORGE</option>
+								<option value="112">株式会社KMS</option>
+								<option value="113">株式会社KOKURU</option>
+								<option value="115">株式会社BoBo</option>
+								<option value="116">株式会社ONLY ONE STYLE</option>
+								<option value="119">株式会社RiME</option>
+								<option value="120">株式会社Star illusion</option>
+								<option value="121">株式会社T.Genesis</option>
+								<option value="122">株式会社TAKAHASHI</option>
+								<option value="123">株式会社YGM</option>
+								<option value="114">株式会社Langbally</option>
+								<option value="203">ASK ME JAPAN</option>
+								<option value="192">合同会社ポリトンワークス</option>
+								<option value="95">Postrun株式会社</option>
+								<option value="98">株式会社スタジアムライフ</option>
+								<option value="214">PokeMintLab</option>
+								<option value="107">株式会社 ONE-EIGHT</option>
+								<option value="124">株式会社YouNewJapan</option>
+								<option value="125">株式会社ZERO</option>
+								<option value="126">株式会社アイユー</option>
+								<option value="127">株式会社エクスタード</option>
+								<option value="128">株式会社オンリーワンスタイル</option>
+								<option value="129">株式会社カルゴ</option>
+								<option value="131">株式会社クラウンギア</option>
+								<option value="133">株式会社ソラム</option>
+								<option value="134">株式会社タウンズポスト</option>
+								<option value="135">株式会社チョコ</option>
+								<option value="136">株式会社モノウリ</option>
+								<option value="138">株式会社ワンホエール</option>
+								<option value="151">合同会社Wevee</option>
+								<option value="150">合同会社sunlink</option>
+								<option value="153">合同会社キュリアス</option>
+								<option value="141">株式会社エクソライズトレーディング</option>
+								<option value="146">合同会社HAAST JAPAN</option>
+								<option value="147">合同会社IRODORI</option>
+								<option value="148">合同会社JYH</option>
+								<option value="149">合同会社Link</option>
+								<option value="155">合同会社ワイワイワールド</option>
+								<option value="156">合同会社関西たのや商事</option>
+								<option value="193">株式会社M&amp;D</option>
+								<option value="152">合同会社ZUKUDAS</option>
+								<option value="139">株式会社豊栄商事</option>
+								<option value="160">合同会社　M's Factory</option>
+								<option value="142">GGG Store</option>
+								<option value="204">株式会社Tenten Trading</option>
+								<option value="137">株式会社ロイヤルカード</option>
+								<option value="132">株式会社サムライ商事</option>
+								<option value="130">株式会社キョウトブリック</option>
+								<option value="215">松崎珠奈</option>
+								<option value="45">大澤絵梨子</option>
+								<option value="185">合同会社STORY TRADER</option>
+								<option value="177">吉長駿佑</option>
+								<option value="194">尾上以織</option>
+								<option value="182">ゆずなぎ</option>
+								<option value="170">TS合同会社</option>
+								<option value="172">有限会社ひろた</option>
+								<option value="205">古住　充裕</option>
+								<option value="174">WebAbout株式会社</option>
+								<option value="176">LIBIRD SHOP</option>
+								<option value="216">株式会社サムライソード</option>
+								<option value="42">合同会社RS</option>
+								<option value="180">YUS-JAPAN</option>
+								<option value="181">合同会社ハシビロ屋</option>
+								<option value="183">株式会社Delighted</option>
+								<option value="19">隠田哲也</option>
+								<option value="22">尾形定彰</option>
+								<option value="32">東　智志</option>
+								<option value="43">西田　翼</option>
+								<option value="44">金　敬淑</option>
+								<option value="51">佐々木健</option>
+								<option value="52">小苅米健太郎</option>
+								<option value="55">相原司</option>
+								<option value="56">池田 健二</option>
+								<option value="58">島田貴弘</option>
+								<option value="59">金村恵典</option>
+								<option value="57">株式会社ゴウリツ</option>
+								<option value="168">株式会社　シスリズム</option>
+								<option value="60">武井亨介</option>
+								<option value="64">淺原巧</option>
+								<option value="65">齋藤　大和</option>
+								<option value="66">齋藤智樹</option>
+								<option value="68">ササユキ</option>
+								<option value="69">八橋良</option>
+								<option value="71">国井智和</option>
+								<option value="87">irori</option>
+								<option value="102">鈴木智哉</option>
+								<option value="103">稲葉 大知</option>
+								<option value="104">塩谷　甲</option>
+								<option value="105">屋比久大</option>
+								<option value="106">加藤　寛敬</option>
+								<option value="140">岸 要治</option>
+								<option value="143">大川昌高</option>
+								<option value="144">後藤正光</option>
+								<option value="145">高橋　瑞恵</option>
+								<option value="154">三輪雅也</option>
+								<option value="157">佐藤友也</option>
+								<option value="158">細川 順一朗</option>
+								<option value="159">三海洋輔</option>
+								<option value="161">獅子野　雅也</option>
+								<option value="162">松井　亮</option>
+								<option value="163">上野竜二</option>
+								<option value="164">乗松秀幸</option>
+								<option value="165">城後　壮</option>
+								<option value="166">神田　照久</option>
+								<option value="167">西澤健志</option>
+								<option value="169">浅井　慎太郎</option>
+								<option value="171">藤田航平</option>
+								<option value="173">鈴木 恭二</option>
+								<option value="175">澤村一輝</option>
+								<option value="178">石関美樹</option>
+								<option value="179">山口晃弘</option>
+								<option value="79">齊藤瞬也</option>
+								<option value="82">齋藤由也</option>
+								<option value="81">田崎渉悟</option>
+								<option value="61">合同会社トレチル</option>
+								<option value="70">中村　洋士郎</option>
+								<option value="184">佳山 紗希慧</option>
+								<option value="195">合同会社Cacao90percent</option>
+								<option value="206">Cardshop Kenzo</option>
+								<option value="217">合同会社Thousand Leaf</option>
+							</select>
+						</div>
+
+						<div class=" d-sm-flex align-items-center mb-2">
+							<div class="w120 fs-14 bd">発注タイプ</div>
+							<select class="form-control search_select2" id="sDto.orderType" name="sDto.orderType">
+								<option value="" selected="selected">　</option>
+								<option value="国内発送">国内発送</option>
+								<option value="海外発送（FedEx）">海外発送（FedEx）</option>
+								<option value="海外発送（FedEx（広島））">海外発送（FedEx（広島））</option>
+								<option value="海外発送（FedEx（西濃））">海外発送（FedEx（西濃））</option>
+								<option value="海外発送（DHL）">海外発送（DHL）</option>
+								<option value="海外発送（DHL（広島））">海外発送（DHL（広島））</option>
+								<option value="海外発送（DHL（佐川））">海外発送（DHL（佐川））</option>
+								<option value="海外発送（UPS）">海外発送（UPS）</option>
+								<option value="海外発送（UPS（佐川））">海外発送（UPS（佐川））</option>
+							</select>
+						</div>
+
+					</div>
+
+					<div class="col-12 col-lg-6  px-3 ">
+						<div class=" d-sm-flex align-items-center mb-2">
+							<div class="w120 fs-14 bd">ステータス</div>
+							<select class="form-control search_select2" id="sDto.oInfo.status" name="sDto.oInfo.status">
+								<option value="" selected="selected">　</option>
+								<option value="発注依頼">発注依頼</option>
+								<option value="受注済み">受注済み</option>
+								<option value="請求書作成済み">請求書作成済み</option>
+								<option value="入金確認済み">入金確認済み</option>
+								<option value="キャンセル">キャンセル</option>
+							</select>
+						</div>
+					</div>
+
+				</div>
+
+				<div class="row  my-4">
+					<div class="col-md-3 col mx-auto">
+						<button type="button" class="btn btn-search mt-x2  rounded-pill btn-block" onclick="clickSearch();">検索</button>
+					</div>
+				</div>
+
+			</div>
+
+			
+			<div class="col-12 col-lg-3 bg-white bd fs-15" style="height:50%;">
+				<div class="border rounded p-2">
+					<div class="fs-20 font-weight-bold text-center mb-2">
+						集計金額
+						<i class="ml-1 fas fa-question-circle fs-15 hover" data-toggle="tooltip" data-html="true" data-trigger="hover" title="&lt;div class='text-left fs-12 '&gt;発送日は一覧の検索条件としては有効ですが、&lt;br&gt;集計金額の算出には使用していません。&lt;/div&gt;"></i>
+					</div>
+
+					<div class="border-bottom pb-1 mb-2">
+						<div class="d-flex justify-content-between">
+							<span>総合計</span>
+							<div>
+								<span>865,660,540</span>
+								<span>円</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="border-bottom pb-1 mb-2">
+						<div class="d-flex justify-content-between">
+							<span>未入金合計</span>
+							<div>
+								<span>1,493,800</span>
+								<span>円</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="mb-1">
+						<div class="d-flex justify-content-between">
+							<span>入金済み合計</span>
+							<div>
+								<span>855,903,640</span>
+								<span>円</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	<div class="container-fluid">
+
+		<div class="row ">
+			<div class="col-12 col-sm-6 pl-3  d-flex  align-items-end  ">
+				<span>1-100 / 全1539件</span>
+			</div>
+			<div class="col-12 col-sm-6  d-sm-flex align-items-end justify-content-end">
+				
+				
+
+<!--% pgDtoという変数名でmodelにセットが必要  %-->
+
+<ul class="pagination justify-content-center mb-2">
+	<li class="page-item disabled">
+		<span class="page-link ponter text-nowrap" data-item1="0" onclick="clickMovePage( this.getAttribute('data-item1') )">前へ</span>
+	</li>
+	<li class="page-item active">
+		<span class="page-link ponter" data-item1="1" onclick="clickMovePage( this.getAttribute('data-item1') )">1</span>
+	</li>
+	<li class="page-item null">
+		<span class="page-link ponter" data-item1="2" onclick="clickMovePage( this.getAttribute('data-item1') )">2</span>
+	</li>
+	<li class="page-item null">
+		<span class="page-link ponter" data-item1="3" onclick="clickMovePage( this.getAttribute('data-item1') )">3</span>
+	</li>
+	<li class="page-item">
+		<span class="page-link ponter text-nowrap" data-item1="2" onclick="clickMovePage( this.getAttribute('data-item1') )">次へ</span>
+	</li>
+</ul>
+
+
+			</div>
+		</div>
+
+		<div class="row  justify-content-center">
+			<div class="col-12  px-1 ">
+				<div class="sp_overflow_x_auto ">
+
+					<table class="bd fs-12 table table-hover table-sm table_fixedhead " _fixedhead="rows:1; ">
+
+						<thead class="thead-light table-bordered text-center th_px_10 th_text_nowrap">
+							<tr class="th-fs-13">
+								<th>受注ID</th>
+								<th>発注日時</th>
+								<th>法人名</th>
+								<th>ステータス</th>
+								<th>追跡番号送付</th>
+								<th>請求書Wチェック</th>
+								<th>個口数</th>
+								<th>追跡番号</th>
+								<th>請求費用</th>
+								<th></th>
+							</tr>
+						</thead>
+
+						<tbody class="table-bordered  ">
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1539</td>
+								<td class="text-break text-center">2026/02/28 16:12</td>
+								<td class="text-break">ゆずなぎ</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1539_01</span>
+											<span>：</span>
+											<span>森田</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1539_01</span>
+											<span>：</span>
+											<span>滑川</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-6528-4414">4898-6528-4414</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>243,600</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1539" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1538</td>
+								<td class="text-break text-center">2026/02/28 16:01</td>
+								<td class="text-break">TS合同会社</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1538_01</span>
+											<span>：</span>
+											<span>滑川</span>
+										</div>
+									
+										<div>
+											<span>1538_02</span>
+											<span>：</span>
+											<span>滑川</span>
+										</div>
+									
+										<div>
+											<span>1538_03</span>
+											<span>：</span>
+											<span>滑川</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1538_01</span>
+											<span>：</span>
+											<span></span>
+										</div>
+									
+										<div>
+											<span>1538_02</span>
+											<span>：</span>
+											<span></span>
+										</div>
+									
+										<div>
+											<span>1538_03</span>
+											<span>：</span>
+											<span></span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">3</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=489865355884">489865355884</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-4688-6715">4878-4688-6715</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-4690-8511">4878-4690-8511</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>1,287,200</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1538" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1537</td>
+								<td class="text-break text-center">2026/02/28 15:34</td>
+								<td class="text-break">田中菜都子</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1537_01</span>
+											<span>：</span>
+											<span>滑川</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1537_01</span>
+											<span>：</span>
+											<span>滑川</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-4666-3570">4878-4666-3570</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>121,400</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1537" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1536</td>
+								<td class="text-break text-center">2026/02/28 15:04</td>
+								<td class="text-break">S.Oインターナショナルトレード株式会社</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1536_01</span>
+											<span>：</span>
+											<span>森田</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1536_01</span>
+											<span>：</span>
+											<span>滑川</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-4657-3255">4878-4657-3255</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>273,100</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1536" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1535</td>
+								<td class="text-break text-center">2026/02/28 13:55</td>
+								<td class="text-break">株式会社Rita</td>
+								<td class="text-break text-center">請求書作成済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1535_01</span>
+											<span>：</span>
+											<span>森田</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1535_01</span>
+											<span>：</span>
+											<span>滑川</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-4613-7914">4878-4613-7914</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>256,100</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1535" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1534</td>
+								<td class="text-break text-center">2026/02/28 13:28</td>
+								<td class="text-break">株式会社グローレンジ</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1534_01</span>
+											<span>：</span>
+											<span>森田</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1534_01</span>
+											<span>：</span>
+											<span>滑川</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-6464-8453/4898-6501-1580/4898-6548-9853">4898-6464-8453/4898-6501-1580/4898-6548-9853</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>992,200</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1534" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1533</td>
+								<td class="text-break text-center">2026/02/28 13:25</td>
+								<td class="text-break">神田　照久</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1533_01</span>
+											<span>：</span>
+											<span>森田</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1533_01</span>
+											<span>：</span>
+											<span>滑川</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-6462-9133">4898-6462-9133</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>70,400</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1533" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1532</td>
+								<td class="text-break text-center">2026/02/28 13:18</td>
+								<td class="text-break">エムアイストア株式会社</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1532_01</span>
+											<span>：</span>
+											<span>森田</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1532_01</span>
+											<span>：</span>
+											<span>滑川</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-6461-0675">4898-6461-0675</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>100,100</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1532" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1531</td>
+								<td class="text-break text-center">2026/02/27 15:50</td>
+								<td class="text-break">杉浦かおり</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1531_01</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1531_01</span>
+											<span>：</span>
+											<span>システム管理者</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=7640-7393-2042">7640-7393-2042</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>74,600</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1531" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1530</td>
+								<td class="text-break text-center">2026/02/27 13:48</td>
+								<td class="text-break">合同会社キュリアス</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1530_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1530_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1530_03</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1530_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1530_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1530_03</span>
+											<span>：</span>
+											<span>滑川</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">3</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-3967-9165">4878-3967-9165</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-6081-2630">4898-6081-2630</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-6323-0544">4898-6323-0544</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>618,000</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1530" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1529</td>
+								<td class="text-break text-center">2026/02/27 12:56</td>
+								<td class="text-break">TS合同会社</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1529_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1529_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1529_03</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+										<div>
+											<span>1529_04</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1529_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1529_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1529_03</span>
+											<span>：</span>
+											<span></span>
+										</div>
+									
+										<div>
+											<span>1529_04</span>
+											<span>：</span>
+											<span></span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">4</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>FedEx</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>8891 2925 3144</span>
+										</div>
+
+									
+
+										<div>
+											<span>FedEx</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>8891 2926 3627</span>
+										</div>
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-4197-0711">4878-4197-0711</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-6219-5841">4898-6219-5841</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>227,820</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1529" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1528</td>
+								<td class="text-break text-center">2026/02/27 10:15</td>
+								<td class="text-break">株式会社はなまる気分</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1528_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1528_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>佐川</span>
+											<span>:</span>
+
+											
+											
+
+											
+											<a target="_blank" href="https://k2k.sagawa-exp.co.jp/p/web/okurijosearch.do?okurijoNo=4525-7860-3584">4525-7860-3584</a>
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>203,600</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1528" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1527</td>
+								<td class="text-break text-center">2026/02/27 09:03</td>
+								<td class="text-break">株式会社Animac</td>
+								<td class="text-break text-center">請求書作成済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1527_01</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+										<div>
+											<span>1527_02</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+										<div>
+											<span>1527_03</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+										<div>
+											<span>1527_04</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+										<div>
+											<span>1527_05</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1527_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1527_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1527_03</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1527_04</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1527_05</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">5</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>FedEx</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>8890 9490 4434</span>
+										</div>
+
+									
+
+										<div>
+											<span>UPS</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z030 D660417844165</span>
+										</div>
+
+									
+
+										<div>
+											<span>UPS</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z030 D660405378174</span>
+										</div>
+
+									
+
+										<div>
+											<span>UPS（佐川）</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z 454 690 04 0173 1267</span>
+										</div>
+
+									
+
+										<div>
+											<span>UPS（佐川）</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z 455 131 04 1269 7144</span>
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>455,500</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1527" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1526</td>
+								<td class="text-break text-center">2026/02/27 08:58</td>
+								<td class="text-break">株式会社ストアエージェント</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1526_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1526_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>佐川</span>
+											<span>:</span>
+
+											
+											
+
+											
+											<a target="_blank" href="https://k2k.sagawa-exp.co.jp/p/web/okurijosearch.do?okurijoNo=4525-7860-3573">4525-7860-3573</a>
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>238,600</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1526" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1525</td>
+								<td class="text-break text-center">2026/02/27 08:54</td>
+								<td class="text-break">MJP株式会社</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1525_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1525_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-3517-2075">4878-3517-2075</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>475,100</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1525" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1524</td>
+								<td class="text-break text-center">2026/02/27 08:47</td>
+								<td class="text-break">YMC Trading合同会社</td>
+								<td class="text-break text-center">キャンセル</td>
+
+								<td class="text-break">
+									
+								</td>
+
+								<td class="text-break">
+									
+								</td>
+
+								<td class="text-center">0</td>
+
+
+								<td class="text-break">
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>0</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1524" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1523</td>
+								<td class="text-break text-center">2026/02/26 17:51</td>
+								<td class="text-break">YMC Trading合同会社</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1523_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1523_01</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>FedEx</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>8891 0095 6614</span>
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>231,200</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1523" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1522</td>
+								<td class="text-break text-center">2026/02/26 16:11</td>
+								<td class="text-break">S.Oインターナショナルトレード株式会社</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1522_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1522_01</span>
+											<span>：</span>
+											<span></span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-3148-5886">4878-3148-5886</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>179,100</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1522" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1521</td>
+								<td class="text-break text-center">2026/02/26 15:48</td>
+								<td class="text-break">合同会社キュリアス</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1521_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1521_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1521_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1521_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">2</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-3129-9141">4878-3129-9141</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4729-0753-6426">4729-0753-6426</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>274,900</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1521" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1520</td>
+								<td class="text-break text-center">2026/02/26 15:37</td>
+								<td class="text-break">株式会社 弥栄</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1520_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1520_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1520_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1520_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">2</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-3108-4871">4878-3108-4871</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-5547-7985">4898-5547-7985</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>635,700</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1520" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1519</td>
+								<td class="text-break text-center">2026/02/26 15:29</td>
+								<td class="text-break">谷健太郎</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1519_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1519_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-3086-3774">4878-3086-3774</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>224,600</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1519" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1518</td>
+								<td class="text-break text-center">2026/02/26 15:27</td>
+								<td class="text-break">板谷祥光</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1518_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1518_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>佐川</span>
+											<span>:</span>
+
+											
+											
+
+											
+											<a target="_blank" href="https://k2k.sagawa-exp.co.jp/p/web/okurijosearch.do?okurijoNo=4525-7860-3562">4525-7860-3562</a>
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>156,100</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1518" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1517</td>
+								<td class="text-break text-center">2026/02/26 13:36</td>
+								<td class="text-break">株式会社PAPP</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1517_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1517_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=7640-7304-7861">7640-7304-7861</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>74,600</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1517" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1516</td>
+								<td class="text-break text-center">2026/02/26 13:20</td>
+								<td class="text-break">合同会社RS</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1516_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1516_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1516_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1516_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">2</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>佐川</span>
+											<span>:</span>
+
+											
+											
+
+											
+											<a target="_blank" href="https://k2k.sagawa-exp.co.jp/p/web/okurijosearch.do?okurijoNo=4525-7860-3551">4525-7860-3551</a>
+
+											
+											
+										</div>
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-5435-4356">4898-5435-4356</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>926,200</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1516" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1515</td>
+								<td class="text-break text-center">2026/02/26 11:52</td>
+								<td class="text-break">株式会社はなまる気分</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1515_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1515_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-2702-8242">4878-2702-8242</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>239,600</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1515" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1514</td>
+								<td class="text-break text-center">2026/02/26 10:43</td>
+								<td class="text-break">Nexus Mart</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1514_01</span>
+											<span>：</span>
+											<span></span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1514_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>事務所引取り</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span></span>
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>66,000</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1514" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1513</td>
+								<td class="text-break text-center">2026/02/26 09:52</td>
+								<td class="text-break">TS合同会社</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1513_01</span>
+											<span>：</span>
+											<span>システム管理者</span>
+										</div>
+									
+										<div>
+											<span>1513_02</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+										<div>
+											<span>1513_03</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1513_01</span>
+											<span>：</span>
+											<span></span>
+										</div>
+									
+										<div>
+											<span>1513_02</span>
+											<span>：</span>
+											<span></span>
+										</div>
+									
+										<div>
+											<span>1513_03</span>
+											<span>：</span>
+											<span></span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">3</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-3176-3753">4878-3176-3753</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+										<div>
+											<span>UPS</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z 70E 26W 04 9314 2998</span>
+										</div>
+
+									
+
+										<div>
+											<span>UPS</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z 70E 26W 04 9086 4651</span>
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>754,379</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1513" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1512</td>
+								<td class="text-break text-center">2026/02/26 09:22</td>
+								<td class="text-break">吉長駿佑</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1512_01</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1512_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>DHL（広島）</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>83 1988 5744</span>
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>425,700</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1512" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1511</td>
+								<td class="text-break text-center">2026/02/26 09:19</td>
+								<td class="text-break">合同会社トワラック</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1511_01</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1511_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>FedEx（広島）</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>8890 6048 5344</span>
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>784,100</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1511" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1510</td>
+								<td class="text-break text-center">2026/02/25 14:10</td>
+								<td class="text-break">山口晃弘</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1510_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1510_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-1797-4910">4878-1797-4910</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>35,500</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1510" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1509</td>
+								<td class="text-break text-center">2026/02/25 12:45</td>
+								<td class="text-break">株式会社Rita</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1509_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1509_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1509_03</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1509_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1509_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1509_03</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">3</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-1656-2332">4878-1656-2332</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-4678-3101">4898-4678-3101</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-1656-2332">4878-1656-2332</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>1,017,400</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1509" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1508</td>
+								<td class="text-break text-center">2026/02/25 12:21</td>
+								<td class="text-break">株式会社エクシムティーシージー</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1508_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1508_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-4674-7320">4898-4674-7320</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>186,100</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1508" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1507</td>
+								<td class="text-break text-center">2026/02/25 11:39</td>
+								<td class="text-break">S.Oインターナショナルトレード株式会社</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1507_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1507_01</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=7640-7236-4230">7640-7236-4230</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>193,100</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1507" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1506</td>
+								<td class="text-break text-center">2026/02/25 11:31</td>
+								<td class="text-break">吉長駿佑</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1506_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1506_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1506_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1506_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">2</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-1743-7984">4878-1743-7984</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-4698-6532">4898-4698-6532</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>320,700</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1506" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1505</td>
+								<td class="text-break text-center">2026/02/25 10:55</td>
+								<td class="text-break">後藤正光</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1505_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1505_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1505_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1505_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">2</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-1482-5934">4878-1482-5934</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-1484-9885">4878-1484-9885</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>1,209,100</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1505" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1504</td>
+								<td class="text-break text-center">2026/02/25 09:55</td>
+								<td class="text-break">株式会社 ONE-EIGHT</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1504_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1504_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-1411-9074">4878-1411-9074</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>323,600</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1504" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1503</td>
+								<td class="text-break text-center">2026/02/25 09:30</td>
+								<td class="text-break">株式会社Animac</td>
+								<td class="text-break text-center">請求書作成済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1503_01</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+										<div>
+											<span>1503_02</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1503_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1503_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">2</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>UPS（佐川）</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z 455 131 04 3008 0070</span>
+										</div>
+
+									
+
+										<div>
+											<span>UPS</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z4551310408543719 1Z4551310408997720 1Z4551310404830139</span>
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>782,200</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1503" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1502</td>
+								<td class="text-break text-center">2026/02/25 09:19</td>
+								<td class="text-break">YUS-JAPAN</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1502_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1502_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>FedEx</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>8890 4945 689　6906</span>
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>1,077,200</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1502" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1501</td>
+								<td class="text-break text-center">2026/02/25 08:54</td>
+								<td class="text-break">合同会社Wevee</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1501_01</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+										<div>
+											<span>1501_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1501_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1501_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">2</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>UPS</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z J44 V85 04 2986 6689</span>
+										</div>
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-4579-9494">4898-4579-9494</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>289,600</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1501" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1500</td>
+								<td class="text-break text-center">2026/02/25 08:51</td>
+								<td class="text-break">株式会社KMS</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1500_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1500_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1500_03</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1500_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1500_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1500_03</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">3</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>FedEx</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>8890 5135 2301</span>
+										</div>
+
+									
+
+										<div>
+											<span>FedEx</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>8890 5135 2312</span>
+										</div>
+
+									
+
+										<div>
+											<span>FedEx（広島）</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>8890 5148 7592</span>
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>1,131,300</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1500" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1499</td>
+								<td class="text-break text-center">2026/02/25 08:13</td>
+								<td class="text-break">エムアイストア株式会社</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1499_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1499_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-1304-0050">4878-1304-0050</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>193,100</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1499" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1498</td>
+								<td class="text-break text-center">2026/02/25 08:11</td>
+								<td class="text-break">株式会社　シスリズム</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1498_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1498_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>FedEx</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>8890 4931 7869</span>
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>90,100</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1498" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1497</td>
+								<td class="text-break text-center">2026/02/24 17:59</td>
+								<td class="text-break">TS合同会社</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1497_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1497_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1497_03</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1497_01</span>
+											<span>：</span>
+											<span></span>
+										</div>
+									
+										<div>
+											<span>1497_02</span>
+											<span>：</span>
+											<span></span>
+										</div>
+									
+										<div>
+											<span>1497_03</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">3</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-4916-1502">4898-4916-1502</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-1971-4410">4878-1971-4410</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+										<div>
+											<span>FedEx</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>8890 5334 4626</span>
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>1,050,850</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1497" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1496</td>
+								<td class="text-break text-center">2026/02/24 17:46</td>
+								<td class="text-break">イズミ産業株式会社</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1496_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1496_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1496_01</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+										<div>
+											<span>1496_02</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">2</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-4291-2694">4898-4291-2694</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-1297-4493">4878-1297-4493</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>923,700</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1496" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1495</td>
+								<td class="text-break text-center">2026/02/24 17:33</td>
+								<td class="text-break">株式会社はなまる気分</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1495_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1495_01</span>
+											<span>：</span>
+											<span></span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-4286-3414">4898-4286-3414</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>181,100</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1495" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1494</td>
+								<td class="text-break text-center">2026/02/24 15:48</td>
+								<td class="text-break">Nexus Mart</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1494_01</span>
+											<span>：</span>
+											<span></span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1494_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>事務所引取り</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span></span>
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>72,000</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1494" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1493</td>
+								<td class="text-break text-center">2026/02/24 15:41</td>
+								<td class="text-break">株式会社TSURUOKAYA</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1493_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1493_01</span>
+											<span>：</span>
+											<span></span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-0846-1722">4878-0846-1722</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>154,100</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1493" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1492</td>
+								<td class="text-break text-center">2026/02/24 15:22</td>
+								<td class="text-break">株式会社YouNewJapan</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1492_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1492_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-4157-0492">4898-4157-0492</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>158,600</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1492" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1491</td>
+								<td class="text-break text-center">2026/02/24 13:34</td>
+								<td class="text-break">合同会社ポリトンワークス</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1491_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1491_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-0574-7634">4878-0574-7634</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>238,700</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1491" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1490</td>
+								<td class="text-break text-center">2026/02/24 13:20</td>
+								<td class="text-break">株式会社B&amp;W</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1490_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1490_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>FedEx</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>8890 1641 9976</span>
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>148,100</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1490" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1489</td>
+								<td class="text-break text-center">2026/02/24 12:52</td>
+								<td class="text-break">S.Oインターナショナルトレード株式会社</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1489_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1489_01</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-0431-0770">4878-0431-0770</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>208,100</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1489" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1488</td>
+								<td class="text-break text-center">2026/02/24 12:42</td>
+								<td class="text-break">株式会社 弥栄</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1488_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1488_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1488_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1488_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">2</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-0419-6692">4878-0419-6692</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-3921-1466">4898-3921-1466</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>1,009,200</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1488" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1487</td>
+								<td class="text-break text-center">2026/02/24 10:55</td>
+								<td class="text-break">株式会社Animac</td>
+								<td class="text-break text-center">キャンセル</td>
+
+								<td class="text-break">
+									
+								</td>
+
+								<td class="text-break">
+									
+								</td>
+
+								<td class="text-center">0</td>
+
+
+								<td class="text-break">
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>0</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1487" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1486</td>
+								<td class="text-break text-center">2026/02/24 09:46</td>
+								<td class="text-break">合同会社キュリアス</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1486_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1486_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-0001-1834">4878-0001-1834</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>279,100</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1486" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1485</td>
+								<td class="text-break text-center">2026/02/24 09:42</td>
+								<td class="text-break">合同会社Wevee</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1485_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1485_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-3674-5871">4898-3674-5871</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>46,130</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1485" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1484</td>
+								<td class="text-break text-center">2026/02/24 09:11</td>
+								<td class="text-break">株式会社Animac</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1484_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1484_02</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+										<div>
+											<span>1484_03</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+										<div>
+											<span>1484_04</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1484_05</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1484_06</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1484_07</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+										<div>
+											<span>1484_08</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+										<div>
+											<span>1484_09</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+										<div>
+											<span>1484_10</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1484_11</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+										<div>
+											<span>1484_12</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+										<div>
+											<span>1484_13</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1484_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1484_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1484_03</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1484_04</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1484_05</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1484_06</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1484_07</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1484_08</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1484_09</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1484_10</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1484_11</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1484_12</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1484_13</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">13</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>UPS</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z 454 690 04 3365 6619</span>
+										</div>
+
+									
+
+										<div>
+											<span>UPS</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z 455 131 04 0770 3217</span>
+										</div>
+
+									
+
+										<div>
+											<span>UPS（佐川）</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z 455 131 04 3158 7496</span>
+										</div>
+
+									
+
+										<div>
+											<span>UPS</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z 455 131 04 3833 9705</span>
+										</div>
+
+									
+
+										<div>
+											<span>UPS</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z 455 131 04 0163 7229</span>
+										</div>
+
+									
+
+										<div>
+											<span>UPS</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z4551310414149634</span>
+										</div>
+
+									
+
+										<div>
+											<span>UPS（佐川）</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z 455 131 04 0949 6448</span>
+										</div>
+
+									
+
+										<div>
+											<span>UPS（佐川）</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z4551310409531604</span>
+										</div>
+
+									
+
+										<div>
+											<span>UPS</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z 454 690 04 1048 8648</span>
+										</div>
+
+									
+
+										<div>
+											<span>UPS</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z 455 131 04 2670 6787</span>
+										</div>
+
+									
+
+										<div>
+											<span>UPS（佐川）</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z 455 131 04 3817 3849</span>
+										</div>
+
+									
+
+										<div>
+											<span>UPS（佐川）</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z4551310431193054</span>
+										</div>
+
+									
+
+										<div>
+											<span>UPS</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z4551310423560798 1Z4551310408892084 1Z4551310410346893 1Z4551310439099008 1Z4551310420685418</span>
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>1,472,670</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1484" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1483</td>
+								<td class="text-break text-center">2026/02/24 07:30</td>
+								<td class="text-break">YMC Trading合同会社</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1483_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1483_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=7640-7069-5824">7640-7069-5824</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>39,100</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1483" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1482</td>
+								<td class="text-break text-center">2026/02/24 07:28</td>
+								<td class="text-break">TS合同会社</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1482_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1482_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1482_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1482_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">2</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-4218-7892">4898-4218-7892</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4878-0895-0786　4878-0969-4293">4878-0895-0786　4878-0969-4293</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>1,586,450</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1482" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1481</td>
+								<td class="text-break text-center">2026/02/24 07:27</td>
+								<td class="text-break">吉長駿佑</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1481_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1481_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-3669-5331">4898-3669-5331</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>384,000</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1481" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1480</td>
+								<td class="text-break text-center">2026/02/23 15:59</td>
+								<td class="text-break">Nexus Mart</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1480_01</span>
+											<span>：</span>
+											<span>貞弘</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1480_01</span>
+											<span>：</span>
+											<span>貞弘</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=null"></a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>301,100</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1480" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1479</td>
+								<td class="text-break text-center">2026/02/23 15:38</td>
+								<td class="text-break">A.Y vision合同会社</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1479_01</span>
+											<span>：</span>
+											<span>貞弘</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1479_01</span>
+											<span>：</span>
+											<span>貞弘</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=null"></a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>649,700</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1479" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1478</td>
+								<td class="text-break text-center">2026/02/23 15:35</td>
+								<td class="text-break">板谷祥光</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1478_01</span>
+											<span>：</span>
+											<span>貞弘</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1478_01</span>
+											<span>：</span>
+											<span>貞弘</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=null"></a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>136,400</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1478" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1477</td>
+								<td class="text-break text-center">2026/02/23 15:19</td>
+								<td class="text-break">合同会社Wevee</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1477_01</span>
+											<span>：</span>
+											<span>貞弘</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1477_01</span>
+											<span>：</span>
+											<span>貞弘</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=null"></a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>23,100</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1477" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1476</td>
+								<td class="text-break text-center">2026/02/23 14:26</td>
+								<td class="text-break">吉長駿佑</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1476_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1476_01</span>
+											<span>：</span>
+											<span>貞弘</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>FedEx（広島）</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>8889 7746 5357</span>
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>442,600</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1476" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1475</td>
+								<td class="text-break text-center">2026/02/22 13:32</td>
+								<td class="text-break">富士の株式会社</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1475_01</span>
+											<span>：</span>
+											<span>滑川</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1475_01</span>
+											<span>：</span>
+											<span></span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4877-9148-9986">4877-9148-9986</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>125,300</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1475" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1474</td>
+								<td class="text-break text-center">2026/02/22 13:26</td>
+								<td class="text-break">Nexus Mart</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1474_01</span>
+											<span>：</span>
+											<span></span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1474_01</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=null"></a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>19,200</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1474" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1473</td>
+								<td class="text-break text-center">2026/02/22 13:18</td>
+								<td class="text-break">合同会社キュリアス</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1473_01</span>
+											<span>：</span>
+											<span>滑川</span>
+										</div>
+									
+										<div>
+											<span>1473_02</span>
+											<span>：</span>
+											<span>滑川</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1473_01</span>
+											<span>：</span>
+											<span></span>
+										</div>
+									
+										<div>
+											<span>1473_02</span>
+											<span>：</span>
+											<span></span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">2</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4877-9149-4186">4877-9149-4186</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-3193-6031">4898-3193-6031</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>613,700</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1473" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1472</td>
+								<td class="text-break text-center">2026/02/21 13:03</td>
+								<td class="text-break">株式会社K</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1472_01</span>
+											<span>：</span>
+											<span>森田</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1472_01</span>
+											<span>：</span>
+											<span>森田</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4877-8910-3266">4877-8910-3266</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>101,100</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1472" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1471</td>
+								<td class="text-break text-center">2026/02/21 12:54</td>
+								<td class="text-break">吉長駿佑</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1471_01</span>
+											<span>：</span>
+											<span>森田</span>
+										</div>
+									
+										<div>
+											<span>1471_02</span>
+											<span>：</span>
+											<span>森田</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1471_01</span>
+											<span>：</span>
+											<span>森田</span>
+										</div>
+									
+										<div>
+											<span>1471_02</span>
+											<span>：</span>
+											<span>森田</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">2</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4877-8888-9954">4877-8888-9954</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-3109-6436">4898-3109-6436</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>151,100</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1471" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1470</td>
+								<td class="text-break text-center">2026/02/20 14:34</td>
+								<td class="text-break">Nexus Mart</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1470_01</span>
+											<span>：</span>
+											<span></span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1470_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>事務所引取り</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span></span>
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>48,000</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1470" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1469</td>
+								<td class="text-break text-center">2026/02/20 13:10</td>
+								<td class="text-break">株式会社Rita</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1469_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1469_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-2592-4755　4898-2592-4770">4898-2592-4755　4898-2592-4770</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>1,271,200</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1469" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1468</td>
+								<td class="text-break text-center">2026/02/20 13:02</td>
+								<td class="text-break">YMC Trading合同会社</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1468_01</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1468_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>FedEx（広島）</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>8889 2585 2394</span>
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>691,000</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1468" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1467</td>
+								<td class="text-break text-center">2026/02/20 12:35</td>
+								<td class="text-break">TS合同会社</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1467_01</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1467_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>UPS</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z 70E 26W 04 9475 1051</span>
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>236,900</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1467" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1466</td>
+								<td class="text-break text-center">2026/02/20 11:30</td>
+								<td class="text-break">吉長駿佑</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1466_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1466_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1466_03</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1466_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1466_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1466_03</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">3</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4877-8073-5083">4877-8073-5083</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4877-8078-8585">4877-8078-8585</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-2522-2040">4898-2522-2040</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>959,000</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1466" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1465</td>
+								<td class="text-break text-center">2026/02/20 09:15</td>
+								<td class="text-break">株式会社Animac</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1465_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1465_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1465_03</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1465_04</span>
+											<span>：</span>
+											<span></span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1465_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1465_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1465_03</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1465_04</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">4</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>UPS</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z 455 131 04 1302 1335</span>
+										</div>
+
+									
+
+										<div>
+											<span>UPS</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z4551310423163333</span>
+										</div>
+
+									
+
+										<div>
+											<span>UPS</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z 454 690 04 2415 1805</span>
+										</div>
+
+									
+
+										<div>
+											<span>UPS（佐川）</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z 454 690 04 3141 0815</span>
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>484,950</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1465" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1464</td>
+								<td class="text-break text-center">2026/02/19 15:06</td>
+								<td class="text-break">TS合同会社</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1464_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1464_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1464_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1464_02</span>
+											<span>：</span>
+											<span></span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">2</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4877-7327-1436">4877-7327-1436</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-2129-0571">4898-2129-0571</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>177,250</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1464" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1463</td>
+								<td class="text-break text-center">2026/02/19 12:29</td>
+								<td class="text-break">株式会社K</td>
+								<td class="text-break text-center">受注済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1463_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1463_01</span>
+											<span>：</span>
+											<span></span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-1910-7256">4898-1910-7256</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>0</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1463" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1462</td>
+								<td class="text-break text-center">2026/02/19 11:50</td>
+								<td class="text-break">合同会社アントネスト</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1462_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1462_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4898-1853-2630 -2641 -2652 -2663">4898-1853-2630 -2641 -2652 -2663</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>3,564,400</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1462" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1461</td>
+								<td class="text-break text-center">2026/02/19 10:49</td>
+								<td class="text-break">エムアイストア株式会社</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1461_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1461_02</span>
+											<span>：</span>
+											<span></span>
+										</div>
+									
+										<div>
+											<span>1461_03</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1461_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1461_02</span>
+											<span>：</span>
+											<span></span>
+										</div>
+									
+										<div>
+											<span>1461_03</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">3</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4877-6866-3756">4877-6866-3756</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=発送済">発送済</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4877-6866-3756">4877-6866-3756</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>567,100</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1461" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1460</td>
+								<td class="text-break text-center">2026/02/19 10:20</td>
+								<td class="text-break">合同会社Mandi</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1460_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1460_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>FedEx（広島）</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>8888 9371 7585</span>
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>42,700</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1460" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1459</td>
+								<td class="text-break text-center">2026/02/19 09:19</td>
+								<td class="text-break">株式会社アイユー</td>
+								<td class="text-break text-center">受注済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1459_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1459_01</span>
+											<span>：</span>
+											<span></span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4877-6639-2411">4877-6639-2411</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>0</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1459" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1458</td>
+								<td class="text-break text-center">2026/02/19 09:17</td>
+								<td class="text-break">株式会社エクシムティーシージー</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1458_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1458_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4877-6645-9250">4877-6645-9250</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>350,600</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1458" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1457</td>
+								<td class="text-break text-center">2026/02/19 09:15</td>
+								<td class="text-break">株式会社スタジアムライフ</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1457_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1457_02</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1457_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1457_02</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">2</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4877-6642-3561">4877-6642-3561</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4877-7276-8254">4877-7276-8254</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>244,700</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1457" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1456</td>
+								<td class="text-break text-center">2026/02/19 09:04</td>
+								<td class="text-break">GGG Store</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1456_01</span>
+											<span>：</span>
+											<span>奥出</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1456_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>FedEx</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>8888 8651 1443</span>
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>281,000</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1456" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1455</td>
+								<td class="text-break text-center">2026/02/18 15:57</td>
+								<td class="text-break">株式会社Animac</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1455_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1455_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1455_03</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1455_04</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1455_05</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1455_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1455_02</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1455_03</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1455_04</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+										<div>
+											<span>1455_05</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">5</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>UPS</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z 454 690 04 2876 8277</span>
+										</div>
+
+									
+
+										<div>
+											<span>UPS（佐川）</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z 454 690 04 3247 3381</span>
+										</div>
+
+									
+
+										<div>
+											<span>UPS（佐川）</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z4546900410893576</span>
+										</div>
+
+									
+
+										<div>
+											<span>UPS</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z 455 131 04 1930 0924</span>
+										</div>
+
+									
+
+										<div>
+											<span>UPS（佐川）</span>
+											<span>:</span>
+
+											
+											
+
+											
+											
+
+											
+											<span>1Z 454 690 04 2702 2412</span>
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>1,099,030</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1455" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1454</td>
+								<td class="text-break text-center">2026/02/18 14:35</td>
+								<td class="text-break">TS合同会社</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1454_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1454_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td>
+
+
+								<td class="text-break">
+
+									
+
+										<div>
+											<span>ヤマト運輸</span>
+											<span>:</span>
+
+											
+											<a target="_blank" href="https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.NQ0010?id=4877-6331-0414">4877-6331-0414</a>
+
+											
+											
+
+											
+											
+										</div>
+
+									
+
+								</td>
+
+								<td class="text-break text-right">
+									<span>76,740</span>
+									<span>円</span>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class=" btn rounded-pill btn-info  py-0 px-2  fs-13 text-nowrap" data-item1="1454" onclick="accessUrl( '/mng/orderMng/detail/edit/' + this.getAttribute('data-item1') )">詳細</button>
+								</td>
+							</tr>
+
+							<tr class="align-middle-tr td_px_10 dataList_tr">
+
+								<td class="text-center">OD_1453</td>
+								<td class="text-break text-center">2026/02/18 13:51</td>
+								<td class="text-break">株式会社セレスティ</td>
+								<td class="text-break text-center">入金確認済み</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1453_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-break">
+									
+										<div>
+											<span>1453_01</span>
+											<span>：</span>
+											<span>宮</span>
+										</div>
+									
+								</td>
+
+								<td class="text-center">1</td></tr></tbody></table></div></div></div></div></form></div></div></div></body></html>

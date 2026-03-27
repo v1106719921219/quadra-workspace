@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+
+<html lang="ja" xmlns:og="http://ogp.me/ns#" >
+
+<head>
+	
+	
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+
+
+
+
+
+<!--  <script src="https://code.jquery.com/jquery-1.11.3.min.js" type="text/javascript"></script>
+<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js" type="text/javascript"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+ -->
+
+<!-- <script th:src="@{/js/plugin/jquery/jquery-ui-1.10.1.custom.min.js}" type="text/javascript"></script> -->
+<!-- <script th:src="@{/js/plugin/jquery/jquery.validate.min.js}" type="text/javascript"></script> -->
+<!-- <link th:href="@{/css/plugin/jquery-ui.css}" rel="stylesheet" type="text/css" /> -->
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
+<!-- jQuery UI（ドラッグ、移動、リサイズなど）  -->
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"  integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="  crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+
+
+
+
+
+<!-- デザインの方で取得している  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script> -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+
+
+
+<link rel="stylesheet" href="/quadra-order-mng/v1.3.0/design-template/assets/css/style.css" >
+<link rel="stylesheet" href="/quadra-order-mng/v1.3.0/design-template/assets/css/components.css">
+<!-- General JS Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.nicescroll/3.7.6/jquery.nicescroll.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+<script src="/quadra-order-mng/v1.3.0/design-template/assets/js/stisla.js" ></script>
+<!-- Template JS File -->
+<script src="/quadra-order-mng/v1.3.0/design-template/assets/js/scripts.js"></script>
+<script src="/quadra-order-mng/v1.3.0/design-template/assets/js/custom.js"></script>
+<!-- Page Specific JS File -->
+<script src="/quadra-order-mng/v1.3.0/design-template/assets/js/page/index.js"></script>
+<link rel="stylesheet" href="/quadra-order-mng/v1.3.0/design-template/design-custom.css">
+
+
+
+
+
+
+
+
+
+<link type="text/css" href="/quadra-order-mng/v1.3.0/css/common/bootstrap-custom.css" rel="stylesheet"/>
+
+
+<link rel="stylesheet" type="text/css" href="/quadra-order-mng/v1.3.0/assets/fontawesome/css/all.css">
+
+
+
+<link type="text/css" href="/quadra-order-mng/v1.3.0/css/common/cmn.css" rel="stylesheet"/>
+<script src="/quadra-order-mng/v1.3.0/js/common.js" type="text/javascript"></script>
+<script src="/quadra-order-mng/v1.3.0/js/mng/mngCommon.js" type="text/javascript"></script>
+
+
+
+
+<script src="/quadra-order-mng/v1.3.0/js/plugin/jquery-toast-plugin/jquery.toast.min.js" type="text/javascript"></script>
+<link   href="/quadra-order-mng/v1.3.0/js/plugin/jquery-toast-plugin/jquery.toast.min.css" type="text/css" rel="stylesheet"/>
+
+
+
+
+
+	
+
+
+
+
+
+<meta name="robots" content="noindex">
+
+
+	
+	
+ 	<title>2026-03-01-7050_GGG Store_請求書</title>
+
+
+	
+	<link type="text/css" href="/quadra-order-mng/v1.3.0/css/common/cmn-mng-only.css" rel="stylesheet"/>
+
+	
+	
+
+	<!-- BigNumberのライブラリ -->
+	<script src="/quadra-order-mng/v1.3.0/js/plugin/bignumber/bignumber.js" type="text/javascript"></script>
+
+	<style>
+		.custom-table {
+			border: 2px solid #999 !important;
+			border-collapse: collapse;
+		}
+		.custom-table th, .custom-table td {
+			border: 2px solid #999 !important;
+			text-align: center;
+			color: black;
+		}
+		.custom-table td {
+			background-color: white !important;
+		}
+		.custom-border-right {
+			border-right: 2px solid #999 !important;
+		}
+		.custom-border-bottom {
+			border-bottom: 2px solid #999 !important;
+		}
+
+	</style>
+
+
+	
+
+	
+		<title>印刷プレビュー</title>
+	<style type="text/css" media="print">
+
+
+
+	    /* 縦向に印刷 */
+	    @page
+	    {
+	    	/* size:landscape;  */
+	    	margin-top: 10mm;  /* this affects the margin in the printer settings */
+	        margin-bottom: 0mm;  /* this affects the margin in the printer settings */
+	    }
+
+		.print_page{
+		/*
+		    width: 172mm;
+		    height: 251mm;
+		 */
+		    page-break-after: always;
+		    position: relative;
+		    counter-increment: print_page_count; /* ページ番号のインクリメント */
+		}
+		.print_page:last-child{
+		    page-break-after: auto;
+		}
+		.print_page:before{
+		    position: absolute;
+		    right: 0;
+		    top: 0;
+		    content: "";
+		    margin-top:20mm;
+		}
+		.print_page:after{
+		    position: absolute; /* 位置の相対指定 */
+		    right: 0; /* 右から０ピクセルの位置指定 */
+		    bottom: 0; /* 下から０ピクセルの位置指定 */
+		  /*  content: counter(print_page_count) " / " counter(pages) ;  ページ番号を擬似要素に表示→自力で出力する為、不要 */
+		}
+
+
+		table .bg-grey1{background: #f7f7f7 !important;}
+
+
+	</style>
+
+</head>
+
+<body class="bg-white">
+
+	<!-- 読込中モーダル部品  -->
+	
+
+<!-- blockUIフラグがONの場合、初期表示しておく  -->
+<div id="loadingUI" class="d-none ">
+	<div class="modalOverLay" ></div>
+
+	<div class="modalContent">
+		<div class="spinner-border text-primary" role="status" >
+		  <span class="sr-only">Loading...</span>
+		</div>
+	</div>
+</div>
+
+
+
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-12">
+				<!-- メインコンテンツ -->
+				
+				
+
+<form id="formId" method="post" class="" >
+
+	<div class="container mt-1 print_page print_disp">
+
+		
+		<div class="d-flex justify-content-center px-2">
+			<h1 class="">請求書</h1>
+		</div>
+
+		
+		<div class="d-flex justify-content-between px-5 mb-5">
+			<div>
+				<div class="fs-25 mb-2">
+					<span>GGG Store</span>
+					<span class="ml-2">御中</span>
+				</div>
+
+				<div class="mb-2">
+					<span>〒</span>
+					<span>662-0862</span>
+					<br>
+					<span>兵庫県</span>
+					<span>西宮市</span>
+					<span>青木町4-25シティハイツ西宮北口205</span>
+				</div>
+
+				<div class="mb-2">
+					<span>振込先</span>
+					<br>
+					<span>西京銀行</span>
+					<br>
+					<span>店番</span>
+					<span class="ml-2">039　(周南支店)</span>
+					<br>
+					<span>普通</span>
+					<span class="ml-2">2706132</span>
+					<br>
+					<span>ド.　クアドラ</span>
+				</div>
+
+				<div class="">
+					<span>備考</span>
+					<br>
+					<span>誠に恐れ入りますが、振込手数料はご負担いただきますようにお願いいたします。</span>
+				</div>
+			</div>
+
+			<div>
+				<div class="mb-2">
+					<span>合同会社クアドラ</span>
+					<br>
+					<span>登録番号：T8011103013608</span>
+				</div>
+
+				<div class="mb-3">
+					<span>〒745-0026</span>
+					<br>
+					<span>山口県周南市住崎町</span>
+					<br>
+					<span>1-11　AZURE徳山2F</span>
+					<br>
+					<span>TEL: 0834-39-6540</span>
+				</div>
+
+				<div class="">
+					<span>請求書番号：</span>
+					<span>7050</span>
+					<br>
+					<span>請求日：</span>
+					<span>2026/02/19</span>
+				</div>
+			</div>
+		</div>
+
+		
+		<div class="d-flex justify-content-between px-5 mb-2">
+
+			<div class="">
+				<table class="table table-sm custom-table">
+					<thead>
+						<tr>
+							<th class="w150">小計</th>
+							<th class="w150">うち消費税</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td class="text-right">
+								<span>281,000</span>
+								<span>円</span>
+							</td>
+							<td class="text-right">
+								<span>25,546</span>
+								<span>円</span>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<div>
+				<table class="table table-sm custom-table">
+					<thead>
+						<tr>
+							<th class="w200">ご請求金額</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td class="text-right">
+								<span>281,000</span>
+								<span>円</span>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		
+		<div class="justify-content-center px-5 mb-2">
+			<div class="">
+				<table class="table table-sm custom-table">
+					<thead>
+						<tr>
+							<th style="width:500px;">品目・納品書番号</th>
+							<th style="width:150px;">単価</th>
+							<th style="width:100px;">数量</th>
+							<th style="width:100px;">単位</th>
+							<th style="width:150px;">価格</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td class="text-left">
+								<span>インフェルノX</span>
+							</td>
+							<td class="text-right">
+								<span>15,000</span>
+							</td>
+							<td class="text-right">
+								<span>5</span>
+							</td>
+							<td class="text-right">
+								<span>個</span>
+							</td>
+							<td class="text-right">
+								<span>75,000</span>
+							</td>
+						</tr>
+						<tr>
+							<td class="text-left">
+								<span>メガブレイブ</span>
+							</td>
+							<td class="text-right">
+								<span>10,300</span>
+							</td>
+							<td class="text-right">
+								<span>5</span>
+							</td>
+							<td class="text-right">
+								<span>個</span>
+							</td>
+							<td class="text-right">
+								<span>51,500</span>
+							</td>
+						</tr>
+						<tr>
+							<td class="text-left">
+								<span>メガシンフォニア</span>
+							</td>
+							<td class="text-right">
+								<span>9,200</span>
+							</td>
+							<td class="text-right">
+								<span>5</span>
+							</td>
+							<td class="text-right">
+								<span>個</span>
+							</td>
+							<td class="text-right">
+								<span>46,000</span>
+							</td>
+						</tr>
+						<tr>
+							<td class="text-left">
+								<span>メガドリーム</span>
+							</td>
+							<td class="text-right">
+								<span>10,200</span>
+							</td>
+							<td class="text-right">
+								<span>5</span>
+							</td>
+							<td class="text-right">
+								<span>個</span>
+							</td>
+							<td class="text-right">
+								<span>51,000</span>
+							</td>
+						</tr>
+						<tr>
+							<td class="text-left">
+								<span>OP-14</span>
+							</td>
+							<td class="text-right">
+								<span>9,400</span>
+							</td>
+							<td class="text-right">
+								<span>6</span>
+							</td>
+							<td class="text-right">
+								<span>個</span>
+							</td>
+							<td class="text-right">
+								<span>56,400</span>
+							</td>
+						</tr>
+						<tr>
+							<td class="text-left">
+								<span>海外発送代行</span>
+							</td>
+							<td class="text-right">
+								<span>1,100</span>
+							</td>
+							<td class="text-right">
+								<span>1</span>
+							</td>
+							<td class="text-right">
+								<span>個</span>
+							</td>
+							<td class="text-right">
+								<span>1,100</span>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		
+		<div class="d-flex justify-content-end px-5 mb-2">
+			<div>
+				<table>
+					<thead>
+						<tr class="custom-border-bottom">
+							<th class="px-2" style="width:100px;">税率別内訳</th>
+						</tr>
+						<tr class="custom-border-bottom">
+							<th class="custom-border-right" style="width:120px;"></th>
+							<th class="text-center px-2" style="width:120px;">税抜金額</th>
+							<th class="text-center px-2" style="width:120px;">消費税額</th>
+							<th class="text-center px-2" style="width:120px;">税込金額</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr class="custom-border-bottom">
+							<td class="custom-border-right px-2">10%</td>
+							<td class="text-center" style="width:120px;">255,454</td>
+							<td class="text-center" style="width:120px;">25,546</td>
+							<td class="text-center" style="width:120px;">281,000</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+
+
+	</div>
+
+	<div class="print_no_disp my-4">　</div>
+
+
+
+	<div class="container mt-1 mb-5 pb-5 print_page print_disp d-none">
+
+
+		
+		<div class="row print_page_footer mt-5">
+			<div class="col-12 d-flex justify-content-end">
+				<div class="fs-13">
+					<div class=" text-right" >XX</div>
+					<div>Page 1 of <span >XX</span></div>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+
+	<div class="border-top print_no_disp">　　</div>
+
+
+	<div class="py-2 text-center print_no_disp" style="z-index:1; position: fixed; bottom:0px; left:0; width:100% ; background :#a3a3a3c4;">
+
+		<button type="button" class="btn  btn-danger rounded-pill my-2 fs-18 px-4 py-2 mr-5" onclick="window.close();">画面を閉じる</button>
+
+		<button type="button" class="btn  btn-info rounded-pill my-2 mr-4 fs-18 px-4 py-2" onclick="window.print();">
+			印刷画面へ（ PDF出力も可能
+			<i class="px-1 fas fa-question-circle fs-18 hover"
+				data-toggle="tooltip" data-html="true" data-trigger="hover"
+				title="<div class='text-left fs-15 '>
+							印刷画面にて、送信先（プリンターの選択）で「PDFに保存」あるいは「Microsoft Print to PDF」を選択するとPDFで保存できます。
+						</div>">
+			</i>
+			 ）
+		</button>
+	</div>
+</form>
+
+
+
+				
+			</div>
+		</div>
+	</div>
+
+
+
+	<!-- 独自confirm  -->
+	<!-- 独自のconfirmのレイアウト  -->
+<div id="custom_confirm" class="modal " data-backdrop="static">
+<div class="modalOverLay" ></div>
+    <div class="modal-dialog" >
+        <div class="modal-content">
+            <div class="modal-header d-flex align-items-center pb-2 pt-1 pr-1">
+            	<div>　</div>
+                <button type="button" class=" border bg-grey1  py-2 px-3 fs-20 rounded" data-dismiss="modal" aria-hidden="true">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <p></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="w150 btn rounded-pill btn-secondary" data-dismiss="modal">いいえ</button>
+                <button type="button" class="w150 btn rounded-pill btn-primary ml-5 btn_yes"  >はい</button>
+            </div>
+            <div class="fs-13 px-3 pb-2 text-right">
+             	※ Enter <span class="fs-11">あるいは</span> スペースボタン を押すと「はい」が実行されます
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+	<!-- 独自alert  -->
+	<!-- 独自のalertのレイアウト  -->
+<div id="custom_alert" class="modal fade" data-backdrop="static">
+<div class="modalOverLay" ></div>
+    <div class="modal-dialog" >
+        <div class="modal-content">
+
+            <div class="modal-header d-flex align-items-center pb-2 pt-1 pr-1"  style="background:#bbbcbd;">
+            	<div>　</div>
+            </div>
+
+            <div class="modal-body">
+                <p></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="w-25 btn rounded-pill  btn-secondary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+	<!-- リダイレクトトーストがセッションあれば、表示  -->
+	
+
+</body>
+</html>
