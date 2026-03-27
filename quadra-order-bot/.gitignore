@@ -1,0 +1,14 @@
+# 環境変数（絶対にコミットしない）
+.env
+.env.local
+
+# ログ・プロセス
+*.log
+*.log.*.old
+*.pid
+
+# Supabase一時ファイル
+supabase/.temp/
+
+# macOS
+.DS_Store

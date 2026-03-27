@@ -547,7 +547,7 @@ class InventoryCog(commands.Cog):
 
         await interaction.response.defer()
 
-        from handlers.inventory import fetch_inventory, _load_exclude_keywords, _load_prices, _format_location_pricelist
+        from handlers.inventory import fetch_inventory, _load_exclude_keywords, _load_prices, _load_units, _load_location_excludes, _format_location_pricelist
         from config import GOOGLE_APPS_SCRIPT_URL
 
         if not GOOGLE_APPS_SCRIPT_URL:
@@ -567,10 +567,12 @@ class InventoryCog(commands.Cog):
 
             exclude_keywords = _load_exclude_keywords()
             prices = _load_prices()
+            units = _load_units()
 
             for location_key, location_label in [("tokyo", "東京"), ("yamaguchi", "山口")]:
                 items = data.get(location_key, [])
-                text = _format_location_pricelist(items, prices, location_label, exclude_keywords)
+                location_excludes = _load_location_excludes(location_key)
+                text = _format_location_pricelist(items, prices, units, location_label, exclude_keywords, location_excludes)
                 if text:
                     while text:
                         chunk = text[:2000]

@@ -3,7 +3,7 @@ from typing import Optional, List
 
 from supabase import create_client
 from config import SUPABASE_URL, SUPABASE_KEY
-from datetime import date
+from datetime import date, datetime, timezone
 
 _client = None
 
@@ -353,3 +353,25 @@ def pop_pending_reply(message_id: str) -> Optional[dict]:
 def cleanup_old_pending_replies(before_iso: str) -> None:
     """指定日時より古いペンディングを削除（起動時クリーンアップ用）"""
     get_client().table("discord_pending_replies").delete().lt("created_at", before_iso).execute()
+
+
+def try_claim_message(message_id: int) -> bool:
+    """メッセージIDをクレームする。既に処理済みなら False を返す（分散重複防止）"""
+    try:
+        get_client().table("processed_messages").insert({
+            "message_id": str(message_id),
+            "processed_at": datetime.now(timezone.utc).isoformat(),
+        }).execute()
+        return True  # 新規 → 処理する
+    except Exception:
+        return False  # 重複 or エラー → スキップ
+
+
+def cleanup_old_processed_messages() -> None:
+    """1時間以上前のprocessed_messagesを削除"""
+    from datetime import timedelta
+    cutoff = (datetime.now(timezone.utc) - timedelta(hours=1)).isoformat()
+    try:
+        get_client().table("processed_messages").delete().lt("processed_at", cutoff).execute()
+    except Exception:
+        pass

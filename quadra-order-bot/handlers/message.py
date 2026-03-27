@@ -17,6 +17,7 @@ from db.supabase import (
     get_thread_by_thread_id,
     update_thread_status,
     update_general_channel_id,
+    try_claim_message,
 )
 from utils.thread import update_thread_status_emoji
 
@@ -46,6 +47,12 @@ def _set_cache(server_id: str, thread_id: str, today_str: str):
 async def handle(bot: discord.ext.commands.Bot, message: discord.Message):
     """顧客サーバーのメッセージを管理サーバーのスレッドにミラーリング"""
     if not message.guild:
+        return
+
+    # 分散重複防止: 同じメッセージIDを2回処理しない
+    claimed = await asyncio.to_thread(try_claim_message, message.id)
+    if not claimed:
+        print(f"[DEBUG] mirror: message_id={message.id} は処理済みのためスキップ", flush=True)
         return
 
     server_id = str(message.guild.id)

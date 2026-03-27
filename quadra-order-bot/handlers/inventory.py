@@ -21,6 +21,8 @@ EXCLUDE_FILE = os.path.join(DATA_DIR, "exclude_products.txt")
 
 INVENTORY_TRIGGERS = {"在庫から作成", "作成", "/作成", "/価格表", "価格表作成"}
 PRICE_SET_RE = re.compile(r"^価格\s+(.+?)\s+([\d,]+)$")
+# 価格入り価格表の検知: /(数字)円 が含まれ かつ ・ が含まれる
+HAS_PRICE_RE = re.compile(r"/[\d,]+円")
 
 # 除外する商品タイプ（BOX以外は基本除外）
 EXCLUDE_TYPES = {"カートン", "アソート", "ピース"}
@@ -182,7 +184,7 @@ def _format_location_pricelist(
 async def handle(bot, message: discord.Message):
     if not isinstance(message.channel, discord.TextChannel):
         return
-    if message.channel.name != "本日の価格表作成":
+    if "価格表作成" not in message.channel.name:
         return
 
     content = message.content.strip()
@@ -196,6 +198,11 @@ async def handle(bot, message: discord.Message):
         product_name = match.group(1)
         price_value = int(match.group(2).replace(",", ""))
         await _set_price(message, product_name, price_value)
+        return
+
+    # 価格入り価格表が貼り付けられた → 全商品の価格を一括保存
+    if HAS_PRICE_RE.search(content) and "・" in content:
+        await _save_prices_from_pricelist(message, content)
         return
 
 
@@ -244,6 +251,61 @@ async def _set_price(message: discord.Message, product_name: str, price: int):
     prices[product_name] = price
     _save_prices(prices)
     await message.channel.send(f"✅ {product_name} の価格を {price}円 に設定しました")
+
+
+def _parse_prices_from_pricelist(text: str) -> Dict[str, int]:
+    """価格表テキストから商品名と価格を一括抽出。
+    対応形式1（2行）:
+      ・商品名
+      3箱/18500円
+    対応形式2（1行）:
+      ・商品名　3箱/18500円
+    """
+    prices = {}
+    lines = [l.strip() for l in text.split("\n") if l.strip()]
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+
+        # 1行形式: ・商品名　数量/価格円
+        single = re.match(r"^・(.+?)[\s　]+\d+\S+/([\d,]+)円", line)
+        if single:
+            name = single.group(1).strip()
+            price = int(single.group(2).replace(",", ""))
+            if price > 0:
+                prices[name] = price
+            i += 1
+            continue
+
+        # 2行形式の1行目: ・商品名
+        name_match = re.match(r"^・(.+?)[\s　]*$", line)
+        if name_match and i + 1 < len(lines):
+            name = name_match.group(1).strip()
+            price_match = re.match(r"^\d+\S+/([\d,]+)円", lines[i + 1])
+            if price_match:
+                price = int(price_match.group(1).replace(",", ""))
+                if price > 0:
+                    prices[name] = price
+                i += 2
+                continue
+
+        i += 1
+    return prices
+
+
+async def _save_prices_from_pricelist(message: discord.Message, text: str):
+    """貼り付けられた価格表から全商品の価格を保存"""
+    parsed = _parse_prices_from_pricelist(text)
+    if not parsed:
+        await message.channel.send("⚠️ 価格を解析できませんでした（形式: ・商品名 → 数量箱/価格円）")
+        return
+    prices = _load_prices()
+    prices.update(parsed)
+    _save_prices(prices)
+    lines = [f"✅ {len(parsed)}商品の価格を保存しました（東京・山口共通・次回も引き継ぎ）\n"]
+    for name, price in parsed.items():
+        lines.append(f"・{name}: {price:,}円")
+    await message.channel.send("\n".join(lines))
 
 
 # ---- 受注データ書き戻し ----

@@ -5,6 +5,31 @@ import re
 import random
 from PIL import Image, ImageDraw, ImageFont
 
+JAPANESE_FONT_PATHS = [
+    # macOS
+    "/System/Library/Fonts/ヒラギノ角ゴシック W9.ttc",
+    "/System/Library/Fonts/ヒラギノ角ゴシック W6.ttc",
+    # Nix (Railway/nixpacks)
+    "/run/current-system/sw/share/X11/fonts/NotoSansCJK-Bold.ttc",
+    "/run/current-system/sw/share/X11/fonts/NotoSansCJKjp-Bold.otf",
+    # Linux (apt)
+    "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
+    "/usr/share/fonts/noto-cjk/NotoSansCJKjp-Bold.otf",
+    "/usr/share/fonts/truetype/noto/NotoSansCJK-Bold.ttc",
+    # Generic fallback
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+]
+
+
+def _load_japanese_font(size: int) -> ImageFont.FreeTypeFont:
+    for path in JAPANESE_FONT_PATHS:
+        try:
+            return ImageFont.truetype(path, size)
+        except (OSError, IOError):
+            continue
+    return ImageFont.load_default()
+
+
 CORP_PREFIXES = re.compile(r"^(合同会社|株式会社|有限会社|一般社団法人|一般財団法人)")
 CORP_SUFFIXES = re.compile(r"(合同会社|株式会社|有限会社|一般社団法人|一般財団法人)$")
 
@@ -38,13 +63,7 @@ def generate_server_icon(customer_name: str) -> bytes:
     # Qウォーターマークを別レイヤーで描画して合成
     q_layer = Image.new("RGBA", (SIZE, SIZE), (0, 0, 0, 0))
     q_draw = ImageDraw.Draw(q_layer)
-    try:
-        font_q = ImageFont.truetype("/System/Library/Fonts/ヒラギノ角ゴシック W9.ttc", 420)
-    except (OSError, IOError):
-        try:
-            font_q = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 420)
-        except (OSError, IOError):
-            font_q = ImageFont.load_default()
+    font_q = _load_japanese_font(420)
     q_draw.text(
         (SIZE // 2, SIZE // 2),
         "Q",
@@ -91,13 +110,7 @@ def generate_server_icon(customer_name: str) -> bytes:
     elif num_lines >= 3:
         font_size = min(font_size, 110)
 
-    try:
-        font = ImageFont.truetype("/System/Library/Fonts/ヒラギノ角ゴシック W9.ttc", font_size)
-    except (OSError, IOError):
-        try:
-            font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", font_size)
-        except (OSError, IOError):
-            font = ImageFont.load_default()
+    font = _load_japanese_font(font_size)
 
     # 行の高さを計算
     line_height = font_size + 10

@@ -10,7 +10,7 @@ import anthropic
 from config import ANTHROPIC_API_KEY
 from db.supabase import get_all_pricelist_webhooks, get_all_english_pricelist_webhooks, update_customer_markup, get_all_customers
 
-PRICELIST_CHANNEL_NAME = "価格表配信"
+PRICELIST_CHANNEL_NAME = "📊｜本日の価格表配信"
 
 # プレビューメッセージID → 配信コンテキスト
 _pending_pricelist: dict[int, dict] = {}
@@ -40,7 +40,7 @@ async def handle(bot: commands.Bot, message: discord.Message):
     if not isinstance(message.channel, discord.TextChannel):
         return
 
-    if message.channel.name == PRICELIST_CHANNEL_NAME:
+    if "価格表配信" in message.channel.name:
         await _handle_japanese(bot, message)
 
 

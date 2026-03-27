@@ -29,7 +29,7 @@ atexit.register(lambda: os.remove(_PID_FILE) if os.path.exists(_PID_FILE) else N
 
 from datetime import datetime, timedelta, timezone
 from config import DISCORD_BOT_TOKEN, MANAGEMENT_SERVER_ID, AUTO_INVITE_USER_IDS, STATUS_CONFIRMED
-from db.supabase import get_thread_by_thread_id, update_thread_status, cleanup_old_pending_replies
+from db.supabase import get_thread_by_thread_id, update_thread_status, cleanup_old_pending_replies, cleanup_old_processed_messages
 from utils.thread import update_thread_status_emoji
 from handlers import message as message_handler
 from handlers import reply as reply_handler
@@ -105,13 +105,13 @@ async def on_ready():
     # 管理サーバーに #本日の価格表作成 チャンネルがなければ作成
     mgmt_guild = bot.get_guild(MANAGEMENT_SERVER_ID)
     if mgmt_guild:
-        ch = discord.utils.get(mgmt_guild.text_channels, name="本日の価格表作成")
+        ch = discord.utils.get(mgmt_guild.text_channels, name="📊｜本日の価格表作成")
         if not ch:
             try:
-                await mgmt_guild.create_text_channel("本日の価格表作成")
-                print("✅ #本日の価格表作成 チャンネル作成完了", flush=True)
+                await mgmt_guild.create_text_channel("📊｜本日の価格表作成")
+                print("✅ #📊｜本日の価格表作成 チャンネル作成完了", flush=True)
             except Exception as e:
-                print(f"⚠️ #本日の価格表作成 チャンネル作成失敗: {e}", flush=True)
+                print(f"⚠️ #📊｜本日の価格表作成 チャンネル作成失敗: {e}", flush=True)
 
     # 古いペンディング返信をクリーンアップ（48時間以上前）
     try:
@@ -121,6 +121,13 @@ async def on_ready():
         print("✅ 古いペンディング返信クリーンアップ完了", flush=True)
     except Exception as e:
         print(f"⚠️ ペンディング返信クリーンアップ失敗: {e}", flush=True)
+
+    # 古い処理済みメッセージIDをクリーンアップ
+    try:
+        await asyncio.to_thread(cleanup_old_processed_messages)
+        print("✅ 処理済みメッセージクリーンアップ完了", flush=True)
+    except Exception as e:
+        print(f"⚠️ 処理済みメッセージクリーンアップ失敗: {e}", flush=True)
 
     # 16:00 JST リマインダー開始
     reminder_handler.start_reminder(bot)
@@ -212,6 +219,15 @@ async def on_raw_reaction_add(payload: discord.RawReactionActionEvent):
         user = await bot.fetch_user(payload.user_id)
         if user.bot:
             return
+
+        # 重複送信防止: 直近5分以内に同じチャンネルへ既に送信済みか確認
+        try:
+            cutoff = discord.utils.utcnow() - timedelta(minutes=5)
+            async for msg in channel.history(limit=20, after=cutoff):
+                if msg.author.id == bot.user.id and "ありがとうございました" in msg.content:
+                    return
+        except Exception:
+            pass
 
         await channel.send(f"{user.mention} お支払いありがとうございました！確認いたします。")
     except Exception as e:
