@@ -1,11 +1,14 @@
 """顧客サーバー用アイコン自動生成（Pillow）"""
 
 import io
+import os
 import re
 import random
 from PIL import Image, ImageDraw, ImageFont
 
 JAPANESE_FONT_PATHS = [
+    # プロジェクト同梱フォント（最優先）
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "fonts", "NotoSansCJKjp-Bold.otf"),
     # macOS
     "/System/Library/Fonts/ヒラギノ角ゴシック W9.ttc",
     "/System/Library/Fonts/ヒラギノ角ゴシック W6.ttc",
