@@ -26,6 +26,7 @@ import {
   Settings,
   LogOut,
   Tablet,
+  MapPin,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
@@ -37,6 +38,7 @@ const menuItems = [
   { title: "シフト管理", href: "/shifts", icon: CalendarClock },
   { title: "従業員管理", href: "/employees", icon: Users },
   { title: "業務タイプ", href: "/work-types", icon: Briefcase },
+  { title: "現場管理", href: "/worksites", icon: MapPin },
   { title: "レポート", href: "/reports", icon: FileBarChart },
   { title: "給与計算", href: "/payroll", icon: Calculator },
   { title: "設定", href: "/settings", icon: Settings },
