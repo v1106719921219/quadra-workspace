@@ -115,6 +115,7 @@ export function ShiftsClient({
     employeeId: string;
     date: string;
     shift?: Shift;
+    presetTemplate?: ShiftTemplate;
   } | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -300,30 +301,19 @@ export function ShiftsClient({
     setDragOverCell(null);
   }
 
-  async function handleDrop(e: React.DragEvent, employeeId: string, date: string) {
+  function handleDrop(e: React.DragEvent, employeeId: string, date: string) {
     e.preventDefault();
     setDragOverCell(null);
 
     const raw = e.dataTransfer.getData("application/shift-template");
     if (!raw) return;
 
-    try {
-      const template: ShiftTemplate = JSON.parse(raw);
-      const existing = getShiftForCell(employeeId, date);
+    const template: ShiftTemplate = JSON.parse(raw);
+    const existing = getShiftForCell(employeeId, date);
 
-      await upsertShift({
-        id: existing?.id,
-        employee_id: employeeId,
-        work_type_id: template.work_type_id,
-        shift_date: date,
-        start_time: template.start_time.slice(0, 5),
-        end_time: template.end_time.slice(0, 5),
-      });
-      toast.success("シフトを登録しました");
-      await loadShifts();
-    } catch {
-      toast.error("登録に失敗しました");
-    }
+    // ダイアログを開いてテンプレート内容をプリセット（保存ボタンで確定）
+    setSelectedCell({ employeeId, date, shift: existing, presetTemplate: template });
+    setDialogOpen(true);
   }
 
   // 週の表示ラベル
@@ -523,7 +513,7 @@ export function ShiftsClient({
                 <Label>業務タイプ</Label>
                 <Select
                   name="work_type_id"
-                  defaultValue={selectedCell.shift?.work_type_id}
+                  defaultValue={selectedCell.presetTemplate?.work_type_id ?? selectedCell.shift?.work_type_id}
                   required
                 >
                   <SelectTrigger>
@@ -544,7 +534,7 @@ export function ShiftsClient({
                   <Input
                     name="start_time"
                     type="time"
-                    defaultValue={selectedCell.shift?.start_time?.slice(0, 5) || "09:00"}
+                    defaultValue={selectedCell.presetTemplate?.start_time?.slice(0, 5) ?? selectedCell.shift?.start_time?.slice(0, 5) ?? "09:00"}
                     required
                   />
                 </div>
@@ -553,7 +543,7 @@ export function ShiftsClient({
                   <Input
                     name="end_time"
                     type="time"
-                    defaultValue={selectedCell.shift?.end_time?.slice(0, 5) || "17:00"}
+                    defaultValue={selectedCell.presetTemplate?.end_time?.slice(0, 5) ?? selectedCell.shift?.end_time?.slice(0, 5) ?? "17:00"}
                     required
                   />
                 </div>
