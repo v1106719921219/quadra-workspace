@@ -245,7 +245,8 @@ async def _generate_from_inventory(bot, message: discord.Message):
             return
 
         exclude_keywords = _load_exclude_keywords()
-        prices = _load_prices()
+        import asyncio
+        prices = await asyncio.to_thread(_load_prices)
         units = _load_units()
 
         # 東京・山口それぞれ生成
