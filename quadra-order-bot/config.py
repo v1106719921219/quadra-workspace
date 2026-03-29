@@ -49,9 +49,19 @@ STATUS_EMOJI = {
     STATUS_MODIFIED: "🟠",
 }
 
+# 立替経費精算サーバー
+EXPENSE_SERVER_ID = int(os.environ.get("EXPENSE_SERVER_ID", "1485295021652443146"))
+# 精算書PDFの格納先Google DriveフォルダID
+GOOGLE_DRIVE_EXPENSE_FOLDER_ID = os.environ.get("GOOGLE_DRIVE_EXPENSE_FOLDER_ID", "")
+
 # ANIMAC
 ANIMAC_CUSTOMER_ID = os.environ.get("ANIMAC_CUSTOMER_ID", "712f7bb6-5532-42eb-8315-5c6d99defb26")
 ANIMAC_SERVER_ID = int(os.environ.get("ANIMAC_SERVER_ID", "1476793964769185872"))
+
+# ANIMAC Supabase（価格同期用）
+ANIMAC_SUPABASE_URL = os.environ.get("ANIMAC_SUPABASE_URL", "https://wbqfaheubpevxeryqngw.supabase.co")
+ANIMAC_SUPABASE_KEY = os.environ.get("ANIMAC_SUPABASE_KEY", "")
+ANIMAC_TENANT_ID = os.environ.get("ANIMAC_TENANT_ID", "a0000000-0000-0000-0000-000000000001")
 
 # 自動招待メンバー
 AUTO_INVITE_USER_IDS = [

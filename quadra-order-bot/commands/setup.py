@@ -585,6 +585,29 @@ class InventoryCog(commands.Cog):
             traceback.print_exc()
 
 
+class ExpenseCog(commands.Cog):
+    def __init__(self, bot: commands.Bot):
+        self.bot = bot
+
+    @app_commands.command(
+        name="立替申請",
+        description="このチャンネルのレシート画像をAIで解析し、立替経費精算書とMF仕訳CSVを生成します",
+    )
+    @app_commands.describe(
+        申請者名="申請者名（省略可: チャンネル名が「立替申請-氏名」形式なら自動検出）",
+        精算書番号="精算書番号（例: No.34）",
+    )
+    async def expense_request(
+        self,
+        interaction: discord.Interaction,
+        精算書番号: str,
+        申請者名: str | None = None,
+    ):
+        from handlers.expense import process_expense_request
+        await process_expense_request(self.bot, interaction, 申請者名, 精算書番号)
+
+
 async def setup(bot: commands.Bot):
     await bot.add_cog(SetupCog(bot))
     await bot.add_cog(InventoryCog(bot))
+    await bot.add_cog(ExpenseCog(bot))

@@ -50,6 +50,10 @@ function doPost(e) {
       return invUpdateOrders(data);
     }
 
+    if (data.action === "save_pdf") {
+      return expSavePdf(data);
+    }
+
     return ContentService.createTextOutput(
       JSON.stringify({ error: "Unknown action: " + data.action })
     ).setMimeType(ContentService.MimeType.JSON);
@@ -149,4 +153,34 @@ function invUpdateOrders(data) {
   return ContentService.createTextOutput(
     JSON.stringify(result)
   ).setMimeType(ContentService.MimeType.JSON);
+}
+
+// ---- 立替経費精算書PDFをGoogle Driveに保存 ----
+
+function expSavePdf(data) {
+  try {
+    var folderId = data.folderId;
+    var fileName  = data.fileName;
+    var pdfBase64 = data.pdfBase64;
+
+    var folder = DriveApp.getFolderById(folderId);
+    var bytes  = Utilities.base64Decode(pdfBase64);
+    var blob   = Utilities.newBlob(bytes, 'application/pdf', fileName);
+    var file   = folder.createFile(blob);
+
+    // リンクを知っている全員が閲覧可能に設定
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+    return ContentService.createTextOutput(JSON.stringify({
+      success: true,
+      fileUrl: file.getUrl(),
+      fileId:  file.getId()
+    })).setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({
+      success: false,
+      error: err.message
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
 }

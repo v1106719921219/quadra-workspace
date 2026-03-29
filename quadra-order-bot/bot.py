@@ -41,6 +41,7 @@ from handlers import buyback as buyback_handler
 from handlers import animac_label as animac_label_handler
 from handlers import payment_forward as payment_forward_handler
 from handlers import qa as qa_handler
+from handlers import expense as expense_handler
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -95,6 +96,9 @@ async def on_ready():
         from commands import setup
         if not bot.cogs.get("SetupCog"):
             await setup.setup(bot)
+        from commands import animac_mapping
+        if not bot.cogs.get("AnimacMappingCog"):
+            await animac_mapping.setup(bot)
         # 全サーバーにコマンドを同期
         await bot.tree.sync()
         print("✅ スラッシュコマンド同期完了", flush=True)
@@ -181,6 +185,10 @@ async def on_raw_reaction_add(payload: discord.RawReactionActionEvent):
     # Bot自身のリアクションは無視
     if payload.user_id == bot.user.id:
         return
+
+    # 立替経費精算の✅はどのサーバーでも処理（専用サーバー対応）
+    if str(payload.emoji) == "✅":
+        await expense_handler.handle_expense_reaction(bot, payload)
 
     # 管理サーバーでのリアクション処理
     if payload.guild_id == MANAGEMENT_SERVER_ID:

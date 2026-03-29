@@ -367,6 +367,78 @@ def try_claim_message(message_id: int) -> bool:
         return False  # 重複 or エラー → スキップ
 
 
+# --- product_prices ---
+
+def get_product_prices() -> dict:
+    """全商品価格をSupabaseから取得 {商品名: 価格}"""
+    try:
+        res = get_client().table("product_prices").select("product_name, price").execute()
+        return {row["product_name"]: row["price"] for row in (res.data or [])}
+    except Exception as e:
+        print(f"[ERROR] get_product_prices失敗: {e}", flush=True)
+        return {}
+
+
+def save_product_prices(prices: dict) -> None:
+    """商品価格をSupabaseに一括upsert {商品名: 価格}"""
+    if not prices:
+        return
+    try:
+        rows = [
+            {"product_name": name, "price": price, "updated_at": datetime.now(timezone.utc).isoformat()}
+            for name, price in prices.items()
+        ]
+        get_client().table("product_prices").upsert(rows, on_conflict="product_name").execute()
+    except Exception as e:
+        print(f"[ERROR] save_product_prices失敗: {e}", flush=True)
+
+
+# --- quadra_animac_product_map ---
+
+def get_animac_mapping(quadra_name: str) -> Optional[dict]:
+    """QuadraのDiscord商品名 → AnimacのproductIDを取得"""
+    try:
+        res = get_client().table("quadra_animac_product_map").select("*").eq("quadra_name", quadra_name).execute()
+        return res.data[0] if res.data else None
+    except Exception as e:
+        print(f"[ERROR] get_animac_mapping失敗: {e}", flush=True)
+        return None
+
+
+def get_all_animac_mappings() -> List[dict]:
+    """全マッピング一覧を取得"""
+    try:
+        res = get_client().table("quadra_animac_product_map").select("*").order("quadra_name").execute()
+        return res.data or []
+    except Exception as e:
+        print(f"[ERROR] get_all_animac_mappings失敗: {e}", flush=True)
+        return []
+
+
+def upsert_animac_mapping(quadra_name: str, animac_product_id: str, animac_product_name: str) -> None:
+    """マッピングを登録/更新"""
+    try:
+        get_client().table("quadra_animac_product_map").upsert(
+            {
+                "quadra_name": quadra_name,
+                "animac_product_id": animac_product_id,
+                "animac_product_name": animac_product_name,
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+            },
+            on_conflict="quadra_name",
+        ).execute()
+    except Exception as e:
+        print(f"[ERROR] upsert_animac_mapping失敗: {e}", flush=True)
+
+
+def delete_animac_mapping(quadra_name: str) -> None:
+    """マッピングを削除"""
+    try:
+        get_client().table("quadra_animac_product_map").delete().eq("quadra_name", quadra_name).execute()
+    except Exception as e:
+        print(f"[ERROR] delete_animac_mapping失敗: {e}", flush=True)
+
+
 def cleanup_old_processed_messages() -> None:
     """1時間以上前のprocessed_messagesを削除"""
     from datetime import timedelta

@@ -12,6 +12,34 @@ import discord
 import pytz
 
 from config import GOOGLE_APPS_SCRIPT_URL
+from db.supabase import get_product_prices, save_product_prices
+from handlers.animac_price_sync import sync_prices_to_animac
+
+
+class AnimacSyncConfirmView(discord.ui.View):
+    """Animac同期確認ボタン"""
+
+    def __init__(self, prices: dict):
+        super().__init__(timeout=300)  # 5分で失効
+        self.prices = prices
+
+    @discord.ui.button(label="✅ Animacに同期する", style=discord.ButtonStyle.success)
+    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        synced = sync_prices_to_animac(self.prices)
+        if synced:
+            lines = [f"🔄 Animac同期完了 ({len(synced)}件):"]
+            for quadra_name, animac_name in synced:
+                price = self.prices[quadra_name]
+                lines.append(f"　・{quadra_name} → {animac_name}  仕入値 {price:,}円")
+            await interaction.edit_original_response(content=interaction.message.content + "\n" + "\n".join(lines), view=None)
+        else:
+            await interaction.edit_original_response(content=interaction.message.content + "\n⚠️ 同期できた商品がありませんでした", view=None)
+
+    @discord.ui.button(label="キャンセル", style=discord.ButtonStyle.secondary)
+    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        await interaction.edit_original_response(content=interaction.message.content + "\n　　　　↳ 同期をキャンセルしました", view=None)
 
 JST = pytz.timezone("Asia/Tokyo")
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
@@ -76,13 +104,7 @@ def _should_exclude(name: str, product_type: str, exclude_keywords: List[str], l
 # ---- 価格ストレージ ----
 
 def _load_prices() -> Dict[str, int]:
-    if not os.path.exists(PRICES_FILE):
-        return {}
-    try:
-        with open(PRICES_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except (json.JSONDecodeError, IOError):
-        return {}
+    return get_product_prices()
 
 
 def _load_units() -> Dict[str, str]:
@@ -96,9 +118,7 @@ def _load_units() -> Dict[str, str]:
 
 
 def _save_prices(prices: Dict[str, int]):
-    os.makedirs(DATA_DIR, exist_ok=True)
-    with open(PRICES_FILE, "w", encoding="utf-8") as f:
-        json.dump(prices, f, ensure_ascii=False, indent=2)
+    save_product_prices(prices)
 
 
 def _load_footer(location: str) -> str:
@@ -250,7 +270,17 @@ async def _set_price(message: discord.Message, product_name: str, price: int):
     prices = _load_prices()
     prices[product_name] = price
     _save_prices(prices)
-    await message.channel.send(f"✅ {product_name} の価格を {price}円 に設定しました")
+    msg = f"✅ {product_name} の価格を {price:,}円 に設定しました"
+
+    # Animacマッピングがあれば確認ボタンを表示
+    from db.supabase import get_animac_mapping
+    mapping = get_animac_mapping(product_name)
+    if mapping:
+        view = AnimacSyncConfirmView({product_name: price})
+        msg += f"\n\n🔄 Animac同期可能: **{mapping['animac_product_name']}** → 仕入値 {price:,}円"
+        await message.channel.send(msg, view=view)
+    else:
+        await message.channel.send(msg)
 
 
 def _parse_prices_from_pricelist(text: str) -> Dict[str, int]:
@@ -305,7 +335,16 @@ async def _save_prices_from_pricelist(message: discord.Message, text: str):
     lines = [f"✅ {len(parsed)}商品の価格を保存しました（東京・山口共通・次回も引き継ぎ）\n"]
     for name, price in parsed.items():
         lines.append(f"・{name}: {price:,}円")
-    await message.channel.send("\n".join(lines))
+
+    # Animacマッピング済み商品をプレビュー表示 → 確認ボタン
+    from db.supabase import get_animac_mapping
+    syncable = {name: price for name, price in parsed.items() if get_animac_mapping(name)}
+    if syncable:
+        lines.append(f"\n🔄 Animac同期可能: {len(syncable)}件")
+        view = AnimacSyncConfirmView(syncable)
+        await message.channel.send("\n".join(lines), view=view)
+    else:
+        await message.channel.send("\n".join(lines))
 
 
 # ---- 受注データ書き戻し ----
