@@ -27,9 +27,13 @@ JAPANESE_FONT_PATHS = [
 def _load_japanese_font(size: int) -> ImageFont.FreeTypeFont:
     for path in JAPANESE_FONT_PATHS:
         try:
-            return ImageFont.truetype(path, size)
+            font = ImageFont.truetype(path, size)
+            print(f"[FONT] 使用: {path}", flush=True)
+            return font
         except (OSError, IOError):
             continue
+    print("[FONT] ⚠️ フォントが見つからず default にフォールバック", flush=True)
+    print(f"[FONT] 検索パス: {JAPANESE_FONT_PATHS[0]}", flush=True)
     return ImageFont.load_default()
 
 
