@@ -79,7 +79,7 @@ export function AttendanceClient({
   employees: Employee[];
   workTypes: WorkType[];
 }) {
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
   const [date, setDate] = useState(today);
   const [records, setRecords] = useState<TimeRecord[]>([]);
   const [monthRecords, setMonthRecords] = useState<TimeRecord[]>([]);
@@ -89,8 +89,9 @@ export function AttendanceClient({
   const [editRecord, setEditRecord] = useState<TimeRecord | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const [viewYear, setViewYear] = useState(new Date().getFullYear());
-  const [viewMonth, setViewMonth] = useState(new Date().getMonth() + 1);
+  const nowJST = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
+  const [viewYear, setViewYear] = useState(nowJST.getFullYear());
+  const [viewMonth, setViewMonth] = useState(nowJST.getMonth() + 1);
 
   async function loadRecords(d: string) {
     setDate(d);

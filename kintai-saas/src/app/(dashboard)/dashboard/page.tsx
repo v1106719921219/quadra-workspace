@@ -14,8 +14,8 @@ export default async function DashboardPage() {
     .select("*", { count: "exact", head: true })
     .eq("is_active", true);
 
-  // 今日の出勤中
-  const today = new Date().toISOString().split("T")[0];
+  // 今日の出勤中（日本時間で日付を取得）
+  const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
   const { data: activeRecords } = await supabase
     .from("time_records")
     .select("id, employee_id, clock_in, employees(name), work_types(name)")

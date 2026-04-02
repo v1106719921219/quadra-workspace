@@ -97,7 +97,7 @@ interface ComparisonRow {
 }
 
 export function CompareClient() {
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
   const [date, setDate] = useState(today);
   const [rows, setRows] = useState<ComparisonRow[]>([]);
   const [loaded, setLoaded] = useState(false);
