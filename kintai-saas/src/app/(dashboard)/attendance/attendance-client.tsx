@@ -62,7 +62,9 @@ interface WorkType {
 }
 
 function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Tokyo" });
+  const date = new Date(iso);
+  const jst = new Date(date.getTime() + 9 * 60 * 60 * 1000);
+  return `${String(jst.getUTCHours()).padStart(2, "0")}:${String(jst.getUTCMinutes()).padStart(2, "0")}`;
 }
 
 function calcWorkHours(clockIn: string, clockOut: string | null, breakMinutes: number) {
@@ -79,7 +81,8 @@ export function AttendanceClient({
   employees: Employee[];
   workTypes: WorkType[];
 }) {
-  const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
+  const jstNow = new Date(Date.now() + 9 * 60 * 60 * 1000);
+  const today = jstNow.toISOString().split("T")[0];
   const [date, setDate] = useState(today);
   const [records, setRecords] = useState<TimeRecord[]>([]);
   const [monthRecords, setMonthRecords] = useState<TimeRecord[]>([]);
@@ -89,9 +92,8 @@ export function AttendanceClient({
   const [editRecord, setEditRecord] = useState<TimeRecord | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const nowJST = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
-  const [viewYear, setViewYear] = useState(nowJST.getFullYear());
-  const [viewMonth, setViewMonth] = useState(nowJST.getMonth() + 1);
+  const [viewYear, setViewYear] = useState(jstNow.getUTCFullYear());
+  const [viewMonth, setViewMonth] = useState(jstNow.getUTCMonth() + 1);
 
   async function loadRecords(d: string) {
     setDate(d);

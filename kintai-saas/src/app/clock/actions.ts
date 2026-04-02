@@ -66,7 +66,8 @@ export async function clockIn(employeeId: string, workTypeId: string) {
   const supabase = await createClient();
   const tenantId = await getTenantId();
   const now = new Date();
-  const workDate = now.toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
+  const jstNow = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  const workDate = jstNow.toISOString().split("T")[0];
 
   const { error } = await supabase.from("time_records").insert({
     tenant_id: tenantId,
