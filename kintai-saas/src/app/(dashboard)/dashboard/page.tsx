@@ -79,6 +79,11 @@ export default async function DashboardPage() {
         </Card>
       </div>
 
+      {/* デバッグ: 生データ確認用（後で削除） */}
+      <pre className="text-xs bg-gray-100 p-2 rounded overflow-auto">
+        today={today}, now_utc={now.toISOString()}, sample_clock_in={activeRecords?.[0]?.clock_in ?? "none"}
+      </pre>
+
       <Card>
         <CardHeader>
           <CardTitle>今日の出勤状況</CardTitle>
