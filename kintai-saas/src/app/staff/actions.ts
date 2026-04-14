@@ -1,23 +1,21 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getTenantIdOrNull } from "@/lib/tenant";
+import { cache } from "react";
 
-async function resolveStaffTenantId(): Promise<string> {
-  const tenantId = await getTenantIdOrNull();
-  if (tenantId) return tenantId;
-  // Vercel等サブドメインなし環境ではデフォルトテナントを使用
-  const slug = process.env.NEXT_PUBLIC_DEFAULT_TENANT_SLUG;
-  if (!slug) throw new Error("テナントが特定できません");
+const resolveStaffTenantId = cache(async (): Promise<string> => {
   const admin = createAdminClient();
+  // デフォルトテナントスラグから直接IDを取得
+  const slug = process.env.NEXT_PUBLIC_DEFAULT_TENANT_SLUG;
+  if (!slug) throw new Error("NEXT_PUBLIC_DEFAULT_TENANT_SLUG が未設定です");
   const { data } = await admin
     .from("organizations")
     .select("id")
     .eq("slug", slug)
     .single();
-  if (!data) throw new Error("テナントが特定できません");
+  if (!data) throw new Error(`テナント "${slug}" が見つかりません`);
   return data.id;
-}
+});
 
 // 従業員一覧取得（名前のみ）
 export async function getActiveEmployees() {
