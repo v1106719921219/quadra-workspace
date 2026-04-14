@@ -101,11 +101,13 @@ export async function updateSession(request: NextRequest) {
     }
 
     // サブドメインなし + 認証済み → 組織選択ページへ
+    // ただし vercel.app ドメインではサブドメイン運用しないためスキップ
     const isOrgSelectionRoute = ["/select-org", "/create-org"].some((route) =>
       pathname.startsWith(route)
     );
+    const isVercelApp = host.endsWith(".vercel.app") || host === "vercel.app";
 
-    if (user && !subdomain && !isPublicRoute && !isApiRoute && !isOrgSelectionRoute) {
+    if (user && !subdomain && !isVercelApp && !isPublicRoute && !isApiRoute && !isOrgSelectionRoute) {
       const url = request.nextUrl.clone();
       url.pathname = "/select-org";
       return NextResponse.redirect(url);
