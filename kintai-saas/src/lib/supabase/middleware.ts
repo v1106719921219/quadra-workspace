@@ -48,7 +48,7 @@ export async function updateSession(request: NextRequest) {
     const isApiRoute = pathname.startsWith("/api/");
 
     // 打刻画面 (/clock) はテナント内だが認証不要（タブレット共有用）
-    const publicRoutes = ["/login", "/signup", "/auth", "/clock", "/tenant-not-found"];
+    const publicRoutes = ["/login", "/signup", "/auth", "/clock", "/staff", "/tenant-not-found"];
     const isPublicRoute = publicRoutes.some((route) =>
       pathname.startsWith(route)
     );
