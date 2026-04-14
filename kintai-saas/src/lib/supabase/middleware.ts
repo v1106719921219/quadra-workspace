@@ -48,7 +48,7 @@ export async function updateSession(request: NextRequest) {
     const isApiRoute = pathname.startsWith("/api/");
 
     // 打刻画面 (/clock) はテナント内だが認証不要（タブレット共有用）
-    const publicRoutes = ["/login", "/signup", "/auth", "/clock", "/staff", "/tenant-not-found"];
+    const publicRoutes = ["/login", "/signup", "/auth", "/clock", "/tenant-not-found"];
     const isPublicRoute = publicRoutes.some((route) =>
       pathname.startsWith(route)
     );
@@ -101,13 +101,11 @@ export async function updateSession(request: NextRequest) {
     }
 
     // サブドメインなし + 認証済み → 組織選択ページへ
-    // ただし vercel.app ドメインではサブドメイン運用しないためスキップ
     const isOrgSelectionRoute = ["/select-org", "/create-org"].some((route) =>
       pathname.startsWith(route)
     );
-    const isVercelApp = host.endsWith(".vercel.app") || host === "vercel.app";
 
-    if (user && !subdomain && !isVercelApp && !isPublicRoute && !isApiRoute && !isOrgSelectionRoute) {
+    if (user && !subdomain && !isPublicRoute && !isApiRoute && !isOrgSelectionRoute) {
       const url = request.nextUrl.clone();
       url.pathname = "/select-org";
       return NextResponse.redirect(url);
