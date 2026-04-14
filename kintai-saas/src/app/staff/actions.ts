@@ -32,6 +32,22 @@ export async function verifyPin(employeeId: string, pin: string): Promise<boolea
   return data.pin === pin;
 }
 
+// 他の従業員の休日希望を取得（名前付き）
+export async function getOthersDayOffRequests(employeeId: string, year: number, month: number) {
+  const tenantId = await getTenantId();
+  const admin = createAdminClient();
+  const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
+  const endDate = new Date(year, month, 0).toLocaleDateString("sv-SE");
+  const { data } = await admin
+    .from("day_off_requests")
+    .select("request_date, employee_id, employees(name)")
+    .eq("tenant_id", tenantId)
+    .neq("employee_id", employeeId)
+    .gte("request_date", startDate)
+    .lte("request_date", endDate);
+  return data || [];
+}
+
 // 休日希望の取得
 export async function getDayOffRequests(employeeId: string, year: number, month: number) {
   const tenantId = await getTenantId();

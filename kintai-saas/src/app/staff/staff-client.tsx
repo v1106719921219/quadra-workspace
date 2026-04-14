@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { verifyPin, getDayOffRequests, saveDayOffRequests } from "./actions";
+import { verifyPin, getDayOffRequests, getOthersDayOffRequests, saveDayOffRequests } from "./actions";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Employee {
@@ -26,6 +26,7 @@ export function StaffClient({ employees }: { employees: Employee[] }) {
   const [year, setYear] = useState(now.getMonth() === 11 ? now.getFullYear() + 1 : now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() === 11 ? 1 : now.getMonth() + 2); // 翌月
   const [selectedDates, setSelectedDates] = useState<Set<string>>(new Set());
+  const [othersRequests, setOthersRequests] = useState<Map<string, string[]>>(new Map()); // date -> names[]
   const [saved, setSaved] = useState(false);
 
   function handleSelectEmployee(emp: Employee) {
@@ -47,9 +48,13 @@ export function StaffClient({ employees }: { employees: Employee[] }) {
         return;
       }
       // カレンダーデータ読み込み
-      const existing = await getDayOffRequests(selectedEmployee.id, year, month);
+      const [existing, others] = await Promise.all([
+        getDayOffRequests(selectedEmployee.id, year, month),
+        getOthersDayOffRequests(selectedEmployee.id, year, month),
+      ]);
       const dates = new Set(existing.map((r) => r.request_date));
       setSelectedDates(dates);
+      setOthersRequests(buildOthersMap(others));
       setSaved(false);
       setStep("calendar");
     } catch {
@@ -91,6 +96,19 @@ export function StaffClient({ employees }: { employees: Employee[] }) {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function buildOthersMap(others: any[]) {
+    const map = new Map<string, string[]>();
+    for (const r of others) {
+      const emp = Array.isArray(r.employees) ? r.employees[0] : r.employees;
+      const name = emp?.name || "?";
+      const existing = map.get(r.request_date) || [];
+      existing.push(name);
+      map.set(r.request_date, existing);
+    }
+    return map;
+  }
+
   async function handleMonthChange(newYear: number, newMonth: number) {
     setYear(newYear);
     setMonth(newMonth);
@@ -98,16 +116,21 @@ export function StaffClient({ employees }: { employees: Employee[] }) {
     if (selectedEmployee) {
       setLoading(true);
       try {
-        const existing = await getDayOffRequests(selectedEmployee.id, newYear, newMonth);
-        const dates = new Set(existing.map((r) => r.request_date));
-        setSelectedDates(dates);
+        const [existing, others] = await Promise.all([
+          getDayOffRequests(selectedEmployee.id, newYear, newMonth),
+          getOthersDayOffRequests(selectedEmployee.id, newYear, newMonth),
+        ]);
+        setSelectedDates(new Set(existing.map((r) => r.request_date)));
+        setOthersRequests(buildOthersMap(others));
       } catch {
         setSelectedDates(new Set());
+        setOthersRequests(new Map());
       } finally {
         setLoading(false);
       }
     } else {
       setSelectedDates(new Set());
+      setOthersRequests(new Map());
     }
   }
 
@@ -225,20 +248,26 @@ export function StaffClient({ employees }: { employees: Employee[] }) {
             const weekday = new Date(dateStr).getDay();
             const isSelected = selectedDates.has(dateStr);
             const isToday = dateStr === new Date().toLocaleDateString("sv-SE");
+            const othersNames = othersRequests.get(dateStr) || [];
             return (
               <button
                 key={dateStr}
                 onClick={() => toggleDate(dateStr)}
                 disabled={loading}
                 className={`
-                  aspect-square rounded-full flex items-center justify-center text-sm font-medium transition-colors
+                  relative rounded-lg flex flex-col items-center justify-start pt-1 text-sm font-medium transition-colors min-h-[52px]
                   ${isSelected ? "bg-red-500 text-white" : "bg-white border"}
                   ${weekday === 0 && !isSelected ? "text-red-500" : ""}
                   ${weekday === 6 && !isSelected ? "text-blue-500" : ""}
                   ${isToday && !isSelected ? "border-2 border-gray-400" : ""}
                 `}
               >
-                {day}
+                <span>{day}</span>
+                {othersNames.length > 0 && (
+                  <span className={`text-[9px] leading-tight truncate w-full text-center ${isSelected ? "text-red-100" : "text-orange-500"}`}>
+                    {othersNames.map(n => n.slice(0, 2)).join(",")}
+                  </span>
+                )}
               </button>
             );
           })}
