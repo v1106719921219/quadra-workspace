@@ -1,11 +1,27 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getTenantId } from "@/lib/tenant";
+import { getTenantIdOrNull } from "@/lib/tenant";
+
+async function resolveStaffTenantId(): Promise<string> {
+  const tenantId = await getTenantIdOrNull();
+  if (tenantId) return tenantId;
+  // Vercel等サブドメインなし環境ではデフォルトテナントを使用
+  const slug = process.env.NEXT_PUBLIC_DEFAULT_TENANT_SLUG;
+  if (!slug) throw new Error("テナントが特定できません");
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("organizations")
+    .select("id")
+    .eq("slug", slug)
+    .single();
+  if (!data) throw new Error("テナントが特定できません");
+  return data.id;
+}
 
 // 従業員一覧取得（名前のみ）
 export async function getActiveEmployees() {
-  const tenantId = await getTenantId();
+  const tenantId = await resolveStaffTenantId();
   const admin = createAdminClient();
   const { data } = await admin
     .from("employees")
@@ -18,7 +34,7 @@ export async function getActiveEmployees() {
 
 // PIN認証
 export async function verifyPin(employeeId: string, pin: string): Promise<boolean> {
-  const tenantId = await getTenantId();
+  const tenantId = await resolveStaffTenantId();
   const admin = createAdminClient();
   const { data } = await admin
     .from("employees")
@@ -34,7 +50,7 @@ export async function verifyPin(employeeId: string, pin: string): Promise<boolea
 
 // 他の従業員の休日希望を取得（名前付き）
 export async function getOthersDayOffRequests(employeeId: string, year: number, month: number) {
-  const tenantId = await getTenantId();
+  const tenantId = await resolveStaffTenantId();
   const admin = createAdminClient();
   const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
   const endDate = new Date(year, month, 0).toLocaleDateString("sv-SE");
@@ -50,7 +66,7 @@ export async function getOthersDayOffRequests(employeeId: string, year: number, 
 
 // 休日希望の取得
 export async function getDayOffRequests(employeeId: string, year: number, month: number) {
-  const tenantId = await getTenantId();
+  const tenantId = await resolveStaffTenantId();
   const admin = createAdminClient();
   const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
   const endDate = new Date(year, month, 0).toLocaleDateString("sv-SE");
@@ -66,7 +82,7 @@ export async function getDayOffRequests(employeeId: string, year: number, month:
 
 // 休日希望の保存（月まるごと上書き）
 export async function saveDayOffRequests(employeeId: string, dates: string[]) {
-  const tenantId = await getTenantId();
+  const tenantId = await resolveStaffTenantId();
   const admin = createAdminClient();
 
   if (dates.length === 0) return;
