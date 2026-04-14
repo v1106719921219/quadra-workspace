@@ -14,9 +14,9 @@ export function extractSubdomain(host: string): string | null {
     return null;
   }
 
-  // Vercelプレビューはサブドメインなし扱い
+  // Vercel: デフォルトテナントスラグがあればそれを使う
   if (hostname.endsWith(".vercel.app")) {
-    return null;
+    return process.env.NEXT_PUBLIC_DEFAULT_TENANT_SLUG || null;
   }
 
   const parts = hostname.split(".");
