@@ -13,6 +13,8 @@ const {
   Routes,
 } = require("discord.js");
 const Anthropic = require("@anthropic-ai/sdk").default;
+const fs = require("fs");
+const path = require("path");
 
 const client = new Client({
   intents: [
@@ -53,6 +55,51 @@ We'll get back to you with pricing shortly!
 
 // Track ticket counter per guild
 const ticketCounters = new Map();
+
+// ========== Level System ==========
+const LEVELS_FILE = path.join(__dirname, "levels.json");
+const XP_PER_MESSAGE = 15;
+const XP_COOLDOWN_MS = 60000; // 1 message per minute counts for XP
+const xpCooldowns = new Map();
+
+// Level thresholds: level N requires N^2 * 100 XP
+function getLevel(xp) {
+  let level = 0;
+  while ((level + 1) * (level + 1) * 100 <= xp) {
+    level++;
+  }
+  return level;
+}
+
+function getXpForLevel(level) {
+  return level * level * 100;
+}
+
+function loadLevels() {
+  try {
+    if (fs.existsSync(LEVELS_FILE)) {
+      return JSON.parse(fs.readFileSync(LEVELS_FILE, "utf8"));
+    }
+  } catch (err) {
+    console.error("Error loading levels:", err);
+  }
+  return {};
+}
+
+function saveLevels(data) {
+  try {
+    fs.writeFileSync(LEVELS_FILE, JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.error("Error saving levels:", err);
+  }
+}
+
+const LEVEL_ROLES = {
+  5: "Level 5",
+  10: "Level 10",
+  20: "Level 20",
+  30: "Level 30",
+};
 
 async function getNextTicketNumber(guild) {
   const channels = await guild.channels.fetch();
@@ -97,10 +144,21 @@ client.once("ready", async () => {
         .setMaxValue(20)
     );
 
+  const rankCommand = new SlashCommandBuilder()
+    .setName("rank")
+    .setDescription("Check your level and XP")
+    .addUserOption((opt) =>
+      opt.setName("user").setDescription("User to check").setRequired(false)
+    );
+
+  const leaderboardCommand = new SlashCommandBuilder()
+    .setName("leaderboard")
+    .setDescription("View the top 10 members by level");
+
   const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_TOKEN);
   try {
     await rest.put(Routes.applicationCommands(client.user.id), {
-      body: [shippingCommand.toJSON()],
+      body: [shippingCommand.toJSON(), rankCommand.toJSON(), leaderboardCommand.toJSON()],
     });
     console.log("Slash commands registered");
   } catch (err) {
@@ -159,6 +217,66 @@ client.on("interactionCreate", async (interaction) => {
     response += "\n💡 手数料・燃油サーチャージ込み";
 
     await interaction.reply(response);
+    return;
+  }
+
+  // Handle /rank command
+  if (interaction.isChatInputCommand() && interaction.commandName === "rank") {
+    const target = interaction.options.getUser("user") || interaction.user;
+    const levels = loadLevels();
+    const userData = levels[target.id] || { xp: 0, messages: 0 };
+    const level = getLevel(userData.xp);
+    const nextLevelXp = getXpForLevel(level + 1);
+    const currentLevelXp = getXpForLevel(level);
+    const progress = userData.xp - currentLevelXp;
+    const needed = nextLevelXp - currentLevelXp;
+    const barLength = 20;
+    const filled = Math.round((progress / needed) * barLength);
+    const bar = "█".repeat(filled) + "░".repeat(barLength - filled);
+
+    const embed = new EmbedBuilder()
+      .setColor(0x5865f2)
+      .setTitle(`${target.username}'s Rank`)
+      .setThumbnail(target.displayAvatarURL())
+      .addFields(
+        { name: "Level", value: `${level}`, inline: true },
+        { name: "XP", value: `${userData.xp} / ${nextLevelXp}`, inline: true },
+        { name: "Messages", value: `${userData.messages || 0}`, inline: true },
+        { name: "Progress", value: `${bar} ${progress}/${needed}` }
+      )
+      .setFooter({ text: "animac TCG — Level System" });
+
+    await interaction.reply({ embeds: [embed] });
+    return;
+  }
+
+  // Handle /leaderboard command
+  if (interaction.isChatInputCommand() && interaction.commandName === "leaderboard") {
+    const levels = loadLevels();
+    const sorted = Object.entries(levels)
+      .sort((a, b) => b[1].xp - a[1].xp)
+      .slice(0, 10);
+
+    if (sorted.length === 0) {
+      await interaction.reply("No ranking data yet!");
+      return;
+    }
+
+    let description = "";
+    for (let i = 0; i < sorted.length; i++) {
+      const [userId, data] = sorted[i];
+      const level = getLevel(data.xp);
+      const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `**${i + 1}.**`;
+      description += `${medal} <@${userId}> — Level **${level}** (${data.xp} XP)\n`;
+    }
+
+    const embed = new EmbedBuilder()
+      .setColor(0xffd700)
+      .setTitle("🏆 Leaderboard — Top 10")
+      .setDescription(description)
+      .setFooter({ text: "animac TCG — Level System" });
+
+    await interaction.reply({ embeds: [embed] });
     return;
   }
 
@@ -390,6 +508,33 @@ client.on("messageCreate", async (message) => {
 
   // Ignore bot messages
   if (message.author.bot) return;
+
+  // ===== Level System: XP gain =====
+  const now = Date.now();
+  const lastXp = xpCooldowns.get(message.author.id) || 0;
+  if (now - lastXp >= XP_COOLDOWN_MS) {
+    xpCooldowns.set(message.author.id, now);
+    const levels = loadLevels();
+    if (!levels[message.author.id]) {
+      levels[message.author.id] = { xp: 0, messages: 0 };
+    }
+    const oldLevel = getLevel(levels[message.author.id].xp);
+    levels[message.author.id].xp += XP_PER_MESSAGE;
+    levels[message.author.id].messages = (levels[message.author.id].messages || 0) + 1;
+    const newLevel = getLevel(levels[message.author.id].xp);
+    saveLevels(levels);
+
+    if (newLevel > oldLevel) {
+      const embed = new EmbedBuilder()
+        .setColor(0xffd700)
+        .setTitle("🎉 Level Up!")
+        .setDescription(
+          `Congratulations <@${message.author.id}>!\nYou reached **Level ${newLevel}**!`
+        )
+        .setFooter({ text: "animac TCG — Level System" });
+      message.channel.send({ embeds: [embed] }).catch(() => {});
+    }
+  }
 
   // Only respond in ticket channels
   if (!message.channel.name.startsWith("ticket-")) return;
