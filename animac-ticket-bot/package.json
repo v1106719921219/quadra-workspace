@@ -1,0 +1,14 @@
+{
+  "name": "animac-ticket-bot",
+  "version": "1.0.0",
+  "description": "Discord bot for animac TCG ticket support with Claude AI",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.7"
+  }
+}
