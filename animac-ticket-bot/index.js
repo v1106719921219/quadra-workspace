@@ -164,6 +164,26 @@ client.once("ready", async () => {
   } catch (err) {
     console.error("Failed to register slash commands:", err);
   }
+
+  // Add スタッフ role to existing ticket channels
+  for (const guild of client.guilds.cache.values()) {
+    const staffRole = guild.roles.cache.find((r) => r.name === "スタッフ");
+    if (!staffRole) continue;
+
+    const channels = await guild.channels.fetch();
+    for (const [, channel] of channels) {
+      if (!channel || !channel.name.startsWith("ticket-")) continue;
+      const existing = channel.permissionOverwrites.cache.get(staffRole.id);
+      if (!existing) {
+        await channel.permissionOverwrites.edit(staffRole, {
+          ViewChannel: true,
+          SendMessages: true,
+          ReadMessageHistory: true,
+        });
+        console.log(`Added スタッフ role to existing ticket: ${channel.name}`);
+      }
+    }
+  }
 });
 
 // Handle interactions (slash commands + buttons)
@@ -303,32 +323,48 @@ client.on("interactionCreate", async (interaction) => {
     }
 
     try {
+      // Find スタッフ role to add to ticket
+      const staffRole = guild.roles.cache.find((r) => r.name === "スタッフ");
+
+      const permissionOverwrites = [
+        {
+          id: guild.id, // @everyone
+          deny: [PermissionFlagsBits.ViewChannel],
+        },
+        {
+          id: member.id, // ticket creator
+          allow: [
+            PermissionFlagsBits.ViewChannel,
+            PermissionFlagsBits.SendMessages,
+            PermissionFlagsBits.ReadMessageHistory,
+          ],
+        },
+        {
+          id: client.user.id, // bot
+          allow: [
+            PermissionFlagsBits.ViewChannel,
+            PermissionFlagsBits.SendMessages,
+            PermissionFlagsBits.ReadMessageHistory,
+            PermissionFlagsBits.ManageChannels,
+          ],
+        },
+      ];
+
+      if (staffRole) {
+        permissionOverwrites.push({
+          id: staffRole.id,
+          allow: [
+            PermissionFlagsBits.ViewChannel,
+            PermissionFlagsBits.SendMessages,
+            PermissionFlagsBits.ReadMessageHistory,
+          ],
+        });
+      }
+
       const ticketChannel = await guild.channels.create({
         name: channelName,
         type: ChannelType.GuildText,
-        permissionOverwrites: [
-          {
-            id: guild.id, // @everyone
-            deny: [PermissionFlagsBits.ViewChannel],
-          },
-          {
-            id: member.id, // ticket creator
-            allow: [
-              PermissionFlagsBits.ViewChannel,
-              PermissionFlagsBits.SendMessages,
-              PermissionFlagsBits.ReadMessageHistory,
-            ],
-          },
-          {
-            id: client.user.id, // bot
-            allow: [
-              PermissionFlagsBits.ViewChannel,
-              PermissionFlagsBits.SendMessages,
-              PermissionFlagsBits.ReadMessageHistory,
-              PermissionFlagsBits.ManageChannels,
-            ],
-          },
-        ],
+        permissionOverwrites,
       });
 
       // Send welcome embed in ticket channel
