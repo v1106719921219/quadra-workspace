@@ -509,78 +509,121 @@ client.once("ready", async () => {
 client.on("interactionCreate", async (interaction) => {
   // ===== Autocomplete =====
   if (interaction.isAutocomplete()) {
-    const focused = interaction.options.getFocused(true);
+    if (!supabase) {
+      await interaction.respond([]);
+      return;
+    }
 
-    if (
-      interaction.commandName === "confirm" &&
-      focused.name === "customer"
-    ) {
-      const query = focused.value;
-      const { data } = await supabase
-        .from("customers")
-        .select("id, name, account_name, country")
-        .eq("tenant_id", TENANT_ID)
-        .ilike("name", `%${query}%`)
-        .order("name")
-        .limit(25);
+    try {
+      const focused = interaction.options.getFocused(true);
 
-      const choices = (data || []).map((c) => ({
-        name: `${c.name}${c.country ? ` (${c.country})` : ""}`.slice(0, 100),
-        value: c.id,
-      }));
-      // Add "new customer" option
-      if (query.length > 0) {
-        choices.unshift({
-          name: `+ New: ${query}`,
-          value: `new:${query}`,
-        });
+      if (
+        interaction.commandName === "confirm" &&
+        focused.name === "customer"
+      ) {
+        const query = focused.value;
+        const { data, error } = await supabase
+          .from("customers")
+          .select("id, name, account_name, country")
+          .eq("tenant_id", TENANT_ID)
+          .ilike("name", `%${query}%`)
+          .order("name")
+          .limit(25);
+
+        if (error) {
+          console.error("Customer autocomplete error:", error);
+          await interaction.respond([]);
+          return;
+        }
+
+        const choices = (data || []).map((c) => ({
+          name: `${c.name}${c.country ? ` (${c.country})` : ""}`.slice(0, 100),
+          value: c.id,
+        }));
+        if (query.length > 0) {
+          choices.unshift({
+            name: `+ New: ${query}`,
+            value: `new:${query}`,
+          });
+        }
+        await interaction.respond(choices.slice(0, 25));
+        return;
       }
-      await interaction.respond(choices.slice(0, 25));
-      return;
-    }
 
-    if (interaction.commandName === "confirm" && focused.name === "staff") {
-      const query = focused.value;
-      const { data } = await supabase
-        .from("profiles")
-        .select("id, display_name")
-        .ilike("display_name", `%${query}%`)
-        .limit(25);
+      if (interaction.commandName === "confirm" && focused.name === "staff") {
+        const query = focused.value;
+        const { data, error } = await supabase
+          .from("organization_members")
+          .select("user_id, profiles(id, display_name)")
+          .eq("organization_id", TENANT_ID)
+          .limit(25);
 
-      const choices = (data || []).map((p) => ({
-        name: p.display_name || p.id.slice(0, 8),
-        value: p.id,
-      }));
-      await interaction.respond(choices.slice(0, 25));
-      return;
-    }
+        if (error) {
+          console.error("Staff autocomplete error:", error);
+          // Fallback: query profiles directly
+          const { data: profiles } = await supabase
+            .from("profiles")
+            .select("id, display_name")
+            .ilike("display_name", `%${query}%`)
+            .limit(25);
 
-    if (interaction.commandName === "item" && focused.name === "product") {
-      const query = focused.value;
-      const { data } = await supabase
-        .from("products")
-        .select("id, name, unit_price, currency")
-        .eq("tenant_id", TENANT_ID)
-        .eq("is_public", true)
-        .ilike("name", `%${query}%`)
-        .order("sort_order")
-        .limit(24);
+          const choices = (profiles || []).map((p) => ({
+            name: p.display_name || p.id.slice(0, 8),
+            value: p.id,
+          }));
+          await interaction.respond(choices.slice(0, 25));
+          return;
+        }
 
-      const choices = (data || []).map((p) => ({
-        name: `${p.name} ($${p.unit_price})`.slice(0, 100),
-        value: p.id,
-      }));
-      // Add "custom item" option
-      if (query.length > 0) {
-        choices.push({
-          name: `+ Custom: ${query}`,
-          value: `custom:${query}`,
-        });
+        const choices = (data || [])
+          .filter((m) => m.profiles)
+          .map((m) => ({
+            name: (m.profiles.display_name || m.user_id.slice(0, 8)).slice(0, 100),
+            value: m.profiles.id,
+          }))
+          .filter((c) =>
+            query.length === 0 || c.name.toLowerCase().includes(query.toLowerCase())
+          );
+        await interaction.respond(choices.slice(0, 25));
+        return;
       }
-      await interaction.respond(choices.slice(0, 25));
-      return;
-    }
 
+      if (interaction.commandName === "item" && focused.name === "product") {
+        const query = focused.value;
+        const { data, error } = await supabase
+          .from("products")
+          .select("id, name, unit_price, currency")
+          .eq("tenant_id", TENANT_ID)
+          .eq("is_public", true)
+          .ilike("name", `%${query}%`)
+          .order("sort_order")
+          .limit(24);
+
+        if (error) {
+          console.error("Product autocomplete error:", error);
+          await interaction.respond([]);
+          return;
+        }
+
+        const choices = (data || []).map((p) => ({
+          name: `${p.name} ($${p.unit_price})`.slice(0, 100),
+          value: p.id,
+        }));
+        if (query.length > 0) {
+          choices.push({
+            name: `+ Custom: ${query}`,
+            value: `custom:${query}`,
+          });
+        }
+        await interaction.respond(choices.slice(0, 25));
+        return;
+      }
+
+      await interaction.respond([]);
+    } catch (err) {
+      console.error("Autocomplete error:", err);
+      await interaction.respond([]).catch(() => {});
+    }
     return;
   }
 
