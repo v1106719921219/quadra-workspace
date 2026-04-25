@@ -21,10 +21,16 @@ const fs = require("fs");
 const path = require("path");
 
 // ========== Supabase ==========
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY
-);
+let supabase = null;
+if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY) {
+  supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_KEY
+  );
+  console.log("Supabase connected");
+} else {
+  console.warn("WARNING: SUPABASE_URL or SUPABASE_SERVICE_KEY not set. Order features disabled.");
+}
 const TENANT_ID =
   process.env.ANIMAC_TENANT_ID || "a0000000-0000-0000-0000-000000000001";
 const ORDER_SITE_URL =
