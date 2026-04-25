@@ -553,37 +553,25 @@ client.on("interactionCreate", async (interaction) => {
       if (interaction.commandName === "confirm" && focused.name === "staff") {
         const query = focused.value;
         const { data, error } = await supabase
-          .from("organization_members")
-          .select("user_id, profiles(id, display_name)")
-          .eq("organization_id", TENANT_ID)
+          .from("profiles")
+          .select("id, display_name")
           .limit(25);
 
         if (error) {
           console.error("Staff autocomplete error:", error);
-          // Fallback: query profiles directly
-          const { data: profiles } = await supabase
-            .from("profiles")
-            .select("id, display_name")
-            .ilike("display_name", `%${query}%`)
-            .limit(25);
-
-          const choices = (profiles || []).map((p) => ({
-            name: p.display_name || p.id.slice(0, 8),
-            value: p.id,
-          }));
-          await interaction.respond(choices.slice(0, 25));
+          await interaction.respond([]);
           return;
         }
 
         const choices = (data || [])
-          .filter((m) => m.profiles)
-          .map((m) => ({
-            name: (m.profiles.display_name || m.user_id.slice(0, 8)).slice(0, 100),
-            value: m.profiles.id,
-          }))
-          .filter((c) =>
-            query.length === 0 || c.name.toLowerCase().includes(query.toLowerCase())
-          );
+          .filter((p) => p.display_name)
+          .filter((p) =>
+            query.length === 0 || p.display_name.toLowerCase().includes(query.toLowerCase())
+          )
+          .map((p) => ({
+            name: p.display_name.slice(0, 100),
+            value: p.id,
+          }));
         await interaction.respond(choices.slice(0, 25));
         return;
       }
