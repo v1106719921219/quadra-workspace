@@ -14,7 +14,7 @@ export const resolveTenant = cache(async (): Promise<Tenant | null> => {
   const host = headersList.get("host") || "";
 
   const { extractSubdomain } = await import("@/lib/subdomain");
-  const slug = extractSubdomain(host);
+  const slug = extractSubdomain(host) || process.env.NEXT_PUBLIC_DEFAULT_TENANT_SLUG?.trim() || null;
   if (!slug) return null;
 
   const admin = createAdminClient();
