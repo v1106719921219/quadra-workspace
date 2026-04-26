@@ -61,10 +61,9 @@ export default function CreateOrgPage() {
     // デフォルト業務タイプ作成
     await supabase.rpc("seed_default_work_types", { p_tenant_id: org.id });
 
-    // クッキーにテナントスラッグを保存してリダイレクト
+    // クッキーにテナントスラッグを保存してフルリロード
     document.cookie = `tenant_slug=${slug}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
-    router.push("/dashboard");
-    router.refresh();
+    window.location.href = "/dashboard";
   }
 
   return (

@@ -46,10 +46,9 @@ export default function SelectOrgPage() {
   }, [supabase, router]);
 
   function goToOrg(slug: string) {
-    // クッキーにテナントスラッグを保存
+    // クッキーにテナントスラッグを保存してフルリロード
     document.cookie = `tenant_slug=${slug}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
-    router.push("/dashboard");
-    router.refresh();
+    window.location.href = "/dashboard";
   }
 
   async function handleLogout() {
