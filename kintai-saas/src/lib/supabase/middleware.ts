@@ -43,6 +43,7 @@ export async function updateSession(request: NextRequest) {
 
     const host = request.headers.get("host") || "";
     const subdomain = extractSubdomain(host);
+    const tenantSlug = subdomain || request.cookies.get("tenant_slug")?.value || null;
     const pathname = request.nextUrl.pathname;
 
     const isApiRoute = pathname.startsWith("/api/");
@@ -105,7 +106,7 @@ export async function updateSession(request: NextRequest) {
       pathname.startsWith(route)
     );
 
-    if (user && !subdomain && !isPublicRoute && !isApiRoute && !isOrgSelectionRoute) {
+    if (user && !tenantSlug && !isPublicRoute && !isApiRoute && !isOrgSelectionRoute) {
       const url = request.nextUrl.clone();
       url.pathname = "/select-org";
       return NextResponse.redirect(url);
@@ -114,12 +115,12 @@ export async function updateSession(request: NextRequest) {
     // 認証済みユーザーがloginにアクセス → dashboard
     if (user && pathname === "/login") {
       const url = request.nextUrl.clone();
-      url.pathname = "/dashboard";
+      url.pathname = tenantSlug ? "/dashboard" : "/select-org";
       return NextResponse.redirect(url);
     }
 
-    // サブドメインありの "/" → dashboard
-    if (user && pathname === "/" && subdomain) {
+    // テナントありの "/" → dashboard
+    if (user && pathname === "/" && tenantSlug) {
       const url = request.nextUrl.clone();
       url.pathname = "/dashboard";
       return NextResponse.redirect(url);
