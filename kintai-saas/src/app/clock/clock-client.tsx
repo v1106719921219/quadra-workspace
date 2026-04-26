@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { isHolidayDate, getHolidayNameFromDate } from "@/lib/holidays";
 import {
   Dialog,
   DialogContent,
@@ -113,7 +114,12 @@ export function ClockClient({
           <p className="text-sm text-muted-foreground mb-1">{tenantName}</p>
           <h1 className="text-lg font-semibold text-muted-foreground">勤怠タイムレコーダー</h1>
           <div className="text-5xl font-mono font-bold tracking-wider mt-2">{timeStr}</div>
-          <p className="text-lg text-muted-foreground mt-1">{dateStr}</p>
+          <p className={`text-lg mt-1 ${now.getDay() === 0 || now.getDay() === 6 || isHolidayDate(now) ? "text-red-600 font-semibold" : "text-muted-foreground"}`}>
+            {dateStr}
+            {getHolidayNameFromDate(now) && (
+              <span className="ml-2 text-sm text-red-500">({getHolidayNameFromDate(now)})</span>
+            )}
+          </p>
         </div>
       </div>
 

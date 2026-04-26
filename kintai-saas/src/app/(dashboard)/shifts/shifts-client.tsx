@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ChevronLeft, ChevronRight, Copy, Trash2, Plus, Pencil, GripVertical } from "lucide-react";
+import { isHolidayDate, getHolidayNameFromDate } from "@/lib/holidays";
 import {
   getWeeklyShifts,
   upsertShift,
@@ -417,17 +418,22 @@ export function ShiftsClient({
                   const isToday = formatDate(d) === formatDate(new Date());
                   const isSat = i === 5;
                   const isSun = i === 6;
+                  const holiday = getHolidayNameFromDate(d);
+                  const isRed = isSun || !!holiday;
                   return (
                     <TableHead
                       key={i}
                       className={`text-center min-w-[100px] ${
                         isToday ? "bg-blue-50 dark:bg-blue-950" : ""
-                      } ${isSat ? "text-blue-600" : ""} ${isSun ? "text-red-600" : ""}`}
+                      } ${isRed ? "text-red-600" : isSat ? "text-blue-600" : ""}`}
                     >
                       <div>{DAY_LABELS[i]}</div>
                       <div className="text-xs font-normal">
                         {d.getMonth() + 1}/{d.getDate()}
                       </div>
+                      {holiday && (
+                        <div className="text-[10px] font-normal text-red-500">{holiday}</div>
+                      )}
                     </TableHead>
                   );
                 })}

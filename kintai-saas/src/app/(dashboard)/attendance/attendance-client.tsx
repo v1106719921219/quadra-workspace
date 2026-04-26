@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { isJapaneseHoliday, getHolidayName } from "@/lib/holidays";
 import {
   Table,
   TableBody,
@@ -227,8 +228,18 @@ export function AttendanceClient({
               type="date"
               value={date}
               onChange={(e) => loadRecords(e.target.value)}
-              className="w-auto"
+              className={`w-auto ${isJapaneseHoliday(date) ? "text-red-600" : ""}`}
             />
+            {(() => {
+              const d = new Date(date + "T00:00:00+09:00");
+              const isSun = d.getDay() === 0;
+              const isSat = d.getDay() === 6;
+              const holiday = getHolidayName(date);
+              if (holiday) return <span className="text-sm text-red-600 font-medium">{holiday}</span>;
+              if (isSun) return <span className="text-sm text-red-600">日曜日</span>;
+              if (isSat) return <span className="text-sm text-blue-600">土曜日</span>;
+              return null;
+            })()}
             <Button variant="outline" size="icon" onClick={() => changeDate(1)}>
               <ChevronRight className="h-4 w-4" />
             </Button>
