@@ -61,16 +61,10 @@ export default function CreateOrgPage() {
     // デフォルト業務タイプ作成
     await supabase.rpc("seed_default_work_types", { p_tenant_id: org.id });
 
-    // テナントへリダイレクト
-    const host = window.location.host;
-    const protocol = window.location.protocol;
-    if (host.includes("localhost")) {
-      window.location.href = `${protocol}//${slug}.localhost:3000/dashboard`;
-    } else {
-      const parts = host.split(".");
-      const baseDomain = parts.slice(-2).join(".");
-      window.location.href = `${protocol}//${slug}.${baseDomain}/dashboard`;
-    }
+    // クッキーにテナントスラッグを保存してリダイレクト
+    document.cookie = `tenant_slug=${slug}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
+    router.push("/dashboard");
+    router.refresh();
   }
 
   return (

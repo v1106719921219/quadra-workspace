@@ -1,4 +1,4 @@
-import { headers } from "next/headers";
+import { headers, cookies } from "next/headers";
 import { cache } from "react";
 import { createAdminClient } from "@/lib/supabase/admin";
 export { extractSubdomain } from "@/lib/subdomain";
@@ -14,7 +14,16 @@ export const resolveTenant = cache(async (): Promise<Tenant | null> => {
   const host = headersList.get("host") || "";
 
   const { extractSubdomain } = await import("@/lib/subdomain");
-  const slug = extractSubdomain(host) || process.env.NEXT_PUBLIC_DEFAULT_TENANT_SLUG?.trim() || null;
+
+  // 1. サブドメインから取得
+  // 2. クッキーから取得
+  // 3. 環境変数のデフォルトテナント
+  const cookieStore = await cookies();
+  const slug =
+    extractSubdomain(host) ||
+    cookieStore.get("tenant_slug")?.value ||
+    process.env.NEXT_PUBLIC_DEFAULT_TENANT_SLUG?.trim() ||
+    null;
   if (!slug) return null;
 
   const admin = createAdminClient();
