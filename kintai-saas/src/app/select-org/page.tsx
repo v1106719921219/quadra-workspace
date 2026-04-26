@@ -48,7 +48,7 @@ export default function SelectOrgPage() {
   function goToOrg(slug: string) {
     // クッキーにテナントスラッグを保存してフルリロード
     document.cookie = `tenant_slug=${slug}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
-    window.location.href = "/dashboard";
+    window.location.assign("/dashboard");
   }
 
   async function handleLogout() {

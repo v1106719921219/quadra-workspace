@@ -48,7 +48,7 @@ export default function LoginPage() {
       return;
     }
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data: authData, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -59,8 +59,21 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/dashboard");
-    router.refresh();
+    // 所属組織を取得してクッキーに設定
+    const { data: orgs } = await supabase
+      .from("organization_members")
+      .select("organization:organizations(slug)")
+      .eq("user_id", authData.user.id);
+
+    if (orgs && orgs.length === 1) {
+      const org = orgs[0].organization as unknown as { slug: string };
+      document.cookie = `tenant_slug=${org.slug}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
+      window.location.href = "/dashboard";
+      return;
+    }
+
+    // 複数組織 or 0件の場合はテナント選択へ
+    window.location.href = "/select-org";
   }
 
   return (
