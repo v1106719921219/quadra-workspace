@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
@@ -21,56 +20,34 @@ import {
   CalendarDays,
   CalendarClock,
   Users,
+  Briefcase,
   FileBarChart,
   Calculator,
   Settings,
   LogOut,
   Tablet,
-  HardHat,
-  LayoutGrid,
-  CreditCard,
-  CalendarX,
+  MapPin,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
-type MenuItem = { title: string; href: string; icon: React.ComponentType<{ className?: string }>; badge?: string };
-
-// 全テナント共通メニュー
-const baseMenuItems: MenuItem[] = [
+const menuItems = [
   { title: "ダッシュボード", href: "/dashboard", icon: LayoutDashboard },
   { title: "勤怠一覧", href: "/attendance", icon: CalendarDays },
   { title: "シフト管理", href: "/shifts", icon: CalendarClock },
-  { title: "休日希望", href: "/day-off-requests", icon: CalendarX },
   { title: "従業員管理", href: "/employees", icon: Users },
+  { title: "業務タイプ", href: "/work-types", icon: Briefcase },
+  { title: "現場管理", href: "/worksites", icon: MapPin },
   { title: "レポート", href: "/reports", icon: FileBarChart },
   { title: "給与計算", href: "/payroll", icon: Calculator },
   { title: "設定", href: "/settings", icon: Settings },
 ];
 
-// 現場管理機能ON時のみ表示するメニュー
-const jobSiteMenuItems: MenuItem[] = [
-  { title: "配置表", href: "/board", icon: LayoutGrid },
-  { title: "現場管理", href: "/job-sites", icon: HardHat },
-  { title: "タイムカード", href: "/timecard", icon: CreditCard },
-];
-
-export function AppSidebar({
-  tenantName,
-  enableJobSites = false,
-}: {
-  tenantName: string;
-  enableJobSites?: boolean;
-}) {
+export function AppSidebar({ tenantName }: { tenantName: string }) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
-
-  // enableJobSites がONのテナントだけ追加メニューを表示
-  const menuItems = enableJobSites
-    ? [baseMenuItems[0], ...jobSiteMenuItems, ...baseMenuItems.slice(1)]
-    : baseMenuItems;
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -97,16 +74,9 @@ export function AppSidebar({
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton asChild isActive={pathname === item.href || pathname.startsWith(item.href + "/")}>
-                    <Link href={item.href} className="flex items-center justify-between w-full">
-                      <span className="flex items-center gap-2">
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </span>
-                      {item.badge && (
-                        <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-medium leading-none">
-                          {item.badge}
-                        </span>
-                      )}
+                    <Link href={item.href}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

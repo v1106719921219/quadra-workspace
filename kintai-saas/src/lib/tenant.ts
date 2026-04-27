@@ -15,9 +15,6 @@ export const resolveTenant = cache(async (): Promise<Tenant | null> => {
 
   const { extractSubdomain } = await import("@/lib/subdomain");
 
-  // 1. サブドメインから取得
-  // 2. クッキーから取得
-  // 3. 環境変数のデフォルトテナント
   const cookieStore = await cookies();
   const slug =
     extractSubdomain(host) ||

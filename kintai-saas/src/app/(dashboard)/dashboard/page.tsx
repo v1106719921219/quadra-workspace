@@ -1,8 +1,16 @@
+export const dynamic = "force-dynamic";
+
 import { createClient } from "@/lib/supabase/server";
 import { getTenantId } from "@/lib/tenant";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Users, Clock, Briefcase } from "lucide-react";
+
+function toJST(isoString: string): string {
+  const date = new Date(isoString);
+  const jst = new Date(date.getTime() + 9 * 60 * 60 * 1000);
+  return `${String(jst.getUTCHours()).padStart(2, "0")}:${String(jst.getUTCMinutes()).padStart(2, "0")}`;
+}
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -14,8 +22,10 @@ export default async function DashboardPage() {
     .select("*", { count: "exact", head: true })
     .eq("is_active", true);
 
-  // 今日の出勤中
-  const today = new Date().toISOString().split("T")[0];
+  // 今日の出勤中（日本時間で日付を取得）
+  const now = new Date();
+  const jstNow = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  const today = jstNow.toISOString().split("T")[0];
   const { data: activeRecords } = await supabase
     .from("time_records")
     .select("id, employee_id, clock_in, employees(name), work_types(name)")
@@ -69,6 +79,11 @@ export default async function DashboardPage() {
         </Card>
       </div>
 
+      {/* デバッグ: 生データ確認用（後で削除） */}
+      <pre className="text-xs bg-gray-100 p-2 rounded overflow-auto">
+        today={today}, now_utc={now.toISOString()}, sample_clock_in={activeRecords?.[0]?.clock_in ?? "none"}
+      </pre>
+
       <Card>
         <CardHeader>
           <CardTitle>今日の出勤状況</CardTitle>
@@ -81,7 +96,7 @@ export default async function DashboardPage() {
               {activeRecords?.map((record) => {
                 const emp = record.employees as unknown as { name: string };
                 const wt = record.work_types as unknown as { name: string };
-                const clockIn = new Date(record.clock_in).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" });
+                const clockIn = toJST(record.clock_in);
                 return (
                   <div key={record.id} className="flex items-center justify-between rounded-lg border p-3">
                     <div className="flex items-center gap-3">
@@ -96,8 +111,8 @@ export default async function DashboardPage() {
               {completedRecords?.map((record) => {
                 const emp = record.employees as unknown as { name: string };
                 const wt = record.work_types as unknown as { name: string };
-                const clockIn = new Date(record.clock_in).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" });
-                const clockOut = new Date(record.clock_out!).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" });
+                const clockIn = toJST(record.clock_in);
+                const clockOut = toJST(record.clock_out!);
                 return (
                   <div key={record.id} className="flex items-center justify-between rounded-lg border p-3">
                     <div className="flex items-center gap-3">

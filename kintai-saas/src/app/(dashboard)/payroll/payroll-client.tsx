@@ -35,8 +35,6 @@ function recordToCalculation(record: {
   late_night_pay: number;
   holiday_pay: number;
   daily_allowance_total: number;
-  driver_days: number;
-  driver_allowance: number;
   transportation_allowance: number;
   gross_pay: number;
   health_insurance: number;
@@ -73,8 +71,6 @@ function recordToCalculation(record: {
     lateNightPay: record.late_night_pay,
     holidayPay: record.holiday_pay,
     dailyAllowanceTotal: record.daily_allowance_total,
-    driverDays: record.driver_days ?? 0,
-    driverAllowance: record.driver_allowance ?? 0,
     transportationAllowance: record.transportation_allowance,
     grossPay: record.gross_pay,
     healthInsurance: record.health_insurance,
@@ -125,18 +121,14 @@ export function PayrollClient() {
   async function handleCalculate() {
     setLoading(true);
     try {
-      // まず確定済みレコードを確認（テーブル未作成時はスキップ）
-      try {
-        const records = await getPayrollRecords(year, month);
-        if (records.length > 0) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          setCalculations(records.map((r: any) => recordToCalculation(r)));
-          setIsConfirmed(true);
-          setHasData(true);
-          return;
-        }
-      } catch {
-        // payroll_recordsテーブルが未作成の場合は無視して計算実行へ
+      // まず確定済みレコードを確認
+      const records = await getPayrollRecords(year, month);
+      if (records.length > 0) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setCalculations(records.map((r: any) => recordToCalculation(r)));
+        setIsConfirmed(true);
+        setHasData(true);
+        return;
       }
 
       // 未確定なら計算実行
@@ -144,8 +136,7 @@ export function PayrollClient() {
       setCalculations(result);
       setIsConfirmed(false);
       setHasData(true);
-    } catch (err) {
-      console.error("給与計算エラー:", err);
+    } catch {
       toast.error("計算中にエラーが発生しました");
     } finally {
       setLoading(false);
@@ -194,7 +185,7 @@ export function PayrollClient() {
       "従業員名", "社員番号", "雇用形態", "出勤日数",
       "総労働時間", "残業時間", "深夜時間", "休日時間",
       "基本給", "残業手当", "深夜手当", "休日手当",
-      "業務手当", "ドライバー日数", "ドライバー手当", "通勤手当", "総支給額",
+      "業務手当", "通勤手当", "総支給額",
       "健康保険", "厚生年金", "雇用保険", "所得税", "控除合計",
       "差引支給額",
     ];
@@ -213,8 +204,6 @@ export function PayrollClient() {
       c.lateNightPay,
       c.holidayPay,
       c.dailyAllowanceTotal,
-      c.driverDays,
-      c.driverAllowance,
       c.transportationAllowance,
       c.grossPay,
       c.healthInsurance,
@@ -335,7 +324,6 @@ export function PayrollClient() {
                 <TableHead className="text-right">深夜</TableHead>
                 <TableHead className="text-right">休日</TableHead>
                 <TableHead className="text-right">手当</TableHead>
-                <TableHead className="text-right">ドライバー</TableHead>
                 <TableHead className="text-right">通勤</TableHead>
                 <TableHead className="text-right">総支給</TableHead>
                 <TableHead className="text-right">社保</TableHead>
@@ -362,7 +350,6 @@ export function PayrollClient() {
                   <TableCell className="text-right">{formatCurrency(calc.lateNightPay)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(calc.holidayPay)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(calc.dailyAllowanceTotal)}</TableCell>
-                  <TableCell className="text-right">{calc.driverDays > 0 ? `${formatCurrency(calc.driverAllowance)}(${calc.driverDays}日)` : "-"}</TableCell>
                   <TableCell className="text-right">{formatCurrency(calc.transportationAllowance)}</TableCell>
                   <TableCell className="text-right font-semibold">{formatCurrency(calc.grossPay)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(calc.healthInsurance + calc.pension + calc.employmentInsurance)}</TableCell>
@@ -437,9 +424,6 @@ export function PayrollClient() {
                     <div className="flex justify-between"><span>深夜手当</span><span>{formatCurrency(calc.lateNightPay)}</span></div>
                     <div className="flex justify-between"><span>休日手当</span><span>{formatCurrency(calc.holidayPay)}</span></div>
                     <div className="flex justify-between"><span>業務手当</span><span>{formatCurrency(calc.dailyAllowanceTotal)}</span></div>
-                    {calc.driverDays > 0 && (
-                      <div className="flex justify-between"><span>ドライバー手当({calc.driverDays}日)</span><span>{formatCurrency(calc.driverAllowance)}</span></div>
-                    )}
                     <div className="flex justify-between"><span>通勤手当</span><span>{formatCurrency(calc.transportationAllowance)}</span></div>
                     <div className="flex justify-between font-bold border-t pt-1"><span>総支給額</span><span>{formatCurrency(calc.grossPay)}</span></div>
                   </div>

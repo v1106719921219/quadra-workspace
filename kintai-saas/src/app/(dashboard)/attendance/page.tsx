@@ -16,17 +16,10 @@ export default async function AttendancePage() {
     .eq("is_active", true)
     .order("sort_order");
 
-  const { data: jobSites } = await supabase
-    .from("job_sites")
-    .select("id, name, short_name")
-    .eq("is_active", true)
-    .order("sort_order");
-
   return (
     <AttendanceClient
       employees={employees || []}
       workTypes={workTypes || []}
-      jobSites={jobSites || []}
     />
   );
 }

@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>勤怠管理システム 使い方ガイド</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif; font-size: 11pt; color: #1a1a1a; line-height: 1.7; background: #fff; }
+
+  /* カバーページ */
+  .cover {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 60px 40px;
+    background: #1e40af;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color: white;
+    page-break-after: always;
+  }
+  .cover h1 { font-size: 26pt; font-weight: bold; margin-bottom: 14px; color: white; }
+  .cover h2 { font-size: 14pt; font-weight: normal; margin-bottom: 36px; color: rgba(255,255,255,0.9); }
+  .cover .url-box {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 10px;
+    padding: 18px 36px;
+    margin: 10px 0;
+    text-align: left;
+    width: 480px;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .cover .url-box .lbl { font-size: 9pt; color: rgba(255,255,255,0.75); margin-bottom: 6px; }
+  .cover .url-box .url { font-size: 12pt; font-weight: bold; color: white; word-break: break-all; }
+  .cover .date { margin-top: 36px; font-size: 9pt; color: rgba(255,255,255,0.65); }
+
+  /* 本文 */
+  .page { padding: 36px 48px; max-width: 800px; margin: 0 auto; }
+
+  h2.section-title {
+    font-size: 16pt;
+    font-weight: bold;
+    color: #1e40af;
+    border-left: 5px solid #3b82f6;
+    padding-left: 12px;
+    margin: 36px 0 16px;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  h3.subsection {
+    font-size: 12pt;
+    font-weight: bold;
+    color: #1e3a8a;
+    margin: 24px 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  h3.subsection::before {
+    content: "";
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    background: #3b82f6;
+    border-radius: 50%;
+    flex-shrink: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  p { margin: 5px 0; }
+
+  /* URL */
+  .url-card {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 10px 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .url-card .label { font-size: 9pt; color: #6b7280; margin-bottom: 3px; }
+  .url-card .url { font-size: 11pt; font-weight: bold; color: #1d4ed8; word-break: break-all; }
+  .url-card .desc { font-size: 9pt; color: #6b7280; margin-top: 3px; }
+
+  /* ステップ */
+  .steps { margin: 10px 0; }
+  .step { display: flex; gap: 10px; margin: 6px 0; align-items: flex-start; }
+  .step-num {
+    min-width: 24px; height: 24px;
+    background: #2563eb; color: white;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10pt; font-weight: bold;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .step-content { flex: 1; padding-top: 2px; }
+
+  /* 注意・ヒント・重要 */
+  .notice {
+    background: #fef9c3; border-left: 4px solid #eab308;
+    padding: 10px 14px; border-radius: 0 6px 6px 0; margin: 10px 0; font-size: 10pt;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .notice strong { color: #854d0e; }
+  .important {
+    background: #fef2f2; border-left: 4px solid #ef4444;
+    padding: 10px 14px; border-radius: 0 6px 6px 0; margin: 10px 0; font-size: 10pt;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .important strong { color: #991b1b; }
+  .tip {
+    background: #f0fdf4; border-left: 4px solid #22c55e;
+    padding: 10px 14px; border-radius: 0 6px 6px 0; margin: 10px 0; font-size: 10pt;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .tip strong { color: #14532d; }
+
+  /* テーブル */
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 10pt; }
+  th {
+    background: #1e40af; color: white;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    padding: 8px 12px; text-align: left; font-weight: bold;
+  }
+  td { padding: 8px 12px; border-bottom: 1px solid #e5e7eb; }
+  tr:nth-child(even) td { background: #f8fafc; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  .section-break { page-break-before: always; }
+  .no-break { page-break-inside: avoid; }
+
+  /* スタッフヘッダー */
+  .staff-header {
+    background: #0f766e; color: white;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    padding: 16px 20px; border-radius: 8px; margin: 16px 0;
+  }
+  .staff-header h3 { font-size: 13pt; margin-bottom: 3px; color: white; }
+  .staff-header p { font-size: 10pt; color: rgba(255,255,255,0.9); }
+
+  /* 機能グリッド */
+  .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0; }
+  .feature-card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 14px; }
+  .feature-card .icon { font-size: 18px; margin-bottom: 4px; }
+  .feature-card .title { font-weight: bold; font-size: 10pt; color: #1e3a8a; margin-bottom: 3px; }
+  .feature-card .desc { font-size: 9pt; color: #6b7280; }
+
+  /* 業務タイプバッジ */
+  .wt-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 11pt;
+    margin: 4px 6px 4px 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .wt-1 { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+  .wt-2 { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+
+  .footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid #e5e7eb; text-align: center; font-size: 9pt; color: #9ca3af; }
+</style>
+</head>
+<body>
+
+<!-- カバーページ -->
+<div class="cover">
+  <div style="font-size:44px; margin-bottom:18px;">📋</div>
+  <h1>勤怠管理システム<br>使い方ガイド</h1>
+  <h2>管理者・スタッフ向け操作マニュアル</h2>
+
+  <div class="url-box">
+    <div class="lbl">🖥️ 管理画面（管理者用）</div>
+    <div class="url">https://kintai-saas-zeta.vercel.app/dashboard</div>
+  </div>
+  <div class="url-box">
+    <div class="lbl">⏱️ タイムレコーダー（タブレット専用）</div>
+    <div class="url">https://kintai-saas-zeta.vercel.app/clock</div>
+  </div>
+  <div class="url-box">
+    <div class="lbl">📅 スタッフポータル（休日希望申請）</div>
+    <div class="url">https://kintai-saas-zeta.vercel.app/staff</div>
+  </div>
+
+  <div class="date">2026年3月 作成</div>
+</div>
+
+<!-- 本文 -->
+<div class="page">
+
+  <!-- 目次 -->
+  <h2 class="section-title">目次</h2>
+  <table>
+    <tr><td style="width:60px;color:#6b7280;">1</td><td>システムの概要</td></tr>
+    <tr><td style="color:#6b7280;">2</td><td>管理者向け操作ガイド</td></tr>
+    <tr><td style="color:#6b7280;padding-left:20px;">2-1</td><td>ダッシュボード</td></tr>
+    <tr><td style="color:#6b7280;padding-left:20px;">2-2</td><td>配置表</td></tr>
+    <tr><td style="color:#6b7280;padding-left:20px;">2-3</td><td>タイムカード</td></tr>
+    <tr><td style="color:#6b7280;padding-left:20px;">2-4</td><td>勤怠一覧（日別・月別）</td></tr>
+    <tr><td style="color:#6b7280;padding-left:20px;">2-5</td><td>シフト管理</td></tr>
+    <tr><td style="color:#6b7280;padding-left:20px;">2-6</td><td>休日希望</td></tr>
+    <tr><td style="color:#6b7280;padding-left:20px;">2-7</td><td>従業員管理・PIN設定</td></tr>
+    <tr><td style="color:#6b7280;padding-left:20px;">2-8</td><td>業務タイプ（現場①・現場②）</td></tr>
+    <tr><td style="color:#6b7280;padding-left:20px;">2-9</td><td>レポート</td></tr>
+    <tr><td style="color:#6b7280;padding-left:20px;">2-10</td><td>給与計算</td></tr>
+    <tr><td style="color:#6b7280;padding-left:20px;">2-11</td><td>設定</td></tr>
+    <tr><td style="color:#6b7280;">3</td><td>スタッフ向け操作ガイド</td></tr>
+    <tr><td style="color:#6b7280;padding-left:20px;">3-1</td><td>出退勤の打刻</td></tr>
+    <tr><td style="color:#6b7280;padding-left:20px;">3-2</td><td>休日希望の申請</td></tr>
+    <tr><td style="color:#6b7280;">4</td><td>スタッフ PIN番号一覧</td></tr>
+  </table>
+
+  <!-- 1. システム概要 -->
+  <div class="section-break"></div>
+  <h2 class="section-title">1. システムの概要</h2>
+  <p>タブレット1台から出退勤の打刻・管理ができるクラウド型勤怠管理システムです。インターネットに接続できる端末（PC・スマートフォン・タブレット）があれば、どこからでもアクセスできます。</p>
+
+  <div class="feature-grid" style="margin-top:16px;">
+    <div class="feature-card no-break">
+      <div class="icon">⏱️</div>
+      <div class="title">タイムレコーダー</div>
+      <div class="desc">タブレットで出勤・退勤を記録。業務タイプ（現場①②）を選択して打刻</div>
+    </div>
+    <div class="feature-card no-break">
+      <div class="icon">📅</div>
+      <div class="title">シフト管理</div>
+      <div class="desc">週別シフト作成・テンプレート・メモ・A4横印刷対応</div>
+    </div>
+    <div class="feature-card no-break">
+      <div class="icon">🗓️</div>
+      <div class="title">タイムカード</div>
+      <div class="desc">個人別日別の勤務記録・印刷（社保申請にも対応）</div>
+    </div>
+    <div class="feature-card no-break">
+      <div class="icon">🙋</div>
+      <div class="title">スタッフポータル</div>
+      <div class="desc">スマホから休日希望をPIN認証で申請。管理画面にも反映</div>
+    </div>
+    <div class="feature-card no-break">
+      <div class="icon">👥</div>
+      <div class="title">従業員管理</div>
+      <div class="desc">氏名・時給・通勤費・社会保険などを一元管理</div>
+    </div>
+    <div class="feature-card no-break">
+      <div class="icon">💴</div>
+      <div class="title">給与計算</div>
+      <div class="desc">業務タイプ別時給・残業・深夜・各種控除を自動集計</div>
+    </div>
+  </div>
+
+  <div class="url-card no-break" style="margin-top:16px;">
+    <div class="label">📌 現在の登録情報</div>
+    <div class="url" style="font-size:10pt;color:#1a1a1a;font-weight:normal;">
+      従業員：14名（正社員5名・パート9名）　業務タイプ：現場①（1,043円/時）・現場②（1,252円/時）
+    </div>
+  </div>
+
+  <!-- 2. 管理者向け -->
+  <div class="section-break"></div>
+  <h2 class="section-title">2. 管理者向け操作ガイド</h2>
+  <p>左メニューの項目を上から順に説明します。</p>
+
+  <!-- 2-1 ダッシュボード -->
+  <h3 class="subsection">2-1. ダッシュボード</h3>
+  <p>ログイン直後に表示される画面です。今日の出勤状況が一目でわかります。</p>
+  <table class="no-break" style="margin-top:8px;">
+    <tr><th>表示カード</th><th>内容</th></tr>
+    <tr><td>従業員数</td><td>有効な従業員の登録人数</td></tr>
+    <tr><td>出勤中</td><td>現在出勤中（退勤打刻前）の人数</td></tr>
+    <tr><td>業務タイプ</td><td>登録されている業務タイプの種類数</td></tr>
+  </table>
+  <p style="margin-top:8px;">カードの下に「今日の出勤状況」として、出勤中・退勤済みの従業員名と打刻時刻が一覧表示されます。</p>
+
+  <!-- 2-2 配置表 -->
+  <h3 class="subsection">2-2. 配置表　<span style="font-size:9pt; background:#fef3c7; color:#92400e; padding:2px 8px; border-radius:4px; font-weight:normal; vertical-align:middle; -webkit-print-color-adjust:exact; print-color-adjust:exact;">実装中</span></h3>
+  <div class="notice no-break">
+    <strong>🚧 この機能は現在実装中です。</strong><br>
+    日ごとに各従業員をどの現場へ配置するかをビジュアルに管理する機能です。近日中に追加予定です。
+  </div>
+  <div class="tip no-break">
+    <strong>💡 現在の代替方法：</strong>シフト管理のメモ欄に「現場①」などと記入することで現場の配置を管理できます（2-5 参照）。
+  </div>
+
+  <!-- 2-3 タイムカード -->
+  <h3 class="subsection">2-3. タイムカード</h3>
+  <p>左メニューの「<strong>タイムカード</strong>」をクリックします。従業員ごとに日別の出退勤・実働時間を確認できます。</p>
+  <div class="steps no-break">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content"><strong>従業員を選択</strong>（ドロップダウンから名前を選ぶ）</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">「◀ ▶」で期間を切り替え（締め日ごとに自動計算）</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">日付・出勤・退勤・休憩・実働時間・累計が一覧表示されます</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">右上の「<strong>印刷</strong>」ボタン → ブラウザの印刷ダイアログ → 「PDFに保存」でPDF化できます</div>
+    </div>
+  </div>
+  <div class="tip no-break">
+    <strong>💡 活用方法：</strong>社会保険・労働保険の加入申請時など、個人別の勤務実績が必要なときにこの画面から印刷します。
+  </div>
+
+  <!-- 2-4 勤怠一覧 -->
+  <div class="section-break"></div>
+  <h3 class="subsection">2-4. 勤怠一覧（日別・月別）</h3>
+  <p>左メニューの「<strong>勤怠一覧</strong>」をクリックします。</p>
+
+  <p style="margin-top:8px;font-weight:bold;color:#1e3a8a;">【日別タブ】</p>
+  <div class="steps no-break">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">日付を選択すると、その日に出勤した全員の出退勤が表示されます</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">鉛筆アイコンで個別の時間修正、ゴミ箱アイコンで削除できます</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">「手動追加」ボタンから打刻漏れを手入力することもできます</div>
+    </div>
+  </div>
+
+  <p style="margin-top:8px;font-weight:bold;color:#1e3a8a;">【月別タブ】</p>
+  <p>月を選択すると、従業員ごとの出勤日数・合計時間が一覧表示されます。</p>
+
+  <!-- 2-5 シフト管理 -->
+  <h3 class="subsection">2-5. シフト管理</h3>
+  <p>左メニューの「<strong>シフト管理</strong>」をクリックします。週単位でシフトを作成・管理します。</p>
+
+  <p style="margin-top:8px;font-weight:bold;color:#1e3a8a;">【シフトの入力方法】</p>
+  <div class="steps no-break">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">「◀ ▶」で対象の週を選択します</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content"><strong>方法A（クリック）：</strong>従業員×日付のマスをクリック → 開始・終了時間を入力して保存</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content"><strong>方法B（テンプレート）：</strong>左パネルのテンプレートカードをマスにドラッグ&ドロップ</div>
+    </div>
+  </div>
+
+  <p style="margin-top:8px;font-weight:bold;color:#1e3a8a;">【メモ欄で配置現場を管理する方法】</p>
+  <div class="steps no-break">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">シフトのマスをクリックして編集画面を開く</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">「メモ」欄に「<strong>現場①</strong>」または「<strong>現場②</strong>」と入力して保存</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">シフト表のマスに青文字でメモが表示され、配置先が一目でわかります</div>
+    </div>
+  </div>
+
+  <p style="margin-top:8px;font-weight:bold;color:#1e3a8a;">【その他の機能】</p>
+  <table class="no-break">
+    <tr><th>機能</th><th>操作方法</th></tr>
+    <tr><td>前週コピー</td><td>右上「前週コピー」→ 先週と同じシフトを今週に複製</td></tr>
+    <tr><td>印刷</td><td>右上「印刷」ボタン → A4横向きでシフト表のみ印刷・PDF保存</td></tr>
+    <tr><td>休日希望の確認</td><td>申請された希望休はセルが赤く「休希」と表示</td></tr>
+    <tr><td>テンプレート追加</td><td>左パネル「テンプレ追加」→ 名前・時間・色を設定</td></tr>
+    <tr><td>シフト削除</td><td>マスをクリック → 「削除」ボタン</td></tr>
+  </table>
+
+  <!-- 2-6 休日希望 -->
+  <h3 class="subsection">2-6. 休日希望</h3>
+  <p>左メニューの「<strong>休日希望</strong>」をクリックします。スタッフが申請した希望休日を確認できます。</p>
+  <table class="no-break" style="margin-top:8px;">
+    <tr><th>表示</th><th>内容</th></tr>
+    <tr><td>カレンダービュー</td><td>月のカレンダーに希望者名が表示。赤いマスが希望休のある日</td></tr>
+    <tr><td>従業員別一覧</td><td>誰がどの日に希望を出しているか一覧で確認</td></tr>
+  </table>
+  <div class="tip no-break">
+    <strong>💡 活用方法：</strong>この画面を確認してからシフト管理を開くと、希望休を反映したシフトが組みやすくなります。シフト管理画面でも赤く表示されます。
+  </div>
+
+  <!-- 2-7 従業員管理 -->
+  <div class="section-break"></div>
+  <h3 class="subsection">2-7. 従業員管理・PIN設定</h3>
+  <p>左メニューの「<strong>従業員管理</strong>」をクリックします。</p>
+  <table class="no-break" style="margin-top:8px;">
+    <tr><th>項目</th><th>内容</th></tr>
+    <tr><td>氏名</td><td>従業員の名前</td></tr>
+    <tr><td>雇用形態</td><td>正社員（月給）/ パート（時給）</td></tr>
+    <tr><td>月給 / 時給</td><td>給与計算の基礎金額（パートは業務タイプの時給が優先されます）</td></tr>
+    <tr><td>通勤費</td><td>1日往復の通勤交通費（円）</td></tr>
+    <tr><td>扶養人数</td><td>所得税計算に使用</td></tr>
+    <tr><td>社会保険</td><td>加入者は健保・厚年・雇用保険が自動控除</td></tr>
+    <tr><td>PIN番号</td><td>スタッフポータルで休日希望申請に使う4桁の暗証番号</td></tr>
+  </table>
+  <p style="margin-top:8px;">従業員名の右の鉛筆アイコンから編集できます。</p>
+  <div class="notice no-break">
+    <strong>⚠️ 給与情報について：</strong>給与・時給などの情報は管理者のみアクセスできる画面に表示されます。スタッフが使うタイムレコーダーやスタッフポータルには給与情報は一切表示されません。
+  </div>
+
+  <!-- 2-8 業務タイプ -->
+  <h3 class="subsection">2-8. 業務タイプ（現場①・現場②）</h3>
+  <p>左メニューの「<strong>業務タイプ</strong>」をクリックします。</p>
+  <p style="margin-top:8px;">打刻時にスタッフが選ぶ「仕事の種類」です。現在、以下の2種類が登録されています：</p>
+
+  <div style="margin: 12px 0;" class="no-break">
+    <span class="wt-badge wt-1">現場①　1,043円/時</span>
+    <span class="wt-badge wt-2">現場②　1,252円/時</span>
+  </div>
+
+  <table class="no-break" style="margin-top:8px;">
+    <tr><th>機能</th><th>内容</th></tr>
+    <tr><td>打刻との連携</td><td>スタッフが「出勤」を押すと業務タイプ選択ダイアログが表示される。タイプを選ぶと打刻記録に保存される</td></tr>
+    <tr><td>給与計算への反映</td><td>パートスタッフは業務タイプの時給で計算。現場①の日は1,043円/時、現場②の日は1,252円/時</td></tr>
+    <tr><td>時給の変更</td><td>鉛筆アイコンから変更可能。変更後の打刻から新しい時給が適用される</td></tr>
+    <tr><td>種類の追加</td><td>新しい業務区分が必要になった場合は「追加」ボタンから登録できる</td></tr>
+  </table>
+  <div class="tip no-break">
+    <strong>💡 ポイント：</strong>同じスタッフでも、現場①の日と現場②の日で自動的に異なる時給で計算されます。変更が必要な場合はこちらから編集してください。
+  </div>
+
+  <!-- 2-9 レポート -->
+  <h3 class="subsection">2-9. レポート</h3>
+  <p>左メニューの「<strong>レポート</strong>」をクリックします。</p>
+  <p>月別の従業員ごとの勤務実績レポートを確認できます。出勤日数・労働時間・業務タイプ別の集計が一覧で表示されます。</p>
+
+  <!-- 2-10 給与計算 -->
+  <h3 class="subsection">2-10. 給与計算</h3>
+  <p>左メニューの「<strong>給与計算</strong>」をクリックします。月を選択すると出勤実績から各従業員の給与が自動集計されます。</p>
+  <table class="no-break" style="margin-top:8px;">
+    <tr><th>集計項目</th><th>内容</th></tr>
+    <tr><td>基本給</td><td>月給制：固定額 / パート：日ごとの業務タイプ時給 × 実働時間</td></tr>
+    <tr><td>残業代</td><td>1日8時間超の分を25%割増で自動計算</td></tr>
+    <tr><td>深夜割増</td><td>22時〜翌5時の労働を25%割増で自動計算</td></tr>
+    <tr><td>休日割増</td><td>土日の労働を35%割増で自動計算</td></tr>
+    <tr><td>通勤費</td><td>出勤日数 × 1日往復通勤費</td></tr>
+    <tr><td>社会保険・雇用保険</td><td>加入者は自動控除（概算）</td></tr>
+    <tr><td>所得税</td><td>扶養人数・税区分に応じた源泉徴収額を自動計算</td></tr>
+    <tr><td>差引支給額</td><td>総支給額 − 各種控除額</td></tr>
+  </table>
+  <div class="notice no-break">
+    <strong>⚠️ 注意：</strong>給与計算の数値は参考値です。実際の支給前に必ずご確認ください。
+  </div>
+
+  <!-- 2-11 設定 -->
+  <h3 class="subsection">2-11. 設定</h3>
+  <p>左メニューの「<strong>設定</strong>」をクリックします。</p>
+  <table class="no-break" style="margin-top:8px;">
+    <tr><th>設定項目</th><th>内容</th></tr>
+    <tr><td>締め日</td><td>給与計算・タイムカードの集計期間の区切り日（例：25日締め）</td></tr>
+    <tr><td>端数処理</td><td>労働時間を何分単位で丸めるか（例：15分単位）</td></tr>
+  </table>
+
+  <!-- 3. スタッフ向け -->
+  <div class="section-break"></div>
+  <h2 class="section-title">3. スタッフ向け操作ガイド</h2>
+
+  <div class="staff-header">
+    <h3>📱 スタッフの皆さんへ</h3>
+    <p>出退勤の打刻と休日希望の申請方法をご確認ください。アプリのインストールは不要です。</p>
+  </div>
+
+  <!-- 3-1 打刻 -->
+  <h3 class="subsection">3-1. 出退勤の打刻</h3>
+  <div class="url-card no-break">
+    <div class="label">タイムレコーダー（事務所のタブレット）</div>
+    <div class="url">https://kintai-saas-zeta.vercel.app/clock</div>
+    <div class="desc">※ 事務所のタブレットに常時表示されています</div>
+  </div>
+
+  <p style="margin-top:12px;font-weight:bold;color:#0f766e;">【出勤の手順】</p>
+  <div class="steps no-break">
+    <div class="step"><div class="step-num">1</div><div class="step-content">タブレット画面から<strong>自分の名前</strong>の下の「出勤」ボタンをタップ</div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content">ダイアログが表示されたら、今日の業務タイプ（<strong>現場①</strong> または <strong>現場②</strong>）を選択</div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content">「〇〇 が出勤しました」と表示されたら完了</div></div>
+  </div>
+
+  <p style="margin-top:12px;font-weight:bold;color:#0f766e;">【退勤の手順】</p>
+  <div class="steps no-break">
+    <div class="step"><div class="step-num">1</div><div class="step-content">タブレット画面の<strong>自分の名前</strong>（緑色の枠）の「退勤」ボタンをタップ</div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content">休憩時間があれば分数を入力（例：昼休み60分 → 「60」と入力）</div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content">「退勤する」をタップ → 「退勤しました」と表示されたら完了</div></div>
+  </div>
+
+  <div class="notice no-break">
+    <strong>⚠️ 打刻を間違えた場合：</strong>管理者に申し出てください。管理者が勤怠一覧から修正します。
+  </div>
+
+  <!-- 3-2 休日希望 -->
+  <h3 class="subsection">3-2. 休日希望の申請</h3>
+  <div class="url-card no-break">
+    <div class="label">スタッフポータル（スマホ・PC・タブレット）</div>
+    <div class="url">https://kintai-saas-zeta.vercel.app/staff</div>
+    <div class="desc">※ スマートフォンのブラウザからアクセスできます</div>
+  </div>
+
+  <div class="steps no-break" style="margin-top:12px;">
+    <div class="step"><div class="step-num">1</div><div class="step-content">上記URLをスマホのブラウザで開く</div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><strong>自分の名前</strong>をタップして選択</div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><strong>PIN番号</strong>（4桁）を入力して「確認」をタップ</div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-content">カレンダーが表示されるので、<strong>休みたい日付をタップ</strong>（複数選択可）</div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-content">「<strong>送信する</strong>」をタップして完了</div></div>
+  </div>
+
+  <div class="tip no-break">
+    <strong>💡 PIN番号について：</strong>PIN番号は管理者から個別にお知らせします。忘れた場合は管理者にご連絡ください。
+  </div>
+
+  <!-- 4. PIN一覧 -->
+  <div class="section-break"></div>
+  <h2 class="section-title">4. スタッフ PIN番号一覧</h2>
+  <p>休日希望の申請時に使用するPIN番号です。各スタッフに個別にお伝えください。</p>
+
+  <div class="url-card no-break" style="margin-bottom:14px;">
+    <div class="label">スタッフポータルURL</div>
+    <div class="url">https://kintai-saas-zeta.vercel.app/staff</div>
+  </div>
+
+  <table class="no-break">
+    <tr>
+      <th style="width:44px;">No.</th>
+      <th>氏名</th>
+      <th>雇用形態</th>
+      <th style="width:120px;text-align:center;">PIN番号</th>
+    </tr>
+    <tr><td>1</td><td>藤井誠己</td><td>正社員</td><td style="text-align:center;font-size:15pt;font-weight:bold;letter-spacing:4px;">1234</td></tr>
+    <tr><td>2</td><td>朝川力</td><td>正社員</td><td style="text-align:center;font-size:15pt;font-weight:bold;letter-spacing:4px;">5153</td></tr>
+    <tr><td>3</td><td>中野可惟</td><td>正社員</td><td style="text-align:center;font-size:15pt;font-weight:bold;letter-spacing:4px;">8405</td></tr>
+    <tr><td>4</td><td>河野千恵</td><td>正社員</td><td style="text-align:center;font-size:15pt;font-weight:bold;letter-spacing:4px;">4900</td></tr>
+    <tr><td>5</td><td>清木昭彦</td><td>正社員</td><td style="text-align:center;font-size:15pt;font-weight:bold;letter-spacing:4px;">5669</td></tr>
+    <tr><td>6</td><td>北村途子</td><td>パート</td><td style="text-align:center;font-size:15pt;font-weight:bold;letter-spacing:4px;">2721</td></tr>
+    <tr><td>7</td><td>幸池優子</td><td>パート</td><td style="text-align:center;font-size:15pt;font-weight:bold;letter-spacing:4px;">1915</td></tr>
+    <tr><td>8</td><td>小林和江</td><td>パート</td><td style="text-align:center;font-size:15pt;font-weight:bold;letter-spacing:4px;">6070</td></tr>
+    <tr><td>9</td><td>森脇八千代</td><td>パート</td><td style="text-align:center;font-size:15pt;font-weight:bold;letter-spacing:4px;">2075</td></tr>
+    <tr><td>10</td><td>鶴岡幸子</td><td>パート</td><td style="text-align:center;font-size:15pt;font-weight:bold;letter-spacing:4px;">8589</td></tr>
+    <tr><td>11</td><td>鶴岡洋子</td><td>パート</td><td style="text-align:center;font-size:15pt;font-weight:bold;letter-spacing:4px;">3257</td></tr>
+    <tr><td>12</td><td>古本恵美子</td><td>パート</td><td style="text-align:center;font-size:15pt;font-weight:bold;letter-spacing:4px;">3722</td></tr>
+    <tr><td>13</td><td>藤井里実</td><td>パート</td><td style="text-align:center;font-size:15pt;font-weight:bold;letter-spacing:4px;">8081</td></tr>
+    <tr><td>14</td><td>梅田時子</td><td>パート</td><td style="text-align:center;font-size:15pt;font-weight:bold;letter-spacing:4px;">3859</td></tr>
+  </table>
+
+  <div class="important no-break" style="margin-top:18px;">
+    <strong>🔴 重要：</strong>この資料は社外秘です。PIN番号は各スタッフ本人のみに伝え、第三者に開示しないようお願いします。
+  </div>
+
+  <div class="footer">
+    <p>勤怠管理システム 操作マニュアル　|　ご不明な点はシステム担当者までお問い合わせください</p>
+  </div>
+</div>
+</body>
+</html>

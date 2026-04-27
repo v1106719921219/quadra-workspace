@@ -9,7 +9,6 @@ export interface EmployeeWithStatus {
   name: string;
   employee_number: string | null;
   is_active: boolean;
-  can_be_driver: boolean;
   active_record: {
     id: string;
     clock_in: string;
@@ -22,7 +21,7 @@ export async function getEmployeesWithStatus(): Promise<EmployeeWithStatus[]> {
 
   const { data: employees, error } = await supabase
     .from("employees")
-    .select("id, name, employee_number, is_active, can_be_driver")
+    .select("id, name, employee_number, is_active")
     .eq("is_active", true)
     .order("created_at", { ascending: true });
 
@@ -63,32 +62,19 @@ export async function getActiveWorkTypes() {
   return data || [];
 }
 
-export async function getActiveJobSites() {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("job_sites")
-    .select("id, name, short_name")
-    .eq("is_active", true)
-    .order("sort_order", { ascending: true });
-
-  if (error) throw error;
-  return data || [];
-}
-
-export async function clockIn(employeeId: string, isDriver: boolean = false, jobSiteId?: string) {
+export async function clockIn(employeeId: string, workTypeId: string) {
   const supabase = await createClient();
   const tenantId = await getTenantId();
   const now = new Date();
-  const workDate = now.toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
+  const jstNow = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  const workDate = jstNow.toISOString().split("T")[0];
 
   const { error } = await supabase.from("time_records").insert({
     tenant_id: tenantId,
     employee_id: employeeId,
-    work_type_id: null,
+    work_type_id: workTypeId,
     work_date: workDate,
     clock_in: now.toISOString(),
-    is_driver: isDriver,
-    job_site_id: jobSiteId || null,
   });
 
   if (error) {

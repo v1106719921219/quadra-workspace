@@ -29,8 +29,6 @@ export async function createEmployee(formData: FormData) {
   const dependentsCount = formData.get("dependents_count");
   const taxColumn = formData.get("tax_column") as string;
   const socialInsuranceEnrolled = formData.get("social_insurance_enrolled") === "true";
-  const canBeDriver = formData.get("can_be_driver") === "true";
-  const boardChar = formData.get("board_char") as string;
 
   const { error } = await supabase.from("employees").insert({
     tenant_id: tenantId,
@@ -43,8 +41,6 @@ export async function createEmployee(formData: FormData) {
     dependents_count: dependentsCount ? parseInt(dependentsCount as string) : 0,
     tax_column: taxColumn || "kou",
     social_insurance_enrolled: socialInsuranceEnrolled,
-    can_be_driver: canBeDriver,
-    board_char: boardChar?.trim().slice(0, 1) || null,
   });
 
   if (error) throw error;
@@ -65,8 +61,6 @@ export async function updateEmployee(id: string, formData: FormData) {
   const dependentsCount = formData.get("dependents_count");
   const taxColumn = formData.get("tax_column") as string;
   const socialInsuranceEnrolled = formData.get("social_insurance_enrolled") === "true";
-  const canBeDriver = formData.get("can_be_driver") === "true";
-  const boardChar = formData.get("board_char") as string;
 
   const { error } = await supabase
     .from("employees")
@@ -81,8 +75,6 @@ export async function updateEmployee(id: string, formData: FormData) {
       dependents_count: dependentsCount ? parseInt(dependentsCount as string) : 0,
       tax_column: taxColumn || "kou",
       social_insurance_enrolled: socialInsuranceEnrolled,
-      can_be_driver: canBeDriver,
-      board_char: boardChar?.trim().slice(0, 1) || null,
     })
     .eq("id", id);
 

@@ -46,9 +46,15 @@ export default function SelectOrgPage() {
   }, [supabase, router]);
 
   function goToOrg(slug: string) {
-    // クッキーにテナントスラッグを保存してフルリロード
-    document.cookie = `tenant_slug=${slug}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
-    window.location.assign("/dashboard");
+    const host = window.location.host;
+    const protocol = window.location.protocol;
+    if (host.includes("localhost")) {
+      window.location.href = `${protocol}//${slug}.localhost:3000/dashboard`;
+    } else {
+      const parts = host.split(".");
+      const baseDomain = parts.slice(-2).join(".");
+      window.location.href = `${protocol}//${slug}.${baseDomain}/dashboard`;
+    }
   }
 
   async function handleLogout() {

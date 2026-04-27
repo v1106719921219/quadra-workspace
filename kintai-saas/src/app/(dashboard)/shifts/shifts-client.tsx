@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,7 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ChevronLeft, ChevronRight, Copy, Trash2, Plus, Pencil, GripVertical, Printer } from "lucide-react";
+import { ChevronLeft, ChevronRight, Copy, Trash2, Plus, Pencil, GripVertical } from "lucide-react";
 import {
   getWeeklyShifts,
   upsertShift,
@@ -36,7 +36,6 @@ import {
   createShiftTemplate,
   updateShiftTemplate,
   deleteShiftTemplate,
-  getWeeklyDayOffRequests,
 } from "./actions";
 import { toast } from "sonner";
 
@@ -110,13 +109,13 @@ export function ShiftsClient({
 }) {
   const [weekStart, setWeekStart] = useState(() => getMonday(new Date()));
   const [shifts, setShifts] = useState<Shift[]>([]);
-  const [dayOffRequests, setDayOffRequests] = useState<{employee_id: string; request_date: string}[]>([]);
   const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedCell, setSelectedCell] = useState<{
     employeeId: string;
     date: string;
     shift?: Shift;
+    presetTemplate?: ShiftTemplate;
   } | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -126,7 +125,6 @@ export function ShiftsClient({
   const [editingTemplate, setEditingTemplate] = useState<ShiftTemplate | null>(null);
   const [templateSaving, setTemplateSaving] = useState(false);
   const [dragOverCell, setDragOverCell] = useState<string | null>(null);
-  const loadingSeq = useRef(0);
 
   const weekDates = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(weekStart);
@@ -135,28 +133,14 @@ export function ShiftsClient({
   });
 
   const loadShifts = useCallback(async () => {
-    const seq = ++loadingSeq.current;
     setLoading(true);
     try {
-      const endDate = new Date(weekStart);
-      endDate.setDate(endDate.getDate() + 6);
-      const [shiftsResult, dayOffResult] = await Promise.allSettled([
-        getWeeklyShifts(formatDate(weekStart)),
-        getWeeklyDayOffRequests(formatDate(weekStart), formatDate(endDate)),
-      ]);
-      // 古いリクエストの結果は無視
-      if (seq !== loadingSeq.current) return;
-      if (shiftsResult.status === "fulfilled") {
-        setShifts(shiftsResult.value as unknown as Shift[]);
-      } else {
-        toast.error("シフトの読み込みに失敗しました");
-      }
-      if (dayOffResult.status === "fulfilled") {
-        setDayOffRequests(dayOffResult.value);
-      }
-      // 休日希望の取得失敗はシフト表示に影響させない
+      const data = await getWeeklyShifts(formatDate(weekStart));
+      setShifts(data as unknown as Shift[]);
+    } catch {
+      toast.error("シフトの読み込みに失敗しました");
     } finally {
-      if (seq === loadingSeq.current) setLoading(false);
+      setLoading(false);
     }
   }, [weekStart]);
 
@@ -317,30 +301,19 @@ export function ShiftsClient({
     setDragOverCell(null);
   }
 
-  async function handleDrop(e: React.DragEvent, employeeId: string, date: string) {
+  function handleDrop(e: React.DragEvent, employeeId: string, date: string) {
     e.preventDefault();
     setDragOverCell(null);
 
     const raw = e.dataTransfer.getData("application/shift-template");
     if (!raw) return;
 
-    try {
-      const template: ShiftTemplate = JSON.parse(raw);
-      const existing = getShiftForCell(employeeId, date);
+    const template: ShiftTemplate = JSON.parse(raw);
+    const existing = getShiftForCell(employeeId, date);
 
-      await upsertShift({
-        id: existing?.id,
-        employee_id: employeeId,
-        work_type_id: template.work_type_id,
-        shift_date: date,
-        start_time: template.start_time.slice(0, 5),
-        end_time: template.end_time.slice(0, 5),
-      });
-      toast.success("シフトを登録しました");
-      await loadShifts();
-    } catch {
-      toast.error("登録に失敗しました");
-    }
+    // ダイアログを開いてテンプレート内容をプリセット（保存ボタンで確定）
+    setSelectedCell({ employeeId, date, shift: existing, presetTemplate: template });
+    setDialogOpen(true);
   }
 
   // 週の表示ラベル
@@ -350,41 +323,34 @@ export function ShiftsClient({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">シフト管理</h1>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => window.print()} className="no-print">
-            <Printer className="h-4 w-4 mr-2" />
-            印刷
-          </Button>
-          <Button variant="outline" onClick={handleCopyPrevWeek} className="no-print">
-            <Copy className="h-4 w-4 mr-2" />
-            前週コピー
-          </Button>
-        </div>
+        <Button variant="outline" onClick={handleCopyPrevWeek}>
+          <Copy className="h-4 w-4 mr-2" />
+          前週コピー
+        </Button>
       </div>
 
       {/* 週ナビゲーション */}
       <div className="flex items-center gap-2">
-        <Button variant="outline" size="icon" onClick={() => changeWeek(-1)} className="no-print">
+        <Button variant="outline" size="icon" onClick={() => changeWeek(-1)}>
           <ChevronLeft className="h-4 w-4" />
         </Button>
         <span className="font-medium min-w-[140px] text-center">{weekLabel}</span>
-        <Button variant="outline" size="icon" onClick={() => changeWeek(1)} className="no-print">
+        <Button variant="outline" size="icon" onClick={() => changeWeek(1)}>
           <ChevronRight className="h-4 w-4" />
         </Button>
         <Button
           variant="ghost"
           size="sm"
           onClick={() => setWeekStart(getMonday(new Date()))}
-          className="no-print"
         >
           今週
         </Button>
       </div>
 
       {/* メインエリア: テンプレートパネル + シフトグリッド */}
-      <div className="flex gap-4 shift-flex-container">
+      <div className="flex gap-4">
         {/* テンプレートパネル */}
-        <div className="w-48 shrink-0 space-y-3 no-print">
+        <div className="w-48 shrink-0 space-y-3">
           <div className="text-sm font-semibold text-muted-foreground">テンプレート</div>
 
           {templates.length === 0 && (
@@ -440,7 +406,7 @@ export function ShiftsClient({
         </div>
 
         {/* シフトグリッド */}
-        <div className="flex-1 border rounded-lg overflow-x-auto shift-grid-wrapper">
+        <div className="flex-1 border rounded-lg overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -489,15 +455,12 @@ export function ShiftsClient({
                       const isToday = dateStr === formatDate(new Date());
                       const cellKey = `${emp.id}-${dateStr}`;
                       const isDragOver = dragOverCell === cellKey;
-                      const hasDayOff = dayOffRequests.some(
-                        (r) => r.employee_id === emp.id && r.request_date === dateStr
-                      );
                       return (
                         <TableCell
                           key={i}
                           className={`text-center cursor-pointer hover:bg-muted/50 transition-colors p-1 ${
                             isToday ? "bg-blue-50 dark:bg-blue-950" : ""
-                          } ${hasDayOff && !shift ? "bg-red-50" : ""} ${isDragOver ? "bg-primary/10 ring-2 ring-primary ring-inset" : ""}`}
+                          } ${isDragOver ? "bg-primary/10 ring-2 ring-primary ring-inset" : ""}`}
                           onClick={() => handleCellClick(emp.id, dateStr)}
                           onDragOver={(e) => handleDragOver(e, cellKey)}
                           onDragLeave={handleDragLeave}
@@ -511,15 +474,7 @@ export function ShiftsClient({
                               <div className="text-muted-foreground truncate">
                                 {(shift.work_types as unknown as { name: string }).name}
                               </div>
-                              {shift.note && (
-                                <div className="text-blue-600 truncate">{shift.note}</div>
-                              )}
-                              {hasDayOff && (
-                                <div className="text-red-500 text-xs">休希</div>
-                              )}
                             </div>
-                          ) : hasDayOff ? (
-                            <div className="text-red-500 text-xs font-medium">休希</div>
                           ) : (
                             <div className="text-muted-foreground text-xs">--</div>
                           )}
@@ -537,19 +492,6 @@ export function ShiftsClient({
       {loading && (
         <p className="text-sm text-muted-foreground text-center">読み込み中...</p>
       )}
-
-      <style>{`
-        @media print {
-          [data-sidebar], nav, header, .no-print { display: none !important; }
-          body { font-size: 9pt; }
-          .shift-flex-container { display: block !important; }
-          .shift-grid-wrapper { overflow: visible !important; width: 100% !important; border: 1px solid #e5e7eb !important; }
-          table { page-break-inside: auto; width: 100% !important; table-layout: fixed; }
-          tr { page-break-inside: avoid; }
-          th, td { font-size: 8pt !important; padding: 4px !important; }
-        }
-        @page { size: A4 landscape; margin: 8mm; }
-      `}</style>
 
       {/* シフト追加/編集ダイアログ */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -571,7 +513,7 @@ export function ShiftsClient({
                 <Label>業務タイプ</Label>
                 <Select
                   name="work_type_id"
-                  defaultValue={selectedCell.shift?.work_type_id}
+                  defaultValue={selectedCell.presetTemplate?.work_type_id ?? selectedCell.shift?.work_type_id}
                   required
                 >
                   <SelectTrigger>
@@ -592,7 +534,7 @@ export function ShiftsClient({
                   <Input
                     name="start_time"
                     type="time"
-                    defaultValue={selectedCell.shift?.start_time?.slice(0, 5) || "09:00"}
+                    defaultValue={selectedCell.presetTemplate?.start_time?.slice(0, 5) ?? selectedCell.shift?.start_time?.slice(0, 5) ?? "09:00"}
                     required
                   />
                 </div>
@@ -601,7 +543,7 @@ export function ShiftsClient({
                   <Input
                     name="end_time"
                     type="time"
-                    defaultValue={selectedCell.shift?.end_time?.slice(0, 5) || "17:00"}
+                    defaultValue={selectedCell.presetTemplate?.end_time?.slice(0, 5) ?? selectedCell.shift?.end_time?.slice(0, 5) ?? "17:00"}
                     required
                   />
                 </div>

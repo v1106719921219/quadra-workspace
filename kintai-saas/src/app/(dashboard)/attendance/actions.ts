@@ -8,7 +8,7 @@ export async function getTimeRecords(date: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("time_records")
-    .select("*, employees(name, employee_type), work_types(name, daily_allowance), job_sites(name, short_name)")
+    .select("*, employees(name, employee_type), work_types(name, daily_allowance)")
     .eq("work_date", date)
     .order("clock_in", { ascending: true });
 
@@ -26,7 +26,7 @@ export async function getMonthlyRecords(year: number, month: number) {
 
   const { data, error } = await supabase
     .from("time_records")
-    .select("*, employees(id, name, employee_type, hourly_rate, monthly_salary), work_types(name, daily_allowance), job_sites(name, short_name)")
+    .select("*, employees(id, name, employee_type, hourly_rate, monthly_salary), work_types(name, daily_allowance)")
     .gte("work_date", startDate)
     .lt("work_date", endDate)
     .order("work_date", { ascending: true })
@@ -43,7 +43,6 @@ export async function updateTimeRecord(
     clock_out?: string | null;
     break_minutes?: number;
     work_type_id?: string;
-    job_site_id?: string | null;
     note?: string;
   }
 ) {
@@ -73,8 +72,6 @@ export async function createManualRecord(formData: FormData) {
     ? new Date(`${workDate}T${clockOutTime}:00+09:00`).toISOString()
     : null;
 
-  const jobSiteId = (formData.get("job_site_id") as string) || null;
-
   const { error } = await supabase.from("time_records").insert({
     tenant_id: tenantId,
     employee_id: employeeId,
@@ -83,7 +80,6 @@ export async function createManualRecord(formData: FormData) {
     clock_in: clockIn,
     clock_out: clockOut,
     break_minutes: breakMinutes,
-    job_site_id: jobSiteId,
   });
 
   if (error) throw error;

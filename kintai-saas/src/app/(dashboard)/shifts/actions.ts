@@ -1,7 +1,6 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { getTenantId } from "@/lib/tenant";
 import { revalidatePath } from "next/cache";
 
@@ -208,19 +207,6 @@ export async function deleteShiftTemplate(id: string) {
     .eq("id", id);
   if (error) throw error;
   revalidatePath("/shifts");
-}
-
-// 週の休日希望を取得（employee_id + request_dateのセット）
-export async function getWeeklyDayOffRequests(startDate: string, endDate: string) {
-  const tenantId = await getTenantId();
-  const admin = createAdminClient();
-  const { data } = await admin
-    .from("day_off_requests")
-    .select("employee_id, request_date")
-    .eq("tenant_id", tenantId)
-    .gte("request_date", startDate)
-    .lte("request_date", endDate);
-  return data || [];
 }
 
 export async function getShiftComparison(date: string) {

@@ -28,8 +28,6 @@ interface Employee {
   dependents_count: number;
   tax_column: string;
   social_insurance_enrolled: boolean;
-  can_be_driver: boolean;
-  board_char: string | null;
 }
 
 export function EmployeesClient({ employees }: { employees: Employee[] }) {
@@ -67,7 +65,6 @@ export function EmployeesClient({ employees }: { employees: Employee[] }) {
     formData.set("dependents_count", emp.dependents_count?.toString() || "0");
     formData.set("tax_column", emp.tax_column || "kou");
     formData.set("social_insurance_enrolled", String(emp.social_insurance_enrolled || false));
-    formData.set("can_be_driver", String(emp.can_be_driver || false));
     formData.set("is_active", String(!emp.is_active));
     try {
       await updateEmployee(emp.id, formData);
