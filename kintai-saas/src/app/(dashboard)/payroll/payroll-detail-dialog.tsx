@@ -104,6 +104,12 @@ export function PayrollDetailDialog({ calculation, open, onOpenChange }: Payroll
                   <TableCell className="font-medium">業務手当</TableCell>
                   <TableCell className="text-right">{formatCurrency(calculation.dailyAllowanceTotal)}</TableCell>
                 </TableRow>
+                {calculation.driverDays > 0 && (
+                  <TableRow>
+                    <TableCell className="font-medium">ドライバー手当({calculation.driverDays}日)</TableCell>
+                    <TableCell className="text-right">{formatCurrency(calculation.driverAllowance)}</TableCell>
+                  </TableRow>
+                )}
                 <TableRow>
                   <TableCell className="font-medium">通勤手当</TableCell>
                   <TableCell className="text-right">{formatCurrency(calculation.transportationAllowance)}</TableCell>
@@ -167,6 +173,7 @@ export function PayrollDetailDialog({ calculation, open, onOpenChange }: Payroll
                       <TableHead className="text-right">残業</TableHead>
                       <TableHead className="text-right">深夜</TableHead>
                       <TableHead>休日</TableHead>
+                      <TableHead>ドライバー</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -178,6 +185,7 @@ export function PayrollDetailDialog({ calculation, open, onOpenChange }: Payroll
                         <TableCell className="text-right">{d.overtimeMinutes > 0 ? `${(d.overtimeMinutes / 60).toFixed(1)}h` : "-"}</TableCell>
                         <TableCell className="text-right">{d.lateNightMinutes > 0 ? `${(d.lateNightMinutes / 60).toFixed(1)}h` : "-"}</TableCell>
                         <TableCell>{d.isHoliday ? <Badge variant="secondary">休日</Badge> : "-"}</TableCell>
+                        <TableCell>{d.isDriver ? <Badge variant="default">ドライバー</Badge> : "-"}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

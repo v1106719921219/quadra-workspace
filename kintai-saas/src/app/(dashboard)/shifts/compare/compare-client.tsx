@@ -39,9 +39,10 @@ interface TimeRecord {
 type Status = "normal" | "late" | "early_leave" | "absent" | "unscheduled";
 
 function formatTimeFromISO(iso: string) {
-  const date = new Date(iso);
-  const jst = new Date(date.getTime() + 9 * 60 * 60 * 1000);
-  return `${String(jst.getUTCHours()).padStart(2, "0")}:${String(jst.getUTCMinutes()).padStart(2, "0")}`;
+  return new Date(iso).toLocaleTimeString("ja-JP", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 function getStatusBadge(status: Status) {
@@ -95,8 +96,7 @@ interface ComparisonRow {
 }
 
 export function CompareClient() {
-  const jstNow = new Date(Date.now() + 9 * 60 * 60 * 1000);
-  const today = jstNow.toISOString().split("T")[0];
+  const today = new Date().toISOString().split("T")[0];
   const [date, setDate] = useState(today);
   const [rows, setRows] = useState<ComparisonRow[]>([]);
   const [loaded, setLoaded] = useState(false);

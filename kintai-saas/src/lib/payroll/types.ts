@@ -20,7 +20,12 @@ export interface TimeRecordForPayroll {
   clock_in: string;
   clock_out: string | null;
   break_minutes: number;
-  work_types: { name: string; daily_allowance: number };
+  work_types: { name: string; daily_allowance: number; hourly_rate: number | null };
+  is_driver: boolean;
+  // 配置ボード（ホワイトボード）から取得した現場情報
+  site_daily_allowance: number;    // 正社員向け日当加算（配置された現場から）
+  site_hourly_rate: number | null; // パート向け時給（配置された現場から）
+  site_name: string | null;        // 現場名（明細表示用）
 }
 
 export interface DailyWorkDetail {
@@ -35,6 +40,9 @@ export interface DailyWorkDetail {
   isHoliday: boolean;
   dailyAllowance: number;
   workTypeName: string;
+  isDriver: boolean;
+  hourlyRate: number;
+  siteName: string | null; // 現場名（明細表示用）
 }
 
 export interface PayrollCalculation {
@@ -53,6 +61,8 @@ export interface PayrollCalculation {
   lateNightPay: number;
   holidayPay: number;
   dailyAllowanceTotal: number;
+  driverDays: number;
+  driverAllowance: number;
   transportationAllowance: number;
   grossPay: number;
 

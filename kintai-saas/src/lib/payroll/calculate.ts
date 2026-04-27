@@ -5,6 +5,10 @@ import type {
   PayrollCalculation,
 } from "./types";
 import { calculateIncomeTax } from "./tax-table";
+import { roundUpToInterval, roundDownToInterval } from "@/lib/time-utils";
+
+// ドライバー手当（円/日）
+const DRIVER_ALLOWANCE_PER_DAY = 1200;
 
 // 社保料率（概算）
 const HEALTH_INSURANCE_RATE = 0.05; // 健康保険 5%
@@ -76,14 +80,18 @@ function calcLateNightMinutes(clockIn: Date, clockOut: Date): number {
 }
 
 /**
- * 1日分の勤務詳細を計算
+ * 1日分の勤務詳細を計算（15分刻み丸め対応）
  */
-function calculateDailyWork(record: TimeRecordForPayroll): DailyWorkDetail | null {
+function calculateDailyWork(record: TimeRecordForPayroll, roundingMinutes: number = 15, fallbackHourlyRate: number = 0): DailyWorkDetail | null {
   if (!record.clock_out) return null;
 
   const clockIn = new Date(record.clock_in);
   const clockOut = new Date(record.clock_out);
-  const totalMinutes = (clockOut.getTime() - clockIn.getTime()) / 60000 - record.break_minutes;
+
+  // 15分刻み丸め: 出勤は切り上げ、退勤は切り下げ
+  const roundedIn = roundUpToInterval(clockIn, roundingMinutes);
+  const roundedOut = roundDownToInterval(clockOut, roundingMinutes);
+  const totalMinutes = (roundedOut.getTime() - roundedIn.getTime()) / 60000 - record.break_minutes;
 
   if (totalMinutes <= 0) return null;
 
@@ -91,6 +99,14 @@ function calculateDailyWork(record: TimeRecordForPayroll): DailyWorkDetail | nul
   const normalMinutes = totalMinutes - overtimeMinutes;
   const lateNightMinutes = calcLateNightMinutes(clockIn, clockOut);
   const holiday = isHoliday(record.work_date);
+
+  // 日当加算: 配置ボードの現場日当 → work_typeの日当 の優先順位
+  const dailyAllowance = record.site_daily_allowance > 0
+    ? record.site_daily_allowance
+    : (record.work_types?.daily_allowance || 0);
+
+  // 時給: 配置ボードの現場時給 → work_typeの時給 → フォールバック の優先順位
+  const hourlyRate = record.site_hourly_rate ?? record.work_types?.hourly_rate ?? fallbackHourlyRate;
 
   return {
     date: record.work_date,
@@ -102,22 +118,31 @@ function calculateDailyWork(record: TimeRecordForPayroll): DailyWorkDetail | nul
     overtimeMinutes,
     lateNightMinutes,
     isHoliday: holiday,
-    dailyAllowance: record.work_types?.daily_allowance || 0,
+    dailyAllowance,
     workTypeName: record.work_types?.name || "",
+    isDriver: record.is_driver || false,
+    hourlyRate,
+    siteName: record.site_name || null,
   };
 }
 
 /**
  * 従業員1人分の月次給与を計算
+ * @param roundingMinutes 時間丸め分数（デフォルト15分）
  */
 export function calculateEmployeePayroll(
   employee: EmployeeForPayroll,
-  records: TimeRecordForPayroll[]
+  records: TimeRecordForPayroll[],
+  roundingMinutes: number = 15
 ): PayrollCalculation {
-  // 日次計算
+  // 日次計算（パートは業務タイプの時給、社員はフォールバックとして月給÷160h）
+  const fallbackHourlyRate = employee.employee_type === "part_time"
+    ? (employee.hourly_rate || 0)
+    : (employee.monthly_salary || 0) / 160;
+
   const dailyDetails: DailyWorkDetail[] = [];
   for (const record of records) {
-    const detail = calculateDailyWork(record);
+    const detail = calculateDailyWork(record, roundingMinutes, fallbackHourlyRate);
     if (detail) dailyDetails.push(detail);
   }
 
@@ -128,6 +153,7 @@ export function calculateEmployeePayroll(
   let lateNightMinutes = 0;
   let holidayMinutes = 0;
   let dailyAllowanceTotal = 0;
+  let driverDays = 0;
 
   for (const d of dailyDetails) {
     totalMinutes += d.totalMinutes;
@@ -135,42 +161,43 @@ export function calculateEmployeePayroll(
     lateNightMinutes += d.lateNightMinutes;
     if (d.isHoliday) holidayMinutes += d.totalMinutes;
     dailyAllowanceTotal += d.dailyAllowance;
+    if (d.isDriver) driverDays++;
   }
+
+  const driverAllowance = driverDays * DRIVER_ALLOWANCE_PER_DAY;
 
   const totalHours = totalMinutes / 60;
   const overtimeHours = overtimeMinutes / 60;
   const lateNightHoursVal = lateNightMinutes / 60;
   const holidayHours = holidayMinutes / 60;
 
-  // 時給計算のベースレート
-  const hourlyBase = employee.employee_type === "part_time"
-    ? (employee.hourly_rate || 0)
-    : (employee.monthly_salary || 0) / 160; // 月給÷所定時間(160h)
-
-  // 基本給計算
+  // 基本給・割増計算
   let basePay: number;
-  if (employee.employee_type === "part_time") {
-    // パート: 通常時間×時給（休日分も含む総労働時間から残業分を除いた部分）
-    const normalHours = totalHours - overtimeHours;
-    basePay = Math.round(normalHours * hourlyBase);
-  } else {
-    // 社員: 月給固定
-    basePay = employee.monthly_salary || 0;
-  }
-
-  // 割増計算
   let overtimePay: number;
   let lateNightPay: number;
   let holidayPay: number;
 
   if (employee.employee_type === "part_time") {
-    // パート: 全額を割増率で支給
-    overtimePay = Math.round(overtimeHours * hourlyBase * 1.25);
-    lateNightPay = Math.round(lateNightHoursVal * hourlyBase * 0.25); // 深夜割増分のみ追加
-    holidayPay = Math.round(holidayHours * hourlyBase * 0.35); // 休日割増分のみ追加
+    // パート: 日ごとの業務タイプ時給を使って計算
+    basePay = 0;
+    overtimePay = 0;
+    lateNightPay = 0;
+    holidayPay = 0;
+    for (const d of dailyDetails) {
+      basePay += d.normalMinutes / 60 * d.hourlyRate;
+      overtimePay += d.overtimeMinutes / 60 * d.hourlyRate * 1.25;
+      lateNightPay += d.lateNightMinutes / 60 * d.hourlyRate * 0.25;
+      if (d.isHoliday) holidayPay += d.totalMinutes / 60 * d.hourlyRate * 0.35;
+    }
+    basePay = Math.round(basePay);
+    overtimePay = Math.round(overtimePay);
+    lateNightPay = Math.round(lateNightPay);
+    holidayPay = Math.round(holidayPay);
   } else {
-    // 社員: 割増分のみ
-    overtimePay = Math.round(overtimeHours * hourlyBase * 0.25); // 基本給に含まれるため割増分のみ
+    // 社員: 月給固定、割増分のみ追加
+    const hourlyBase = (employee.monthly_salary || 0) / 160;
+    basePay = employee.monthly_salary || 0;
+    overtimePay = Math.round(overtimeHours * hourlyBase * 0.25);
     lateNightPay = Math.round(lateNightHoursVal * hourlyBase * 0.25);
     holidayPay = Math.round(holidayHours * hourlyBase * 0.35);
   }
@@ -178,7 +205,7 @@ export function calculateEmployeePayroll(
   const transportationAllowance = employee.transportation_allowance || 0;
 
   const grossPay = basePay + overtimePay + lateNightPay + holidayPay
-    + dailyAllowanceTotal + transportationAllowance;
+    + dailyAllowanceTotal + driverAllowance + transportationAllowance;
 
   // 社保控除（概算）
   let healthInsurance = 0;
@@ -213,6 +240,8 @@ export function calculateEmployeePayroll(
     lateNightPay,
     holidayPay,
     dailyAllowanceTotal,
+    driverDays,
+    driverAllowance,
     transportationAllowance,
     grossPay,
     healthInsurance,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,6 +33,8 @@ interface Employee {
   dependents_count: number;
   tax_column: string;
   social_insurance_enrolled: boolean;
+  can_be_driver: boolean;
+  board_char: string | null;
 }
 
 interface EmployeeFormProps {
@@ -45,7 +47,18 @@ export function EmployeeForm({ employee, open, onOpenChange }: EmployeeFormProps
   const [employeeType, setEmployeeType] = useState(employee?.employee_type || "part_time");
   const [taxColumn, setTaxColumn] = useState(employee?.tax_column || "kou");
   const [socialInsurance, setSocialInsurance] = useState(employee?.social_insurance_enrolled || false);
+  const [canBeDriver, setCanBeDriver] = useState(employee?.can_be_driver || false);
   const [loading, setLoading] = useState(false);
+
+  // ダイアログが開くたびに既存データで状態を初期化
+  useEffect(() => {
+    if (open) {
+      setEmployeeType(employee?.employee_type || "part_time");
+      setTaxColumn(employee?.tax_column || "kou");
+      setSocialInsurance(employee?.social_insurance_enrolled || false);
+      setCanBeDriver(employee?.can_be_driver || false);
+    }
+  }, [open, employee]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -55,6 +68,7 @@ export function EmployeeForm({ employee, open, onOpenChange }: EmployeeFormProps
       formData.set("employee_type", employeeType);
       formData.set("tax_column", taxColumn);
       formData.set("social_insurance_enrolled", String(socialInsurance));
+      formData.set("can_be_driver", String(canBeDriver));
       if (employee) {
         formData.set("is_active", String(employee.is_active));
         await updateEmployee(employee.id, formData);
@@ -78,14 +92,30 @@ export function EmployeeForm({ employee, open, onOpenChange }: EmployeeFormProps
           <DialogTitle>{employee ? "従業員編集" : "従業員追加"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">名前</Label>
-            <Input
-              id="name"
-              name="name"
-              defaultValue={employee?.name}
-              required
-            />
+          <div className="grid grid-cols-3 gap-3">
+            <div className="col-span-2 space-y-2">
+              <Label htmlFor="name">名前</Label>
+              <Input
+                id="name"
+                name="name"
+                defaultValue={employee?.name}
+                required
+              />
+            </div>
+            <div className="col-span-1 space-y-2">
+              <Label htmlFor="board_char">
+                配置表文字
+                <span className="text-[10px] text-gray-400 ml-1">（1文字）</span>
+              </Label>
+              <Input
+                id="board_char"
+                name="board_char"
+                defaultValue={employee?.board_char || ""}
+                maxLength={1}
+                placeholder={employee?.name?.slice(0, 1) || "自動"}
+                className="text-center text-lg font-bold"
+              />
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="employee_number">社員番号</Label>
@@ -173,6 +203,16 @@ export function EmployeeForm({ employee, open, onOpenChange }: EmployeeFormProps
                 />
                 <Label htmlFor="social_insurance_enrolled" className="cursor-pointer">
                   社会保険加入
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="can_be_driver"
+                  checked={canBeDriver}
+                  onCheckedChange={(checked) => setCanBeDriver(checked === true)}
+                />
+                <Label htmlFor="can_be_driver" className="cursor-pointer">
+                  ドライバー対象
                 </Label>
               </div>
             </div>

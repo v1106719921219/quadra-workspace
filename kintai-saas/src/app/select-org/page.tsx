@@ -50,6 +50,9 @@ export default function SelectOrgPage() {
     const protocol = window.location.protocol;
     if (host.includes("localhost")) {
       window.location.href = `${protocol}//${slug}.localhost:3000/dashboard`;
+    } else if (host.endsWith(".vercel.app") || !host.includes(".")) {
+      // vercel.appではサブドメイン不可のため同一ホストのまま遷移
+      window.location.href = `/dashboard`;
     } else {
       const parts = host.split(".");
       const baseDomain = parts.slice(-2).join(".");
