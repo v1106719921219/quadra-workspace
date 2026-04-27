@@ -54,7 +54,7 @@ export async function getMonthlyReport(year: number, month: number): Promise<Emp
       id: string; name: string; employee_type: string;
       hourly_rate: number | null; monthly_salary: number | null;
     };
-    const wt = r.work_types as unknown as { name: string; daily_allowance: number };
+    const wt = r.work_types as unknown as { name: string; daily_allowance: number } | null;
 
     if (!summaryMap.has(r.employee_id)) {
       summaryMap.set(r.employee_id, {
@@ -79,9 +79,10 @@ export async function getMonthlyReport(year: number, month: number): Promise<Emp
     }
 
     // 同日の最高手当を適用
+    const dailyAllowance = wt?.daily_allowance ?? 0;
     const currentMax = s.daily_max_allowance.get(r.work_date) || 0;
-    if (wt.daily_allowance > currentMax) {
-      s.daily_max_allowance.set(r.work_date, wt.daily_allowance);
+    if (dailyAllowance > currentMax) {
+      s.daily_max_allowance.set(r.work_date, dailyAllowance);
     }
   });
 
