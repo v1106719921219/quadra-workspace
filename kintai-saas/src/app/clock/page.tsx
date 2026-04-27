@@ -1,4 +1,4 @@
-import { getEmployeesWithStatus, getActiveWorkTypes } from "./actions";
+import { getEmployeesWithStatus } from "./actions";
 import { ClockClient } from "./clock-client";
 import { resolveTenant } from "@/lib/tenant";
 import { redirect } from "next/navigation";
@@ -9,15 +9,11 @@ export default async function ClockPage() {
     redirect("/");
   }
 
-  const [employees, workTypes] = await Promise.all([
-    getEmployeesWithStatus(),
-    getActiveWorkTypes(),
-  ]);
+  const employees = await getEmployeesWithStatus();
 
   return (
     <ClockClient
       initialEmployees={employees}
-      initialWorkTypes={workTypes}
       tenantName={tenant.name}
     />
   );

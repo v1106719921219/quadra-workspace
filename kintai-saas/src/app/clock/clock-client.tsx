@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { isHolidayDate, getHolidayNameFromDate } from "@/lib/holidays";
 import {
   Dialog,
   DialogContent,
@@ -19,31 +18,46 @@ import {
   clockIn,
   clockOut,
   getEmployeesWithStatus,
-  getActiveWorkTypes,
 } from "./actions";
+import { CorrectionRequestDialog } from "@/components/correction-request-dialog";
 
-interface WorkType {
-  id: string;
-  name: string;
-  daily_allowance: number;
+/** デプロイ後のServer Action ID不一致を検知して自動リロード */
+function isStaleActionError(e: unknown): boolean {
+  if (e instanceof Error && e.message.includes("was not found on the server")) return true;
+  if (typeof e === "object" && e !== null && "digest" in e) {
+    const digest = String((e as Record<string, unknown>).digest);
+    if (digest.includes("NOT_FOUND")) return true;
+  }
+  return false;
+}
+
+async function safeAction<T>(fn: () => Promise<T>): Promise<T> {
+  try {
+    return await fn();
+  } catch (e) {
+    if (isStaleActionError(e)) {
+      window.location.reload();
+      throw e;
+    }
+    throw e;
+  }
 }
 
 export function ClockClient({
   initialEmployees,
-  initialWorkTypes,
   tenantName,
 }: {
   initialEmployees: EmployeeWithStatus[];
-  initialWorkTypes: WorkType[];
   tenantName: string;
 }) {
   const [employees, setEmployees] = useState(initialEmployees);
-  const [workTypes] = useState(initialWorkTypes);
   const [now, setNow] = useState(new Date());
   const [clockInDialog, setClockInDialog] = useState<EmployeeWithStatus | null>(null);
   const [clockOutDialog, setClockOutDialog] = useState<EmployeeWithStatus | null>(null);
   const [breakMinutes, setBreakMinutes] = useState(0);
+  const [isDriver, setIsDriver] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [correctionOpen, setCorrectionOpen] = useState(false);
 
   // リアルタイム時計
   useEffect(() => {
@@ -54,10 +68,10 @@ export function ClockClient({
   // 30秒ごとにステータスをリフレッシュ
   const refresh = useCallback(async () => {
     try {
-      const data = await getEmployeesWithStatus();
+      const data = await safeAction(() => getEmployeesWithStatus());
       setEmployees(data);
     } catch {
-      // ignore
+      // ignore (stale action時は自動リロード済み)
     }
   }, []);
 
@@ -66,22 +80,22 @@ export function ClockClient({
     return () => clearInterval(timer);
   }, [refresh]);
 
-  const timeStr = now.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit", second: "2-digit", timeZone: "Asia/Tokyo" });
+  const timeStr = now.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
   const dateStr = now.toLocaleDateString("ja-JP", {
     year: "numeric",
     month: "long",
     day: "numeric",
     weekday: "short",
-    timeZone: "Asia/Tokyo",
   });
 
-  async function handleClockIn(workTypeId: string) {
+  async function handleClockIn() {
     if (!clockInDialog) return;
     setLoading(true);
     try {
-      await clockIn(clockInDialog.id, workTypeId);
-      toast.success(`${clockInDialog.name} が出勤しました`);
+      await safeAction(() => clockIn(clockInDialog.id, isDriver));
+      toast.success(`${clockInDialog.name} が出勤しました${isDriver ? "（ドライバー）" : ""}`);
       setClockInDialog(null);
+      setIsDriver(false);
       await refresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "出勤に失敗しました");
@@ -94,7 +108,7 @@ export function ClockClient({
     if (!clockOutDialog?.active_record) return;
     setLoading(true);
     try {
-      await clockOut(clockOutDialog.active_record.id, breakMinutes);
+      await safeAction(() => clockOut(clockOutDialog.active_record!.id, breakMinutes));
       toast.success(`${clockOutDialog.name} が退勤しました`);
       setClockOutDialog(null);
       setBreakMinutes(0);
@@ -113,48 +127,41 @@ export function ClockClient({
         <div className="max-w-6xl mx-auto px-4 py-6 text-center">
           <p className="text-sm text-muted-foreground mb-1">{tenantName}</p>
           <h1 className="text-lg font-semibold text-muted-foreground">勤怠タイムレコーダー</h1>
-          <div className="text-5xl font-mono font-bold tracking-wider mt-2">{timeStr}</div>
-          <p className={`text-lg mt-1 ${now.getDay() === 0 || now.getDay() === 6 || isHolidayDate(now) ? "text-red-600 font-semibold" : "text-muted-foreground"}`}>
-            {dateStr}
-            {getHolidayNameFromDate(now) && (
-              <span className="ml-2 text-sm text-red-500">({getHolidayNameFromDate(now)})</span>
-            )}
-          </p>
+          <div className="text-5xl md:text-6xl font-mono font-bold tracking-wider mt-2">{timeStr}</div>
+          <p className="text-lg text-muted-foreground mt-1">{dateStr}</p>
         </div>
       </div>
 
       {/* 従業員グリッド */}
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-5">
           {employees.map((emp) => {
             const isWorking = !!emp.active_record;
             const clockInTime = emp.active_record
               ? new Date(emp.active_record.clock_in).toLocaleTimeString("ja-JP", {
                   hour: "2-digit",
                   minute: "2-digit",
-                  timeZone: "Asia/Tokyo",
                 })
               : null;
 
             return (
               <div
                 key={emp.id}
-                className={`rounded-xl border-2 p-4 text-center transition-all ${
+                className={`rounded-xl border-2 p-4 md:p-5 text-center transition-all ${
                   isWorking
                     ? "border-green-400 bg-green-50 shadow-md"
                     : "border-slate-200 bg-white hover:border-slate-300"
                 }`}
               >
-                <p className="font-bold text-lg truncate">{emp.name}</p>
+                <p className="font-bold text-lg md:text-xl truncate">{emp.name}</p>
                 {isWorking ? (
                   <>
-                    <p className="text-sm text-green-600 font-medium mt-1">出勤中</p>
-                    <p className="text-xs text-muted-foreground">{emp.active_record!.work_type_name}</p>
-                    <p className="text-xs text-muted-foreground">{clockInTime}~</p>
+                    <p className="text-sm md:text-base text-green-600 font-medium mt-1">出勤中</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">{emp.active_record!.work_type_name}</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">{clockInTime}~</p>
                     <Button
-                      className="mt-3 w-full"
+                      className="mt-3 w-full h-11 md:h-12 text-base"
                       variant="destructive"
-                      size="sm"
                       onClick={() => {
                         setBreakMinutes(0);
                         setClockOutDialog(emp);
@@ -165,10 +172,9 @@ export function ClockClient({
                   </>
                 ) : (
                   <>
-                    <p className="text-sm text-muted-foreground mt-1">--</p>
+                    <p className="text-sm md:text-base text-muted-foreground mt-1">--</p>
                     <Button
-                      className="mt-3 w-full"
-                      size="sm"
+                      className="mt-3 w-full h-11 md:h-12 text-base"
                       onClick={() => setClockInDialog(emp)}
                     >
                       出勤
@@ -184,34 +190,44 @@ export function ClockClient({
             従業員が登録されていません。管理画面から追加してください。
           </p>
         )}
+
+        {/* 修正申告ボタン */}
+        {employees.length > 0 && (
+          <div className="mt-8 text-center">
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-muted-foreground"
+              onClick={() => setCorrectionOpen(true)}
+            >
+              出退勤の修正申告
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* 出勤ダイアログ */}
-      <Dialog open={!!clockInDialog} onOpenChange={(open) => !open && setClockInDialog(null)}>
+      <Dialog open={!!clockInDialog} onOpenChange={(open) => { if (!open) { setClockInDialog(null); setIsDriver(false); } }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>{clockInDialog?.name} の出勤</DialogTitle>
-            <DialogDescription>業務タイプを選択してください</DialogDescription>
           </DialogHeader>
-          <div className="grid gap-3">
-            {workTypes.map((wt) => (
-              <Button
-                key={wt.id}
-                variant="outline"
-                className="h-auto py-4 justify-between text-left"
-                disabled={loading}
-                onClick={() => handleClockIn(wt.id)}
-              >
-                <span className="font-medium text-base">{wt.name}</span>
-                <span className="text-sm text-muted-foreground">
-                  {wt.daily_allowance > 0
-                    ? `+¥${wt.daily_allowance.toLocaleString()}/日`
-                    : "手当なし"
-                  }
-                </span>
-              </Button>
-            ))}
-          </div>
+          {clockInDialog?.can_be_driver && (
+            <Button
+              variant={isDriver ? "default" : "outline"}
+              className={`w-full ${isDriver ? "bg-blue-600 hover:bg-blue-700 text-white" : ""}`}
+              onClick={() => setIsDriver(!isDriver)}
+            >
+              {isDriver ? "ドライバー ON" : "ドライバー"}
+            </Button>
+          )}
+          <Button
+            className="h-auto py-4 text-lg font-bold"
+            disabled={loading}
+            onClick={() => handleClockIn()}
+          >
+            {loading ? "処理中..." : "出勤"}
+          </Button>
         </DialogContent>
       </Dialog>
 
@@ -221,12 +237,10 @@ export function ClockClient({
           <DialogHeader>
             <DialogTitle>{clockOutDialog?.name} の退勤</DialogTitle>
             <DialogDescription>
-              {clockOutDialog?.active_record?.work_type_name} ・{" "}
               {clockOutDialog?.active_record
                 ? new Date(clockOutDialog.active_record.clock_in).toLocaleTimeString("ja-JP", {
                     hour: "2-digit",
                     minute: "2-digit",
-                    timeZone: "Asia/Tokyo",
                   })
                 : ""}
               ~{timeStr.slice(0, 5)}
@@ -237,10 +251,17 @@ export function ClockClient({
               <Label htmlFor="break">休憩時間（分）</Label>
               <Input
                 id="break"
-                type="number"
-                min={0}
-                value={breakMinutes}
-                onChange={(e) => setBreakMinutes(parseInt(e.target.value) || 0)}
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                className="h-14 text-xl text-center"
+                value={breakMinutes === 0 ? "" : String(breakMinutes)}
+                placeholder="例：60"
+                onChange={(e) => {
+                  const val = e.target.value.replace(/[^0-9]/g, "");
+                  setBreakMinutes(val === "" ? 0 : parseInt(val));
+                }}
+                onFocus={(e) => e.target.select()}
               />
             </div>
           </div>
@@ -254,6 +275,15 @@ export function ClockClient({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* 修正申告ダイアログ */}
+      <CorrectionRequestDialog
+        open={correctionOpen}
+        onOpenChange={setCorrectionOpen}
+        mode="both"
+        employees={employees.map((e) => ({ id: e.id, name: e.name }))}
+        workTypes={[]}
+      />
     </div>
   );
 }

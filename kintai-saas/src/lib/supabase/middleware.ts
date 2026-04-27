@@ -43,13 +43,12 @@ export async function updateSession(request: NextRequest) {
 
     const host = request.headers.get("host") || "";
     const subdomain = extractSubdomain(host);
-    const tenantSlug = subdomain || request.cookies.get("tenant_slug")?.value || null;
     const pathname = request.nextUrl.pathname;
 
     const isApiRoute = pathname.startsWith("/api/");
 
     // 打刻画面 (/clock) はテナント内だが認証不要（タブレット共有用）
-    const publicRoutes = ["/login", "/signup", "/auth", "/clock", "/tenant-not-found"];
+    const publicRoutes = ["/login", "/signup", "/auth", "/clock", "/staff", "/tenant-not-found"];
     const isPublicRoute = publicRoutes.some((route) =>
       pathname.startsWith(route)
     );
@@ -102,11 +101,13 @@ export async function updateSession(request: NextRequest) {
     }
 
     // サブドメインなし + 認証済み → 組織選択ページへ
+    // ただし vercel.app ドメインではサブドメイン運用しないためスキップ
     const isOrgSelectionRoute = ["/select-org", "/create-org"].some((route) =>
       pathname.startsWith(route)
     );
+    const isVercelApp = host.endsWith(".vercel.app") || host === "vercel.app";
 
-    if (user && !tenantSlug && !isPublicRoute && !isApiRoute && !isOrgSelectionRoute) {
+    if (user && !subdomain && !isVercelApp && !isPublicRoute && !isApiRoute && !isOrgSelectionRoute) {
       const url = request.nextUrl.clone();
       url.pathname = "/select-org";
       return NextResponse.redirect(url);
@@ -115,12 +116,12 @@ export async function updateSession(request: NextRequest) {
     // 認証済みユーザーがloginにアクセス → dashboard
     if (user && pathname === "/login") {
       const url = request.nextUrl.clone();
-      url.pathname = tenantSlug ? "/dashboard" : "/select-org";
+      url.pathname = "/dashboard";
       return NextResponse.redirect(url);
     }
 
-    // テナントありの "/" → dashboard
-    if (user && pathname === "/" && tenantSlug) {
+    // サブドメインありの "/" → dashboard
+    if (user && pathname === "/" && subdomain) {
       const url = request.nextUrl.clone();
       url.pathname = "/dashboard";
       return NextResponse.redirect(url);

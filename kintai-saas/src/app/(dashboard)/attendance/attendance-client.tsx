@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { isJapaneseHoliday, getHolidayName } from "@/lib/holidays";
 import {
   Table,
   TableBody,
@@ -38,11 +37,14 @@ import {
   updateTimeRecord,
 } from "./actions";
 import { toast } from "sonner";
+import { CorrectionApprovalList } from "@/components/correction-approval-list";
+import { CorrectionRequestDialog } from "@/components/correction-request-dialog";
 
 interface TimeRecord {
   id: string;
   employee_id: string;
   work_type_id: string;
+  job_site_id: string | null;
   work_date: string;
   clock_in: string;
   clock_out: string | null;
@@ -50,6 +52,7 @@ interface TimeRecord {
   note: string | null;
   employees: { name: string; employee_type: string };
   work_types: { name: string; daily_allowance: number };
+  job_sites: { name: string; short_name: string | null } | null;
 }
 
 interface Employee {
@@ -62,10 +65,14 @@ interface WorkType {
   name: string;
 }
 
+interface JobSite {
+  id: string;
+  name: string;
+  short_name: string | null;
+}
+
 function formatTime(iso: string) {
-  const date = new Date(iso);
-  const jst = new Date(date.getTime() + 9 * 60 * 60 * 1000);
-  return `${String(jst.getUTCHours()).padStart(2, "0")}:${String(jst.getUTCMinutes()).padStart(2, "0")}`;
+  return new Date(iso).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" });
 }
 
 function calcWorkHours(clockIn: string, clockOut: string | null, breakMinutes: number) {
@@ -78,12 +85,13 @@ function calcWorkHours(clockIn: string, clockOut: string | null, breakMinutes: n
 export function AttendanceClient({
   employees,
   workTypes,
+  jobSites,
 }: {
   employees: Employee[];
   workTypes: WorkType[];
+  jobSites: JobSite[];
 }) {
-  const jstNow = new Date(Date.now() + 9 * 60 * 60 * 1000);
-  const today = jstNow.toISOString().split("T")[0];
+  const today = new Date().toISOString().split("T")[0];
   const [date, setDate] = useState(today);
   const [records, setRecords] = useState<TimeRecord[]>([]);
   const [monthRecords, setMonthRecords] = useState<TimeRecord[]>([]);
@@ -92,9 +100,10 @@ export function AttendanceClient({
   const [addOpen, setAddOpen] = useState(false);
   const [editRecord, setEditRecord] = useState<TimeRecord | null>(null);
   const [loading, setLoading] = useState(false);
+  const [correctionOpen, setCorrectionOpen] = useState(false);
 
-  const [viewYear, setViewYear] = useState(jstNow.getUTCFullYear());
-  const [viewMonth, setViewMonth] = useState(jstNow.getUTCMonth() + 1);
+  const [viewYear, setViewYear] = useState(new Date().getFullYear());
+  const [viewMonth, setViewMonth] = useState(new Date().getMonth() + 1);
 
   async function loadRecords(d: string) {
     setDate(d);
@@ -162,11 +171,13 @@ export function AttendanceClient({
       const clockOutTime = formData.get("clock_out_time") as string;
       const breakMin = parseInt(formData.get("break_minutes") as string) || 0;
 
+      const jobSiteId = formData.get("job_site_id") as string;
       await updateTimeRecord(editRecord.id, {
         clock_in: new Date(`${editRecord.work_date}T${clockInTime}:00+09:00`).toISOString(),
         clock_out: clockOutTime ? new Date(`${editRecord.work_date}T${clockOutTime}:00+09:00`).toISOString() : null,
         break_minutes: breakMin,
         work_type_id: formData.get("work_type_id") as string,
+        job_site_id: jobSiteId || null,
       });
       toast.success("記録を更新しました");
       setEditRecord(null);
@@ -217,6 +228,7 @@ export function AttendanceClient({
         <TabsList>
           <TabsTrigger value="daily" onClick={() => { if (!loaded) loadRecords(date); }}>日別</TabsTrigger>
           <TabsTrigger value="monthly" onClick={() => { if (!monthLoaded) loadMonthRecords(viewYear, viewMonth); }}>月別</TabsTrigger>
+          <TabsTrigger value="corrections">修正申告</TabsTrigger>
         </TabsList>
 
         <TabsContent value="daily" className="space-y-4">
@@ -228,18 +240,8 @@ export function AttendanceClient({
               type="date"
               value={date}
               onChange={(e) => loadRecords(e.target.value)}
-              className={`w-auto ${isJapaneseHoliday(date) ? "text-red-600" : ""}`}
+              className="w-auto"
             />
-            {(() => {
-              const d = new Date(date + "T00:00:00+09:00");
-              const isSun = d.getDay() === 0;
-              const isSat = d.getDay() === 6;
-              const holiday = getHolidayName(date);
-              if (holiday) return <span className="text-sm text-red-600 font-medium">{holiday}</span>;
-              if (isSun) return <span className="text-sm text-red-600">日曜日</span>;
-              if (isSat) return <span className="text-sm text-blue-600">土曜日</span>;
-              return null;
-            })()}
             <Button variant="outline" size="icon" onClick={() => changeDate(1)}>
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -250,14 +252,15 @@ export function AttendanceClient({
             </Button>
           </div>
 
-          <Table>
+          <div className="overflow-x-auto">
+          <Table className="min-w-[600px]">
             <TableHeader>
               <TableRow>
                 <TableHead>従業員</TableHead>
-                <TableHead>業務タイプ</TableHead>
+                <TableHead>現場</TableHead>
                 <TableHead>出勤</TableHead>
                 <TableHead>退勤</TableHead>
-                <TableHead>休憩</TableHead>
+                <TableHead className="hidden sm:table-cell">休憩</TableHead>
                 <TableHead>実働</TableHead>
                 <TableHead className="w-[80px]">操作</TableHead>
               </TableRow>
@@ -272,17 +275,17 @@ export function AttendanceClient({
               ) : (
                 records.map((r) => {
                   const emp = r.employees as unknown as { name: string };
-                  const wt = r.work_types as unknown as { name: string };
+                  const js = r.job_sites as { name: string; short_name: string | null } | null;
                   const hours = calcWorkHours(r.clock_in, r.clock_out, r.break_minutes);
                   return (
                     <TableRow key={r.id}>
                       <TableCell className="font-medium">{emp.name}</TableCell>
-                      <TableCell>{wt.name}</TableCell>
+                      <TableCell className="text-muted-foreground">{js?.short_name || js?.name || "-"}</TableCell>
                       <TableCell>{formatTime(r.clock_in)}</TableCell>
                       <TableCell>
                         {r.clock_out ? formatTime(r.clock_out) : <Badge variant="default" className="bg-green-500">出勤中</Badge>}
                       </TableCell>
-                      <TableCell>{r.break_minutes}分</TableCell>
+                      <TableCell className="hidden sm:table-cell">{r.break_minutes}分</TableCell>
                       <TableCell>
                         {hours !== null ? `${hours.toFixed(1)}h` : "-"}
                       </TableCell>
@@ -302,6 +305,7 @@ export function AttendanceClient({
               )}
             </TableBody>
           </Table>
+          </div>
         </TabsContent>
 
         <TabsContent value="monthly" className="space-y-4">
@@ -352,6 +356,16 @@ export function AttendanceClient({
             </TableBody>
           </Table>
         </TabsContent>
+
+        <TabsContent value="corrections" className="space-y-4">
+          <div className="flex justify-end">
+            <Button onClick={() => setCorrectionOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              修正申告する
+            </Button>
+          </div>
+          <CorrectionApprovalList />
+        </TabsContent>
       </Tabs>
 
       {/* 手動追加ダイアログ */}
@@ -373,12 +387,12 @@ export function AttendanceClient({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>業務タイプ</Label>
-              <Select name="work_type_id" required>
-                <SelectTrigger><SelectValue placeholder="選択" /></SelectTrigger>
+              <Label>現場</Label>
+              <Select name="job_site_id">
+                <SelectTrigger><SelectValue placeholder="未設定" /></SelectTrigger>
                 <SelectContent>
-                  {workTypes.map((w) => (
-                    <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>
+                  {jobSites.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -418,12 +432,12 @@ export function AttendanceClient({
           {editRecord && (
             <form onSubmit={handleEdit} className="space-y-4">
               <div className="space-y-2">
-                <Label>業務タイプ</Label>
-                <Select name="work_type_id" defaultValue={editRecord.work_type_id}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                <Label>現場</Label>
+                <Select name="job_site_id" defaultValue={editRecord.job_site_id ?? ""}>
+                  <SelectTrigger><SelectValue placeholder="未設定" /></SelectTrigger>
                   <SelectContent>
-                    {workTypes.map((w) => (
-                      <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>
+                    {jobSites.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -459,6 +473,15 @@ export function AttendanceClient({
           )}
         </DialogContent>
       </Dialog>
+
+      {/* 修正申告ダイアログ */}
+      <CorrectionRequestDialog
+        open={correctionOpen}
+        onOpenChange={setCorrectionOpen}
+        mode="both"
+        employees={employees}
+        workTypes={workTypes}
+      />
     </div>
   );
 }

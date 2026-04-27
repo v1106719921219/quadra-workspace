@@ -1,4 +1,4 @@
-import { headers, cookies } from "next/headers";
+import { headers } from "next/headers";
 import { cache } from "react";
 import { createAdminClient } from "@/lib/supabase/admin";
 export { extractSubdomain } from "@/lib/subdomain";
@@ -14,19 +14,20 @@ export const resolveTenant = cache(async (): Promise<Tenant | null> => {
   const host = headersList.get("host") || "";
 
   const { extractSubdomain } = await import("@/lib/subdomain");
-
-  // 1. サブドメインから取得
-  // 2. クッキーから取得
-  // 3. 環境変数のデフォルトテナント
-  const cookieStore = await cookies();
-  const slug =
-    extractSubdomain(host) ||
-    cookieStore.get("tenant_slug")?.value ||
-    process.env.NEXT_PUBLIC_DEFAULT_TENANT_SLUG?.trim() ||
-    null;
-  if (!slug) return null;
+  const slug = extractSubdomain(host) ?? null;
 
   const admin = createAdminClient();
+
+  // サブドメインなし（vercel.app運用など）→ 唯一のテナントを自動取得
+  if (!slug) {
+    const { data } = await admin
+      .from("organizations")
+      .select("id, slug, name")
+      .limit(1)
+      .single();
+    return (data as Tenant) ?? null;
+  }
+
   const { data, error } = await admin
     .from("organizations")
     .select("id, slug, name")
