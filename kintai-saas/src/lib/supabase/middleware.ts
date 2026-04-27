@@ -43,6 +43,7 @@ export async function updateSession(request: NextRequest) {
 
     const host = request.headers.get("host") || "";
     const subdomain = extractSubdomain(host);
+    const tenantSlug = subdomain || request.cookies.get("tenant_slug")?.value || process.env.NEXT_PUBLIC_DEFAULT_TENANT_SLUG?.trim();
     const pathname = request.nextUrl.pathname;
 
     const isApiRoute = pathname.startsWith("/api/");
@@ -53,7 +54,7 @@ export async function updateSession(request: NextRequest) {
       pathname.startsWith(route)
     );
 
-    const isLandingPage = pathname === "/" && !subdomain;
+    const isLandingPage = pathname === "/" && !tenantSlug;
 
     // サブドメインあり → テナント存在チェック
     if (subdomain && !isApiRoute && !pathname.startsWith("/tenant-not-found")) {
@@ -107,7 +108,7 @@ export async function updateSession(request: NextRequest) {
     );
     const isVercelApp = host.endsWith(".vercel.app") || host === "vercel.app";
 
-    if (user && !subdomain && !isVercelApp && !isPublicRoute && !isApiRoute && !isOrgSelectionRoute) {
+    if (user && !tenantSlug && !isVercelApp && !isPublicRoute && !isApiRoute && !isOrgSelectionRoute) {
       const url = request.nextUrl.clone();
       url.pathname = "/select-org";
       return NextResponse.redirect(url);
