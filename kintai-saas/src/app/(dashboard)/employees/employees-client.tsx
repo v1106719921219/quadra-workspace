@@ -30,6 +30,7 @@ interface Employee {
   social_insurance_enrolled: boolean;
   can_be_driver: boolean;
   board_char: string | null;
+  pin: string | null;
 }
 
 export function EmployeesClient({ employees }: { employees: Employee[] }) {
