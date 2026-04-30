@@ -3,9 +3,11 @@
 import os
 import signal
 import time
+import asyncio
 import atexit
 import traceback
 import discord
+from discord import app_commands
 from discord.ext import commands, tasks
 
 # ---- 多重起動防止 ----
@@ -28,12 +30,8 @@ atexit.register(lambda: os.remove(_PID_FILE) if os.path.exists(_PID_FILE) else N
 # ----------------------
 
 from datetime import datetime, timedelta, timezone
-from config import DISCORD_BOT_TOKEN, MANAGEMENT_SERVER_ID, AUTO_INVITE_USER_IDS, STATUS_CONFIRMED
-from db.supabase import get_thread_by_thread_id, update_thread_status, cleanup_old_pending_replies, cleanup_old_processed_messages
-from utils.thread import update_thread_status_emoji
-from handlers import message as message_handler
-from handlers import reply as reply_handler
-from handlers import order as order_handler
+from config import DISCORD_BOT_TOKEN, MANAGEMENT_SERVER_ID, AUTO_INVITE_USER_IDS
+from db.supabase import cleanup_old_pending_replies, cleanup_old_processed_messages
 from handlers import pricelist as pricelist_handler
 from handlers import reminder as reminder_handler
 from handlers import inventory as inventory_handler
@@ -42,6 +40,10 @@ from handlers import animac_label as animac_label_handler
 from handlers import payment_forward as payment_forward_handler
 from handlers import qa as qa_handler
 from handlers import expense as expense_handler
+from handlers import attendance as attendance_handler
+from handlers import today_order as today_order_handler
+from handlers.inventory import AnimacSyncConfirmView, DomesticSyncConfirmView
+
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -50,6 +52,44 @@ intents.members = True
 intents.reactions = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
+
+
+# ---- /pricelist スラッシュコマンド（ANIMACサーバー用） ----
+@bot.tree.command(name="pricelist", description="Post the latest price list with order link")
+async def pricelist_command(interaction: discord.Interaction):
+    await interaction.response.send_message(
+        "@everyone\n\n"
+        "📋 **Price list has been updated!**\n\n"
+        "🔗 https://animac.intl.shipord.jp/price-list\n\n"
+        "📩 Ready to order? Open a ticket here: <#1491961215210098698>\n\n"
+        "Thank you! 🙏"
+    )
+
+
+# ---- /f サーバー検索 ----
+@bot.tree.command(name="f", description="サーバーを会社名・サーバー名で検索")
+@app_commands.describe(keyword="検索キーワード")
+async def find_server(interaction: discord.Interaction, keyword: str):
+    if interaction.guild_id != MANAGEMENT_SERVER_ID:
+        await interaction.response.send_message("⚠️ 管理サーバーでのみ使用できます。", ephemeral=True)
+        return
+
+    results = []
+    for g in bot.guilds:
+        if g.id == MANAGEMENT_SERVER_ID:
+            continue
+        if keyword.lower() in g.name.lower():
+            results.append(g)
+
+    if not results:
+        await interaction.response.send_message(f"🔍 「{keyword}」に一致するサーバーが見つかりません。", ephemeral=True)
+        return
+
+    lines = []
+    for g in results[:20]:
+        lines.append(f"**{g.name}** (ID: {g.id} / {g.member_count}人)")
+    await interaction.response.send_message("\n".join(lines), ephemeral=True)
+
 
 # ---- 切断ウォッチドッグ ----
 _WATCHDOG_TIMEOUT = 300  # 5分以上切断でプロセス終了 → run_bot.sh が再起動
@@ -91,6 +131,11 @@ async def on_ready():
     print(f"✅ {bot.user} としてログインしました", flush=True)
     print(f"参加サーバー数: {len(bot.guilds)}", flush=True)
 
+    # 永続的Viewを登録（Bot再起動後もボタンが動作するように）
+    bot.add_view(AnimacSyncConfirmView())
+    bot.add_view(DomesticSyncConfirmView())
+    print("✅ AnimacSyncConfirmView / DomesticSyncConfirmView 永続登録完了", flush=True)
+
     try:
         # スラッシュコマンド登録（on_readyが複数回呼ばれる場合は既登録をスキップ）
         from commands import setup
@@ -99,8 +144,20 @@ async def on_ready():
         from commands import animac_mapping
         if not bot.cogs.get("AnimacMappingCog"):
             await animac_mapping.setup(bot)
+        if not bot.cogs.get("TodayOrderCog"):
+            await today_order_handler.setup(bot)
+        if not bot.cogs.get("AttendanceCog"):
+            await attendance_handler.setup(bot)
         # 全サーバーにコマンドを同期
         await bot.tree.sync()
+        # 管理サーバー専用コマンドをギルドコマンドとして登録
+        mgmt = discord.Object(id=MANAGEMENT_SERVER_ID)
+        for cog_name in ("StaffManageCog", "OwnerMigrationCog", "OrderLinkCog"):
+            cog = bot.cogs.get(cog_name)
+            if cog:
+                for cmd in cog.walk_app_commands():
+                    bot.tree.add_command(cmd, guild=mgmt)
+        await bot.tree.sync(guild=mgmt)
         print("✅ スラッシュコマンド同期完了", flush=True)
     except Exception:
         traceback.print_exc()
@@ -133,13 +190,17 @@ async def on_ready():
     except Exception as e:
         print(f"⚠️ 処理済みメッセージクリーンアップ失敗: {e}", flush=True)
 
-    # 16:00 JST リマインダー開始
-    reminder_handler.start_reminder(bot)
-    print("✅ リマインダータスク開始", flush=True)
+    # 16:00 JST リマインダー開始（不要のため無効化）
+    # reminder_handler.start_reminder(bot)
+    # print("✅ リマインダータスク開始", flush=True)
 
     # 振込リマインダー開始
     payment_forward_handler.start_payment_reminder(bot)
     print("✅ 振込リマインダータスク開始", flush=True)
+
+    # 出勤通知開始（毎朝 9:30 JST）
+    attendance_handler.start_attendance_notify(bot)
+    print("✅ 出勤通知タスク開始", flush=True)
 
 
 @bot.event
@@ -159,12 +220,6 @@ async def on_message(message: discord.Message):
         # 管理サーバー: #価格表配信 → 在庫から作成 or 全顧客に転送
         await inventory_handler.handle(bot, message)
         await pricelist_handler.handle(bot, message)
-        # 管理サーバー: スレッドへの返信→顧客サーバーに転送
-        await reply_handler.handle(bot, message)
-        # 管理スレッドでの「まとめ」→注文内容一覧表示
-        await order_handler.check_and_show_summary(bot, message)
-        # 管理スレッドでの「確定」→注文登録
-        await order_handler.check_and_process_from_thread(bot, message)
         # 買取商品の表示/非表示管理
         await buyback_handler.handle(bot, message)
         # ANIMAC請求書作成トリガー
@@ -172,12 +227,18 @@ async def on_message(message: discord.Message):
         # ANIMACラベルスキャン
         await animac_label_handler.handle_scan_trigger(bot, message)
     else:
-        # 顧客サーバー: メッセージをミラーリング
-        await message_handler.handle(bot, message)
         # 支払い依頼請求書 → 口座登録依頼に転送
         await payment_forward_handler.handle(bot, message)
 
     await bot.process_commands(message)
+
+
+@bot.event
+async def on_interaction(interaction: discord.Interaction):
+    """コンポーネントインタラクション（ボタン等）のログ出力"""
+    if interaction.type == discord.InteractionType.component:
+        custom_id = (interaction.data or {}).get("custom_id", "?")
+        print(f"[INTERACTION] type=component custom_id={custom_id} user={interaction.user}", flush=True)
 
 
 @bot.event
@@ -194,19 +255,8 @@ async def on_raw_reaction_add(payload: discord.RawReactionActionEvent):
     if payload.guild_id == MANAGEMENT_SERVER_ID:
         emoji_str = str(payload.emoji)
         if emoji_str == "✅":
-            await order_handler.handle_preview_reaction(bot, payload)
             await pricelist_handler.handle_pricelist_reaction(bot, payload)
             await animac_label_handler.handle_invoice_reaction(bot, payload)
-        elif emoji_str == "📤":
-            await reply_handler.handle_reply_reaction(bot, payload)
-        elif emoji_str in ("\U0001F5FC", "\U000026E9"):  # 🗼東京 / ⛩山口
-            await order_handler.handle_spreadsheet_reaction(bot, payload)
-        elif emoji_str == "🟢":
-            # 管理スレッドで🟢 → 手動で確定ステータスに変更
-            await _handle_manual_confirm(payload)
-        elif emoji_str == "❌":
-            # 管理スレッドで❌ → 破談としてスレッドをアーカイブ
-            await _handle_thread_cancel(payload)
         # 口座登録依頼チャンネルの振込済スタンプ（カスタム絵文字なのでemoji_strではなくnameで判定）
         await payment_forward_handler.handle_paid_reaction(bot, payload)
         return
@@ -259,59 +309,6 @@ async def on_member_join(member: discord.Member):
             await member.add_roles(staff_role, reason="スタッフ自動ロール付与")
         except Exception as e:
             print(f"ロール付与エラー: {e}", flush=True)
-
-
-async def _handle_manual_confirm(payload: discord.RawReactionActionEvent):
-    """管理スレッドで🟢リアクション → 手動でステータスを確定に変更"""
-    try:
-        print(f"[DEBUG] _handle_manual_confirm: channel_id={payload.channel_id}", flush=True)
-        channel = bot.get_channel(payload.channel_id)
-        if not channel:
-            channel = await bot.fetch_channel(payload.channel_id)
-        print(f"[DEBUG] channel type={type(channel).__name__}, is_thread={isinstance(channel, discord.Thread)}", flush=True)
-        if not isinstance(channel, discord.Thread):
-            return
-
-        thread_id = str(channel.id)
-        thread_record = get_thread_by_thread_id(thread_id)
-        print(f"[DEBUG] thread_record found={thread_record is not None}, status={thread_record.get('status') if thread_record else 'N/A'}", flush=True)
-        if not thread_record:
-            return
-
-        # すでに確定済みなら何もしない
-        if thread_record.get("status") == STATUS_CONFIRMED:
-            return
-
-        update_thread_status(thread_id, STATUS_CONFIRMED)
-        await update_thread_status_emoji(channel, STATUS_CONFIRMED)
-        await channel.send("🟢 ステータスを手動で確定に変更しました")
-    except Exception as e:
-        print(f"手動確定エラー: {e}", flush=True)
-
-
-async def _handle_thread_cancel(payload: discord.RawReactionActionEvent):
-    """管理スレッドで❌リアクション → 破談としてスレッドをアーカイブ"""
-    try:
-        channel = bot.get_channel(payload.channel_id)
-        if not channel:
-            channel = await bot.fetch_channel(payload.channel_id)
-        if not isinstance(channel, discord.Thread):
-            return
-
-        thread_id = str(channel.id)
-        thread_record = get_thread_by_thread_id(thread_id)
-        if not thread_record:
-            return
-
-        # スレッド名を破談表示に変更してアーカイブ
-        current_name = channel.name
-        # 既存のステータス絵文字を除去
-        for emoji in ("🔴", "🟡", "🟢", "🟠"):
-            current_name = current_name.replace(emoji, "").strip()
-        await channel.edit(name=f"❌ {current_name}", archived=True)
-        await channel.send("❌ 破談としてクローズしました")
-    except Exception as e:
-        print(f"破談処理エラー: {e}", flush=True)
 
 
 if __name__ == "__main__":

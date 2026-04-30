@@ -65,6 +65,11 @@ const WELCOME_MESSAGE = `Hey 👋 Welcome to animac TCG!
 My name is Shiori from Tokyo, Japan 🇯🇵
 I'll be helping you find the best cards!
 
+This is our price list that updated everyday!
+https://animac.intl.shipord.jp/price-list
+
+If you want to know the total cost, I can make the estimate with the shipping. So please let me know your location, which box and how many box you want 📋
+
 Please let us know:
 🃏 What cards are you looking for?
 📦 Where are you shipping to? (Country / State)
@@ -72,6 +77,59 @@ Please let us know:
 
 We'll get back to you with pricing shortly!
 — animac TCG Team 🗼`;
+
+// ========== 日本の祝日判定 ==========
+function getJapaneseHolidays(year) {
+  const holidays = [];
+  // 固定祝日
+  holidays.push(new Date(year, 0, 1));   // 元日
+  holidays.push(new Date(year, 0, 13));  // 成人の日（1月第2月曜）- 近似
+  holidays.push(new Date(year, 1, 11));  // 建国記念の日
+  holidays.push(new Date(year, 1, 23));  // 天皇誕生日
+  holidays.push(new Date(year, 2, 20));  // 春分の日（近似）
+  holidays.push(new Date(year, 3, 29));  // 昭和の日
+  holidays.push(new Date(year, 4, 3));   // 憲法記念日
+  holidays.push(new Date(year, 4, 4));   // みどりの日
+  holidays.push(new Date(year, 4, 5));   // こどもの日
+  holidays.push(new Date(year, 6, 21));  // 海の日（7月第3月曜）- 近似
+  holidays.push(new Date(year, 7, 11));  // 山の日
+  holidays.push(new Date(year, 8, 15));  // 敬老の日（9月第3月曜）- 近似
+  holidays.push(new Date(year, 8, 22));  // 秋分の日（近似）
+  holidays.push(new Date(year, 9, 13));  // スポーツの日（10月第2月曜）- 近似
+  holidays.push(new Date(year, 10, 3));  // 文化の日
+  holidays.push(new Date(year, 10, 23)); // 勤労感謝の日
+  return holidays;
+}
+
+function isJapaneseHoliday(date) {
+  const holidays = getJapaneseHolidays(date.getFullYear());
+  return holidays.some(h =>
+    h.getFullYear() === date.getFullYear() &&
+    h.getMonth() === date.getMonth() &&
+    h.getDate() === date.getDate()
+  );
+}
+
+function isOffDay(date) {
+  const day = date.getDay();
+  return day === 0 || day === 6 || isJapaneseHoliday(date);
+}
+
+function getNextBusinessDay(date) {
+  const next = new Date(date);
+  next.setDate(next.getDate() + 1);
+  while (isOffDay(next)) {
+    next.setDate(next.getDate() + 1);
+  }
+  return next;
+}
+
+function formatDate(date) {
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const months = ["January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"];
+  return `${days[date.getDay()]}, ${months[date.getMonth()]} ${String(date.getDate()).padStart(2, "0")}`;
+}
 
 // ========== Reply Templates ==========
 const REPLY_TEMPLATES = {
@@ -1669,6 +1727,24 @@ client.on("messageCreate", async (message) => {
 
     if (!alreadyWelcomed) {
       await message.channel.send(WELCOME_MESSAGE);
+    }
+
+    // 土日祝なら休日案内を送信（重複防止: 既に送信済みならスキップ）
+    const nowJST = new Date(Date.now() + 9 * 60 * 60 * 1000);
+    if (isOffDay(nowJST)) {
+      const alreadyNotified = recentMessages.some(
+        (m) =>
+          m.author.id === client.user.id &&
+          m.content.includes("currently closed")
+      );
+      if (!alreadyNotified) {
+        const nextBiz = getNextBusinessDay(nowJST);
+        await message.channel.send(
+          `⏰ Thank you for your message!\n` +
+          `Our office is currently closed (weekends / holidays in Japan).\n` +
+          `We will get back to you on **${formatDate(nextBiz)}** (JST). Thank you for your patience! 🙏`
+        );
+      }
     }
   } catch (err) {
     console.error("Error checking welcome:", err);
