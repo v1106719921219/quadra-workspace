@@ -288,7 +288,7 @@ export function AttendanceClient({
                       </TableCell>
                       <TableCell className="hidden sm:table-cell">{r.break_minutes}分</TableCell>
                       <TableCell>
-                        {hours !== null ? `${hours.toFixed(1)}h` : "-"}
+                        {hours !== null ? `${hours.toFixed(2)}h` : "-"}
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-1">
@@ -349,7 +349,7 @@ export function AttendanceClient({
                   <TableRow key={empId}>
                     <TableCell className="font-medium">{data.name}</TableCell>
                     <TableCell>{data.days}日</TableCell>
-                    <TableCell>{data.totalHours.toFixed(1)}h</TableCell>
+                    <TableCell>{data.totalHours.toFixed(2)}h</TableCell>
                     <TableCell>{data.records}件</TableCell>
                   </TableRow>
                 ))
