@@ -88,7 +88,7 @@ export async function getMonthlyReport(year: number, month: number): Promise<Emp
 
   const result: EmployeeSummary[] = [];
   summaryMap.forEach((s, empId) => {
-    const totalHours = Math.max(0, (s.total_minutes - s.total_break_minutes) / 60);
+    const totalHours = Math.round(Math.max(0, (s.total_minutes - s.total_break_minutes) / 60) * 4) / 4;
     let dailyAllowanceTotal = 0;
     s.daily_max_allowance.forEach((allowance) => {
       dailyAllowanceTotal += allowance;

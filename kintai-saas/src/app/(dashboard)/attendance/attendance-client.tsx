@@ -79,7 +79,8 @@ function calcWorkHours(clockIn: string, clockOut: string | null, breakMinutes: n
   if (!clockOut) return null;
   const diff = (new Date(clockOut).getTime() - new Date(clockIn).getTime()) / 1000 / 60;
   const workMinutes = diff - breakMinutes;
-  return Math.max(0, workMinutes / 60);
+  const hours = Math.max(0, workMinutes / 60);
+  return Math.round(hours * 4) / 4; // 0.25h刻みに丸め
 }
 
 export function AttendanceClient({

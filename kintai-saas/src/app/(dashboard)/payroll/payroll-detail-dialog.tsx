@@ -181,9 +181,9 @@ export function PayrollDetailDialog({ calculation, open, onOpenChange }: Payroll
                       <TableRow key={d.date + d.clockIn}>
                         <TableCell className="whitespace-nowrap">{d.date.slice(5)}</TableCell>
                         <TableCell className="whitespace-nowrap">{d.workTypeName}</TableCell>
-                        <TableCell className="text-right">{(d.totalMinutes / 60).toFixed(1)}h</TableCell>
-                        <TableCell className="text-right">{d.overtimeMinutes > 0 ? `${(d.overtimeMinutes / 60).toFixed(1)}h` : "-"}</TableCell>
-                        <TableCell className="text-right">{d.lateNightMinutes > 0 ? `${(d.lateNightMinutes / 60).toFixed(1)}h` : "-"}</TableCell>
+                        <TableCell className="text-right">{(Math.round(d.totalMinutes / 60 * 4) / 4).toFixed(2)}h</TableCell>
+                        <TableCell className="text-right">{d.overtimeMinutes > 0 ? `${(Math.round(d.overtimeMinutes / 60 * 4) / 4).toFixed(2)}h` : "-"}</TableCell>
+                        <TableCell className="text-right">{d.lateNightMinutes > 0 ? `${(Math.round(d.lateNightMinutes / 60 * 4) / 4).toFixed(2)}h` : "-"}</TableCell>
                         <TableCell>{d.isHoliday ? <Badge variant="secondary">休日</Badge> : "-"}</TableCell>
                         <TableCell>{d.isDriver ? <Badge variant="default">ドライバー</Badge> : "-"}</TableCell>
                       </TableRow>

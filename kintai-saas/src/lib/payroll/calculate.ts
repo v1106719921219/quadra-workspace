@@ -166,10 +166,10 @@ export function calculateEmployeePayroll(
 
   const driverAllowance = driverDays * DRIVER_ALLOWANCE_PER_DAY;
 
-  const totalHours = totalMinutes / 60;
-  const overtimeHours = overtimeMinutes / 60;
-  const lateNightHoursVal = lateNightMinutes / 60;
-  const holidayHours = holidayMinutes / 60;
+  const totalHours = Math.round(totalMinutes / 60 * 4) / 4;
+  const overtimeHours = Math.round(overtimeMinutes / 60 * 4) / 4;
+  const lateNightHoursVal = Math.round(lateNightMinutes / 60 * 4) / 4;
+  const holidayHours = Math.round(holidayMinutes / 60 * 4) / 4;
 
   // 基本給・割増計算
   let basePay: number;
@@ -231,10 +231,10 @@ export function calculateEmployeePayroll(
   return {
     employee,
     workDays,
-    totalHours: Math.round(totalHours * 100) / 100,
-    overtimeHours: Math.round(overtimeHours * 100) / 100,
-    lateNightHours: Math.round(lateNightHoursVal * 100) / 100,
-    holidayHours: Math.round(holidayHours * 100) / 100,
+    totalHours,
+    overtimeHours,
+    lateNightHours: lateNightHoursVal,
+    holidayHours,
     basePay,
     overtimePay,
     lateNightPay,
