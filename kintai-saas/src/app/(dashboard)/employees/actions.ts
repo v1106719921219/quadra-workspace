@@ -31,6 +31,7 @@ export async function createEmployee(formData: FormData) {
   const socialInsuranceEnrolled = formData.get("social_insurance_enrolled") === "true";
   const canBeDriver = formData.get("can_be_driver") === "true";
   const boardChar = formData.get("board_char") as string;
+  const pin = formData.get("pin") as string;
 
   const { error } = await supabase.from("employees").insert({
     tenant_id: tenantId,
@@ -45,6 +46,7 @@ export async function createEmployee(formData: FormData) {
     social_insurance_enrolled: socialInsuranceEnrolled,
     can_be_driver: canBeDriver,
     board_char: boardChar?.trim().slice(0, 1) || null,
+    pin: pin?.trim() || null,
   });
 
   if (error) throw error;
@@ -67,6 +69,7 @@ export async function updateEmployee(id: string, formData: FormData) {
   const socialInsuranceEnrolled = formData.get("social_insurance_enrolled") === "true";
   const canBeDriver = formData.get("can_be_driver") === "true";
   const boardChar = formData.get("board_char") as string;
+  const pin = formData.get("pin") as string;
 
   const { error } = await supabase
     .from("employees")
@@ -83,6 +86,7 @@ export async function updateEmployee(id: string, formData: FormData) {
       social_insurance_enrolled: socialInsuranceEnrolled,
       can_be_driver: canBeDriver,
       board_char: boardChar?.trim().slice(0, 1) || null,
+      pin: pin?.trim() || null,
     })
     .eq("id", id);
 

@@ -35,6 +35,7 @@ interface Employee {
   social_insurance_enrolled: boolean;
   can_be_driver: boolean;
   board_char: string | null;
+  pin: string | null;
 }
 
 interface EmployeeFormProps {
@@ -117,13 +118,32 @@ export function EmployeeForm({ employee, open, onOpenChange }: EmployeeFormProps
               />
             </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="employee_number">社員番号</Label>
-            <Input
-              id="employee_number"
-              name="employee_number"
-              defaultValue={employee?.employee_number || ""}
-            />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="employee_number">社員番号</Label>
+              <Input
+                id="employee_number"
+                name="employee_number"
+                defaultValue={employee?.employee_number || ""}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="pin">
+                PIN
+                <span className="text-[10px] text-gray-400 ml-1">（4〜6桁）</span>
+              </Label>
+              <Input
+                id="pin"
+                name="pin"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]{4,6}"
+                maxLength={6}
+                minLength={4}
+                defaultValue={employee?.pin || ""}
+                placeholder="0000"
+              />
+            </div>
           </div>
           <div className="space-y-2">
             <Label>雇用形態</Label>
