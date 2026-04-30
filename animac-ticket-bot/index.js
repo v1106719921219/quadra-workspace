@@ -1233,6 +1233,9 @@ client.on("interactionCreate", async (interaction) => {
           components: [closeButton],
         });
 
+        // ウェルカムメッセージを即座に送信
+        await ticketChannel.send(WELCOME_MESSAGE);
+
         await interaction.reply({
           content: `✅ Ticket created! → <#${ticketChannel.id}>`,
           flags: 64,
