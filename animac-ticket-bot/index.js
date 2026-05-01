@@ -1719,22 +1719,11 @@ client.on("messageCreate", async (message) => {
   // Only respond in ticket channels
   if (!message.channel.name.startsWith("ticket-")) return;
 
-  // Send welcome message only on first message in ticket
+  // 土日祝なら休日案内を送信（重複防止: 既に送信済みならスキップ）
   try {
-    const recentMessages = await message.channel.messages.fetch({ limit: 50 });
-    const alreadyWelcomed = recentMessages.some(
-      (m) =>
-        m.author.id === client.user.id &&
-        m.content.includes("Welcome to animac TCG")
-    );
-
-    if (!alreadyWelcomed) {
-      await message.channel.send(WELCOME_MESSAGE);
-    }
-
-    // 土日祝なら休日案内を送信（重複防止: 既に送信済みならスキップ）
     const nowJST = new Date(Date.now() + 9 * 60 * 60 * 1000);
     if (isOffDay(nowJST)) {
+      const recentMessages = await message.channel.messages.fetch({ limit: 50 });
       const alreadyNotified = recentMessages.some(
         (m) =>
           m.author.id === client.user.id &&
