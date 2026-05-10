@@ -65,10 +65,8 @@ const WELCOME_MESSAGE = `Hey 👋 Welcome to animac TCG!
 My name is Shiori from Tokyo, Japan 🇯🇵
 I'll be helping you find the best cards!
 
-This is our price list that updated everyday!
-https://animac.intl.shipord.jp/price-list
-
-If you want to know the total cost, I can make the estimate with the shipping. So please let me know your location, which box and how many box you want 📋
+📋 Price List (updated daily):
+https://order.animactcg.com/price-list
 
 Please let us know:
 🃏 What cards are you looking for?
@@ -525,6 +523,16 @@ client.once("ready", async () => {
         .setMinValue(0)
     );
 
+  const replyEnCommand = new SlashCommandBuilder()
+    .setName("reply-en")
+    .setDescription("日本語を英語に翻訳して送信")
+    .addStringOption((opt) =>
+      opt
+        .setName("message")
+        .setDescription("日本語メッセージ")
+        .setRequired(true)
+    );
+
   const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_TOKEN);
   try {
     await rest.put(Routes.applicationCommands(client.user.id), {
@@ -535,6 +543,7 @@ client.once("ready", async () => {
         replyCommand.toJSON(),
         confirmCommand.toJSON(),
         itemCommand.toJSON(),
+        replyEnCommand.toJSON(),
       ],
     });
     console.log("Slash commands registered");
@@ -1540,6 +1549,38 @@ client.on("interactionCreate", async (interaction) => {
         .setFooter({ text: "animac TCG — Level System" });
 
       await interaction.reply({ embeds: [embed] });
+      return;
+    }
+
+    // ===== /reply-en: 日本語→英語翻訳して送信 =====
+    if (interaction.commandName === "reply-en") {
+      if (!interaction.channel.name.startsWith("ticket-")) {
+        await interaction.reply({
+          content: "❌ このコマンドはチケットチャンネルでのみ使用できます",
+          ephemeral: true,
+        });
+        return;
+      }
+      const japaneseText = interaction.options.getString("message");
+      await interaction.deferReply({ ephemeral: true });
+      try {
+        const resp = await anthropic.messages.create({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1024,
+          messages: [
+            {
+              role: "user",
+              content: `Translate the following Japanese text to natural English. Output ONLY the translated text, nothing else.\n\n${japaneseText}`,
+            },
+          ],
+        });
+        const translated = resp.content[0].text.trim();
+        await interaction.channel.send(translated);
+        await interaction.editReply(`✅ 翻訳送信完了\n> ${japaneseText}`);
+      } catch (err) {
+        console.error("Translation error (/reply-en):", err);
+        await interaction.editReply("❌ 翻訳に失敗しました");
+      }
       return;
     }
   }
