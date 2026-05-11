@@ -5,21 +5,32 @@ import { getTenantId } from "@/lib/tenant";
 import { revalidatePath } from "next/cache";
 import { calculateEmployeePayroll } from "@/lib/payroll/calculate";
 import type { EmployeeForPayroll, TimeRecordForPayroll, PayrollCalculation } from "@/lib/payroll/types";
+import { getClosingPeriod } from "@/lib/closing-period";
 
 export async function calculateMonthlyPayroll(year: number, month: number): Promise<PayrollCalculation[]> {
   const supabase = await createClient();
+  const tenantId = await getTenantId();
 
-  // 対象月の打刻データ取得
-  const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
-  const endDate = month === 12
-    ? `${year + 1}-01-01`
-    : `${year}-${String(month + 1).padStart(2, "0")}-01`;
+  // 締め日設定を取得
+  const { data: settings } = await supabase
+    .from("tenant_settings")
+    .select("closing_day")
+    .eq("tenant_id", tenantId)
+    .single();
+
+  const closingDay = settings?.closing_day ?? 0;
+  const period = getClosingPeriod(year, month, closingDay);
+
+  // 締め日に基づく対象期間
+  const startDate = period.startDate;
+  // endDateはlte条件で使うのでそのまま、lt条件用には翌日を計算
+  const endDateForLt = addOneDay(period.endDate);
 
   const { data: records, error: recordsError } = await supabase
     .from("time_records")
     .select("id, employee_id, work_date, clock_in, clock_out, break_minutes, is_driver, work_types(name, daily_allowance, hourly_rate)")
     .gte("work_date", startDate)
-    .lt("work_date", endDate)
+    .lt("work_date", endDateForLt)
     .not("clock_out", "is", null)
     .order("work_date", { ascending: true });
 
@@ -39,7 +50,7 @@ export async function calculateMonthlyPayroll(year: number, month: number): Prom
     .from("site_assignments")
     .select("employee_id, assignment_date, job_sites(name, daily_allowance, hourly_rate)")
     .gte("assignment_date", startDate)
-    .lt("assignment_date", endDate);
+    .lt("assignment_date", endDateForLt);
 
   // employee_id + date → 現場情報のマップを作成
   // 同じ日に複数現場がある場合、daily_allowanceは合算
@@ -178,4 +189,13 @@ export async function unconfirmPayroll(year: number, month: number) {
 
   if (error) throw error;
   revalidatePath("/payroll");
+}
+
+function addOneDay(dateStr: string): string {
+  const d = new Date(dateStr + "T00:00:00+09:00");
+  d.setDate(d.getDate() + 1);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }

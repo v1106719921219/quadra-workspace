@@ -25,6 +25,7 @@ interface Employee {
   id: string;
   name: string;
   employee_number: string | null;
+  employee_type: string;
 }
 
 interface TimeRecord {
@@ -61,6 +62,8 @@ export function TimecardClient({
 
   const closingDay = initialSettings.closing_day;
   const roundingMinutes = initialSettings.time_rounding_minutes;
+  const selectedEmployee = employees.find((e) => e.id === selectedEmployeeId);
+  const isFullTime = selectedEmployee?.employee_type === "full_time";
 
   const loadRecords = useCallback(async (empId: string, p: ClosingPeriod) => {
     if (!empId) return;
@@ -119,6 +122,10 @@ export function TimecardClient({
           const roundedOut = roundDownToInterval(clockOut, roundingMinutes);
           const diffMin = (roundedOut.getTime() - roundedIn.getTime()) / 60000 - record.break_minutes;
           workHours = Math.max(0, diffMin / 60);
+          // 正社員は出勤すれば一律8時間扱い
+          if (isFullTime) {
+            workHours = 8;
+          }
           // 0.25刻みに丸め
           workHours = Math.round(workHours * 4) / 4;
         }
@@ -145,13 +152,11 @@ export function TimecardClient({
         isDriver: record?.is_driver || false,
       };
     });
-  }, [allDates, recordMap, roundingMinutes]);
+  }, [allDates, recordMap, roundingMinutes, isFullTime]);
 
   // 合計
   const totalHours = dailyData.length > 0 ? dailyData[dailyData.length - 1].cumHours : 0;
   const workDays = dailyData.filter((d) => !d.isOff).length;
-
-  const selectedEmployee = employees.find((e) => e.id === selectedEmployeeId);
 
   return (
     <div className="space-y-4">

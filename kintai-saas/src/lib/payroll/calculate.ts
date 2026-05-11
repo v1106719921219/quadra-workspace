@@ -167,7 +167,8 @@ export function calculateEmployeePayroll(
   const driverAllowance = driverDays * DRIVER_ALLOWANCE_PER_DAY;
 
   const totalHours = Math.round(totalMinutes / 60 * 4) / 4;
-  const overtimeHours = Math.round(overtimeMinutes / 60 * 4) / 4;
+  // 正社員は早退と相殺のため残業計算不要
+  const overtimeHours = employee.employee_type === "full_time" ? 0 : Math.round(overtimeMinutes / 60 * 4) / 4;
   const lateNightHoursVal = Math.round(lateNightMinutes / 60 * 4) / 4;
   const holidayHours = Math.round(holidayMinutes / 60 * 4) / 4;
 

@@ -41,15 +41,12 @@ export function getClosingPeriod(year: number, month: number, closingDay: number
   }
 
   // N日締め: 前月(N+1)日 〜 当月N日
-  // 例: 26日締め3月度 → 2/26 〜 3/25 ではなく 2/27 〜 3/26
-  // 実際の慣習: 26日締め = 前月27日〜当月26日
-  // → しかし建設業界では「26日締め」=前月26日〜当月25日が一般的
-  // ここでは: 前月(closingDay)日 〜 当月(closingDay-1)日
+  // 例: 25日締め5月度 → 4/26 〜 5/25
   const prevMonth = month === 1 ? 12 : month - 1;
   const prevYear = month === 1 ? year - 1 : year;
 
-  const startDate = formatDate(prevYear, prevMonth, closingDay);
-  const endDate = formatDate(year, month, closingDay - 1);
+  const startDate = formatDate(prevYear, prevMonth, closingDay + 1);
+  const endDate = formatDate(year, month, closingDay);
 
   return {
     year,

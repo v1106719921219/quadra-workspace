@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -12,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ChevronLeft, ChevronRight, Download, Printer, Play, Check, Undo2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, Printer, Play, Check, Undo2, Pencil } from "lucide-react";
 import { calculateMonthlyPayroll, getPayrollRecords, confirmPayroll, unconfirmPayroll } from "./actions";
 import { PayrollDetailDialog } from "./payroll-detail-dialog";
 import type { PayrollCalculation } from "@/lib/payroll/types";
@@ -97,6 +98,17 @@ export function PayrollClient() {
   const [hasData, setHasData] = useState(false);
   const [selectedCalc, setSelectedCalc] = useState<PayrollCalculation | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+  // 編集中のセル: "employeeId__fieldName"
+  const [editingCell, setEditingCell] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState("");
+  const editInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editingCell && editInputRef.current) {
+      editInputRef.current.focus();
+      editInputRef.current.select();
+    }
+  }, [editingCell]);
 
   function prevMonth() {
     if (month === 1) {
@@ -180,6 +192,76 @@ export function PayrollClient() {
     } finally {
       setLoading(false);
     }
+  }
+
+  type EditableField = "basePay" | "overtimePay" | "lateNightPay" | "holidayPay" | "dailyAllowanceTotal" | "driverAllowance" | "transportationAllowance";
+
+  function handleCellEdit(employeeId: string, field: EditableField, currentValue: number) {
+    setEditingCell(`${employeeId}__${field}`);
+    setEditValue(String(currentValue));
+  }
+
+  function handleCellSave(employeeId: string, field: EditableField) {
+    const newValue = parseInt(editValue) || 0;
+    setCalculations((prev) =>
+      prev.map((calc) => {
+        if (calc.employee.id !== employeeId) return calc;
+        const updated = { ...calc, [field]: newValue };
+        // 総支給額を再計算
+        updated.grossPay = updated.basePay + updated.overtimePay + updated.lateNightPay
+          + updated.holidayPay + updated.dailyAllowanceTotal + updated.driverAllowance
+          + updated.transportationAllowance;
+        // 控除を再計算
+        updated.healthInsurance = calc.employee.social_insurance_enrolled
+          ? Math.round(updated.grossPay * 0.05) : 0;
+        updated.pension = calc.employee.social_insurance_enrolled
+          ? Math.round(updated.grossPay * 0.0915) : 0;
+        updated.employmentInsurance = Math.round(updated.grossPay * 0.006);
+        const totalSocialInsurance = updated.healthInsurance + updated.pension + updated.employmentInsurance;
+        const taxableAmount = Math.max(0, updated.grossPay - totalSocialInsurance - updated.transportationAllowance);
+        const oldTaxable = Math.max(0, calc.grossPay - (calc.healthInsurance + calc.pension + calc.employmentInsurance) - calc.transportationAllowance);
+        const taxRate = oldTaxable > 0 ? calc.incomeTax / oldTaxable : 0;
+        updated.incomeTax = Math.round(taxableAmount * taxRate);
+        updated.totalDeductions = totalSocialInsurance + updated.incomeTax;
+        updated.netPay = updated.grossPay - updated.totalDeductions;
+        return updated;
+      })
+    );
+    setEditingCell(null);
+  }
+
+  function renderEditableCell(calc: PayrollCalculation, field: EditableField) {
+    const cellKey = `${calc.employee.id}__${field}`;
+    const value = calc[field] as number;
+    if (editingCell === cellKey) {
+      return (
+        <div className="flex items-center justify-end gap-1">
+          <span>¥</span>
+          <Input
+            ref={editInputRef}
+            type="number"
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleCellSave(calc.employee.id, field);
+              if (e.key === "Escape") setEditingCell(null);
+            }}
+            onBlur={() => handleCellSave(calc.employee.id, field)}
+            className="w-24 h-7 text-right text-sm"
+          />
+        </div>
+      );
+    }
+    return (
+      <button
+        className="inline-flex items-center gap-1 hover:text-primary transition-colors"
+        onClick={() => !isConfirmed && handleCellEdit(calc.employee.id, field, value)}
+        disabled={isConfirmed}
+      >
+        {formatCurrency(value)}
+        {!isConfirmed && <Pencil className="h-3 w-3 text-muted-foreground" />}
+      </button>
+    );
   }
 
   function handleRowClick(calc: PayrollCalculation) {
@@ -357,13 +439,13 @@ export function PayrollClient() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">{calc.workDays}日</TableCell>
-                  <TableCell className="text-right">{formatCurrency(calc.basePay)}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(calc.overtimePay)}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(calc.lateNightPay)}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(calc.holidayPay)}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(calc.dailyAllowanceTotal)}</TableCell>
-                  <TableCell className="text-right">{calc.driverDays > 0 ? `${formatCurrency(calc.driverAllowance)}(${calc.driverDays}日)` : "-"}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(calc.transportationAllowance)}</TableCell>
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>{renderEditableCell(calc, "basePay")}</TableCell>
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>{renderEditableCell(calc, "overtimePay")}</TableCell>
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>{renderEditableCell(calc, "lateNightPay")}</TableCell>
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>{renderEditableCell(calc, "holidayPay")}</TableCell>
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>{renderEditableCell(calc, "dailyAllowanceTotal")}</TableCell>
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>{renderEditableCell(calc, "driverAllowance")}</TableCell>
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>{renderEditableCell(calc, "transportationAllowance")}</TableCell>
                   <TableCell className="text-right font-semibold">{formatCurrency(calc.grossPay)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(calc.healthInsurance + calc.pension + calc.employmentInsurance)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(calc.incomeTax)}</TableCell>

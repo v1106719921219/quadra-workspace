@@ -1,6 +1,8 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { getTenantId } from "@/lib/tenant";
+import { getClosingPeriod } from "@/lib/closing-period";
 
 export interface EmployeeSummary {
   employee_id: string;
@@ -18,11 +20,20 @@ export interface EmployeeSummary {
 
 export async function getMonthlyReport(year: number, month: number): Promise<EmployeeSummary[]> {
   const supabase = await createClient();
+  const tenantId = await getTenantId();
 
-  const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
-  const endDate = month === 12
-    ? `${year + 1}-01-01`
-    : `${year}-${String(month + 1).padStart(2, "0")}-01`;
+  // 締め日設定を取得
+  const { data: settings } = await supabase
+    .from("tenant_settings")
+    .select("closing_day")
+    .eq("tenant_id", tenantId)
+    .single();
+
+  const closingDay = settings?.closing_day ?? 0;
+  const period = getClosingPeriod(year, month, closingDay);
+
+  const startDate = period.startDate;
+  const endDate = addOneDay(period.endDate);
 
   // 勤怠記録取得
   const { data: records, error } = await supabase
@@ -117,4 +128,13 @@ export async function getMonthlyReport(year: number, month: number): Promise<Emp
   });
 
   return result.sort((a, b) => a.employee_name.localeCompare(b.employee_name));
+}
+
+function addOneDay(dateStr: string): string {
+  const d = new Date(dateStr + "T00:00:00+09:00");
+  d.setDate(d.getDate() + 1);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }

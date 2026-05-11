@@ -6,7 +6,7 @@ export async function getActiveEmployees() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("employees")
-    .select("id, name, employee_number")
+    .select("id, name, employee_number, employee_type")
     .eq("is_active", true)
     .order("created_at", { ascending: true });
   if (error) throw error;
