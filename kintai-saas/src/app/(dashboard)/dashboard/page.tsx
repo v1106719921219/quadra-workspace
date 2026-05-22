@@ -35,6 +35,14 @@ export default async function DashboardPage() {
     .select("*", { count: "exact", head: true })
     .eq("is_active", true);
 
+  function formatTimeJST(isoString: string): string {
+    const d = new Date(isoString);
+    const jst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+    const h = String(jst.getUTCHours()).padStart(2, "0");
+    const m = String(jst.getUTCMinutes()).padStart(2, "0");
+    return `${h}:${m}`;
+  }
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">ダッシュボード</h1>
@@ -81,7 +89,7 @@ export default async function DashboardPage() {
               {activeRecords?.map((record) => {
                 const emp = record.employees as unknown as { name: string };
                 const wt = record.work_types as unknown as { name: string };
-                const clockIn = new Date(record.clock_in).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Tokyo" });
+                const clockIn = formatTimeJST(record.clock_in);
                 return (
                   <div key={record.id} className="flex items-center justify-between rounded-lg border p-3">
                     <div className="flex items-center gap-3">
@@ -96,8 +104,8 @@ export default async function DashboardPage() {
               {completedRecords?.map((record) => {
                 const emp = record.employees as unknown as { name: string };
                 const wt = record.work_types as unknown as { name: string };
-                const clockIn = new Date(record.clock_in).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Tokyo" });
-                const clockOut = new Date(record.clock_out!).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Tokyo" });
+                const clockIn = formatTimeJST(record.clock_in);
+                const clockOut = formatTimeJST(record.clock_out!);
                 return (
                   <div key={record.id} className="flex items-center justify-between rounded-lg border p-3">
                     <div className="flex items-center gap-3">
