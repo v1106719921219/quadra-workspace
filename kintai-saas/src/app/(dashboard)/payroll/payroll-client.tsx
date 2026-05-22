@@ -40,10 +40,14 @@ function recordToCalculation(record: {
   driver_allowance: number;
   transportation_allowance: number;
   gross_pay: number;
+  absence_deduction: number;
   health_insurance: number;
   pension: number;
+  child_support_contribution: number;
   employment_insurance: number;
   income_tax: number;
+  resident_tax: number;
+  savings_deduction: number;
   total_deductions: number;
   net_pay: number;
   calculation_details: { employee?: PayrollCalculation["employee"]; dailyDetails?: PayrollCalculation["dailyDetails"] } | null;
@@ -60,6 +64,10 @@ function recordToCalculation(record: {
     dependents_count: 0,
     tax_column: "kou" as const,
     social_insurance_enrolled: false,
+    employment_insurance_enrolled: false,
+    standard_monthly_remuneration: 0,
+    resident_tax: 0,
+    savings_deduction: 0,
   };
 
   return {
@@ -73,6 +81,7 @@ function recordToCalculation(record: {
     overtimePay: record.overtime_pay,
     lateNightPay: record.late_night_pay,
     holidayPay: record.holiday_pay,
+    absenceDeduction: record.absence_deduction ?? 0,
     dailyAllowanceTotal: record.daily_allowance_total,
     driverDays: record.driver_days ?? 0,
     driverAllowance: record.driver_allowance ?? 0,
@@ -80,8 +89,11 @@ function recordToCalculation(record: {
     grossPay: record.gross_pay,
     healthInsurance: record.health_insurance,
     pension: record.pension,
+    childSupportContribution: record.child_support_contribution ?? 0,
     employmentInsurance: record.employment_insurance,
     incomeTax: record.income_tax,
+    residentTax: record.resident_tax ?? 0,
+    savingsDeduction: record.savings_deduction ?? 0,
     totalDeductions: record.total_deductions,
     netPay: record.net_pay,
     dailyDetails: record.calculation_details?.dailyDetails || [],
@@ -275,9 +287,9 @@ export function PayrollClient() {
     const headers = [
       "従業員名", "社員番号", "雇用形態", "出勤日数",
       "総労働時間", "残業時間", "深夜時間", "休日時間",
-      "基本給", "残業手当", "深夜手当", "休日手当",
+      "基本給", "残業手当", "深夜手当", "休日手当", "不就労控除",
       "業務手当", "ドライバー日数", "ドライバー手当", "通勤手当", "総支給額",
-      "健康保険", "厚生年金", "雇用保険", "所得税", "控除合計",
+      "健康保険", "厚生年金", "子育て支援金", "雇用保険", "所得税", "住民税", "積立金", "控除合計",
       "差引支給額",
     ];
 
@@ -294,6 +306,7 @@ export function PayrollClient() {
       c.overtimePay,
       c.lateNightPay,
       c.holidayPay,
+      c.absenceDeduction,
       c.dailyAllowanceTotal,
       c.driverDays,
       c.driverAllowance,
@@ -301,8 +314,11 @@ export function PayrollClient() {
       c.grossPay,
       c.healthInsurance,
       c.pension,
+      c.childSupportContribution,
       c.employmentInsurance,
       c.incomeTax,
+      c.residentTax,
+      c.savingsDeduction,
       c.totalDeductions,
       c.netPay,
     ]);
@@ -422,6 +438,7 @@ export function PayrollClient() {
                 <TableHead className="text-right">総支給</TableHead>
                 <TableHead className="text-right">社保</TableHead>
                 <TableHead className="text-right">所得税</TableHead>
+                <TableHead className="text-right">住民税</TableHead>
                 <TableHead className="text-right">手取</TableHead>
               </TableRow>
             </TableHeader>
@@ -447,8 +464,9 @@ export function PayrollClient() {
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>{renderEditableCell(calc, "driverAllowance")}</TableCell>
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>{renderEditableCell(calc, "transportationAllowance")}</TableCell>
                   <TableCell className="text-right font-semibold">{formatCurrency(calc.grossPay)}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(calc.healthInsurance + calc.pension + calc.employmentInsurance)}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(calc.healthInsurance + calc.pension + calc.childSupportContribution + calc.employmentInsurance)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(calc.incomeTax)}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(calc.residentTax)}</TableCell>
                   <TableCell className="text-right font-bold text-primary">{formatCurrency(calc.netPay)}</TableCell>
                 </TableRow>
               ))}
@@ -518,6 +536,9 @@ export function PayrollClient() {
                     <div className="flex justify-between"><span>残業手当</span><span>{formatCurrency(calc.overtimePay)}</span></div>
                     <div className="flex justify-between"><span>深夜手当</span><span>{formatCurrency(calc.lateNightPay)}</span></div>
                     <div className="flex justify-between"><span>休日手当</span><span>{formatCurrency(calc.holidayPay)}</span></div>
+                    {calc.absenceDeduction > 0 && (
+                      <div className="flex justify-between text-red-600"><span>不就労控除</span><span>-{formatCurrency(calc.absenceDeduction)}</span></div>
+                    )}
                     <div className="flex justify-between"><span>業務手当</span><span>{formatCurrency(calc.dailyAllowanceTotal)}</span></div>
                     {calc.driverDays > 0 && (
                       <div className="flex justify-between"><span>ドライバー手当({calc.driverDays}日)</span><span>{formatCurrency(calc.driverAllowance)}</span></div>
@@ -531,8 +552,17 @@ export function PayrollClient() {
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between"><span>健康保険</span><span>{formatCurrency(calc.healthInsurance)}</span></div>
                     <div className="flex justify-between"><span>厚生年金</span><span>{formatCurrency(calc.pension)}</span></div>
+                    {calc.childSupportContribution > 0 && (
+                      <div className="flex justify-between"><span>子育て支援金</span><span>{formatCurrency(calc.childSupportContribution)}</span></div>
+                    )}
                     <div className="flex justify-between"><span>雇用保険</span><span>{formatCurrency(calc.employmentInsurance)}</span></div>
                     <div className="flex justify-between"><span>所得税</span><span>{formatCurrency(calc.incomeTax)}</span></div>
+                    {calc.residentTax > 0 && (
+                      <div className="flex justify-between"><span>住民税</span><span>{formatCurrency(calc.residentTax)}</span></div>
+                    )}
+                    {calc.savingsDeduction > 0 && (
+                      <div className="flex justify-between"><span>積立金</span><span>{formatCurrency(calc.savingsDeduction)}</span></div>
+                    )}
                     <div className="flex justify-between font-bold border-t pt-1"><span>控除合計</span><span>{formatCurrency(calc.totalDeductions)}</span></div>
                   </div>
                 </div>

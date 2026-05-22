@@ -29,6 +29,10 @@ export async function createEmployee(formData: FormData) {
   const dependentsCount = formData.get("dependents_count");
   const taxColumn = formData.get("tax_column") as string;
   const socialInsuranceEnrolled = formData.get("social_insurance_enrolled") === "true";
+  const employmentInsuranceEnrolled = formData.get("employment_insurance_enrolled") === "true";
+  const standardMonthlyRemuneration = formData.get("standard_monthly_remuneration");
+  const residentTax = formData.get("resident_tax");
+  const savingsDeduction = formData.get("savings_deduction");
   const canBeDriver = formData.get("can_be_driver") === "true";
   const boardChar = formData.get("board_char") as string;
   const pin = formData.get("pin") as string;
@@ -44,6 +48,10 @@ export async function createEmployee(formData: FormData) {
     dependents_count: dependentsCount ? parseInt(dependentsCount as string) : 0,
     tax_column: taxColumn || "kou",
     social_insurance_enrolled: socialInsuranceEnrolled,
+    employment_insurance_enrolled: employmentInsuranceEnrolled,
+    standard_monthly_remuneration: standardMonthlyRemuneration ? parseInt(standardMonthlyRemuneration as string) : 0,
+    resident_tax: residentTax ? parseInt(residentTax as string) : 0,
+    savings_deduction: savingsDeduction ? parseInt(savingsDeduction as string) : 0,
     can_be_driver: canBeDriver,
     board_char: boardChar?.trim().slice(0, 1) || null,
     pin: pin?.trim() || null,
@@ -67,6 +75,10 @@ export async function updateEmployee(id: string, formData: FormData) {
   const dependentsCount = formData.get("dependents_count");
   const taxColumn = formData.get("tax_column") as string;
   const socialInsuranceEnrolled = formData.get("social_insurance_enrolled") === "true";
+  const employmentInsuranceEnrolled = formData.get("employment_insurance_enrolled") === "true";
+  const standardMonthlyRemuneration = formData.get("standard_monthly_remuneration");
+  const residentTax = formData.get("resident_tax");
+  const savingsDeduction = formData.get("savings_deduction");
   const canBeDriver = formData.get("can_be_driver") === "true";
   const boardChar = formData.get("board_char") as string;
   const pin = formData.get("pin") as string;
@@ -84,6 +96,10 @@ export async function updateEmployee(id: string, formData: FormData) {
       dependents_count: dependentsCount ? parseInt(dependentsCount as string) : 0,
       tax_column: taxColumn || "kou",
       social_insurance_enrolled: socialInsuranceEnrolled,
+      employment_insurance_enrolled: employmentInsuranceEnrolled,
+      standard_monthly_remuneration: standardMonthlyRemuneration ? parseInt(standardMonthlyRemuneration as string) : 0,
+      resident_tax: residentTax ? parseInt(residentTax as string) : 0,
+      savings_deduction: savingsDeduction ? parseInt(savingsDeduction as string) : 0,
       can_be_driver: canBeDriver,
       board_char: boardChar?.trim().slice(0, 1) || null,
       pin: pin?.trim() || null,

@@ -5,15 +5,14 @@ import type {
   PayrollCalculation,
 } from "./types";
 import { calculateIncomeTax } from "./tax-table";
+import { calculateSocialInsurance } from "./social-insurance-table";
 import { roundUpToInterval, roundDownToInterval } from "@/lib/time-utils";
 
 // ドライバー手当（円/日）
 const DRIVER_ALLOWANCE_PER_DAY = 1200;
 
-// 社保料率（概算）
-const HEALTH_INSURANCE_RATE = 0.05; // 健康保険 5%
-const PENSION_RATE = 0.0915; // 厚生年金 9.15%
-const EMPLOYMENT_INSURANCE_RATE = 0.006; // 雇用保険 0.6%
+// 雇用保険料率（一般事業 被保険者負担 0.5%）
+const EMPLOYMENT_INSURANCE_RATE = 0.005;
 
 // 深夜時間帯（22:00-05:00）
 const LATE_NIGHT_START = 22;
@@ -21,6 +20,9 @@ const LATE_NIGHT_END = 5;
 
 // 1日の所定労働時間（分）
 const STANDARD_DAILY_MINUTES = 480; // 8時間
+
+// 月の所定労働日数（不就労控除計算用）
+const STANDARD_MONTHLY_WORK_DAYS = 22;
 
 /**
  * 日付が土日（休日）かどうか判定
@@ -36,11 +38,9 @@ function isHoliday(dateStr: string): boolean {
  */
 function calcLateNightMinutes(clockIn: Date, clockOut: Date): number {
   let total = 0;
-  // 日付をまたぐ可能性があるので、1日ずつチェック
   const current = new Date(clockIn);
 
   while (current < clockOut) {
-    // この日の22:00
     const dayStart = new Date(current);
     dayStart.setHours(0, 0, 0, 0);
 
@@ -71,7 +71,6 @@ function calcLateNightMinutes(clockIn: Date, clockOut: Date): number {
       }
     }
 
-    // 次の日へ
     current.setDate(current.getDate() + 1);
     current.setHours(0, 0, 0, 0);
   }
@@ -128,7 +127,6 @@ function calculateDailyWork(record: TimeRecordForPayroll, roundingMinutes: numbe
 
 /**
  * 従業員1人分の月次給与を計算
- * @param roundingMinutes 時間丸め分数（デフォルト15分）
  */
 export function calculateEmployeePayroll(
   employee: EmployeeForPayroll,
@@ -177,6 +175,7 @@ export function calculateEmployeePayroll(
   let overtimePay: number;
   let lateNightPay: number;
   let holidayPay: number;
+  let absenceDeduction = 0;
 
   if (employee.employee_type === "part_time") {
     // パート: 日ごとの業務タイプ時給を使って計算
@@ -201,32 +200,55 @@ export function calculateEmployeePayroll(
     overtimePay = Math.round(overtimeHours * hourlyBase * 0.25);
     lateNightPay = Math.round(lateNightHoursVal * hourlyBase * 0.25);
     holidayPay = Math.round(holidayHours * hourlyBase * 0.35);
+
+    // 不就労控除: 所定労働日数に対して欠勤がある場合
+    // 不就労控除 = 月給 ÷ 所定労働日数 × 欠勤日数
+    if (workDays < STANDARD_MONTHLY_WORK_DAYS) {
+      const absenceDays = STANDARD_MONTHLY_WORK_DAYS - workDays;
+      const dailyRate = (employee.monthly_salary || 0) / STANDARD_MONTHLY_WORK_DAYS;
+      absenceDeduction = Math.round(dailyRate * absenceDays);
+    }
   }
 
   const transportationAllowance = employee.transportation_allowance || 0;
 
   const grossPay = basePay + overtimePay + lateNightPay + holidayPay
+    - absenceDeduction
     + dailyAllowanceTotal + driverAllowance + transportationAllowance;
 
-  // 社保控除（概算）
+  // ========== 控除計算 ==========
+
+  // 社会保険料（協会けんぽ・標準報酬月額ベース）
   let healthInsurance = 0;
   let pension = 0;
-  if (employee.social_insurance_enrolled) {
-    // 社保は通勤手当を含む総支給額ベース
-    const socialInsuranceBase = grossPay;
-    healthInsurance = Math.round(socialInsuranceBase * HEALTH_INSURANCE_RATE);
-    pension = Math.round(socialInsuranceBase * PENSION_RATE);
-  }
-  // 雇用保険は全員対象
-  const employmentInsurance = Math.round(grossPay * EMPLOYMENT_INSURANCE_RATE);
+  let childSupportContribution = 0;
 
-  const totalSocialInsurance = healthInsurance + pension + employmentInsurance;
+  if (employee.social_insurance_enrolled && employee.standard_monthly_remuneration > 0) {
+    const siResult = calculateSocialInsurance(employee.standard_monthly_remuneration);
+    healthInsurance = siResult.healthInsurance;
+    pension = siResult.pension;
+    childSupportContribution = siResult.childSupportContribution;
+  }
+
+  // 雇用保険（加入者のみ、総支給額ベース）
+  let employmentInsurance = 0;
+  if (employee.employment_insurance_enrolled) {
+    employmentInsurance = Math.round(grossPay * EMPLOYMENT_INSURANCE_RATE);
+  }
+
+  const totalSocialInsurance = healthInsurance + pension + childSupportContribution + employmentInsurance;
 
   // 所得税（課税対象 = 総支給 - 社保 - 非課税通勤手当）
   const taxableAmount = Math.max(0, grossPay - totalSocialInsurance - transportationAllowance);
   const incomeTax = calculateIncomeTax(taxableAmount, employee.tax_column, employee.dependents_count);
 
-  const totalDeductions = totalSocialInsurance + incomeTax;
+  // 住民税（従業員マスタの固定額）
+  const residentTax = employee.resident_tax || 0;
+
+  // 積立金（従業員マスタの固定額）
+  const savingsDeduction = employee.savings_deduction || 0;
+
+  const totalDeductions = totalSocialInsurance + incomeTax + residentTax + savingsDeduction;
   const netPay = grossPay - totalDeductions;
 
   return {
@@ -240,6 +262,7 @@ export function calculateEmployeePayroll(
     overtimePay,
     lateNightPay,
     holidayPay,
+    absenceDeduction,
     dailyAllowanceTotal,
     driverDays,
     driverAllowance,
@@ -247,8 +270,11 @@ export function calculateEmployeePayroll(
     grossPay,
     healthInsurance,
     pension,
+    childSupportContribution,
     employmentInsurance,
     incomeTax,
+    residentTax,
+    savingsDeduction,
     totalDeductions,
     netPay,
     dailyDetails,

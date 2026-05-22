@@ -100,6 +100,12 @@ export function PayrollDetailDialog({ calculation, open, onOpenChange }: Payroll
                   <TableCell className="font-medium">休日手当</TableCell>
                   <TableCell className="text-right">{formatCurrency(calculation.holidayPay)}</TableCell>
                 </TableRow>
+                {calculation.absenceDeduction > 0 && (
+                  <TableRow>
+                    <TableCell className="font-medium text-red-600">不就労控除</TableCell>
+                    <TableCell className="text-right text-red-600">-{formatCurrency(calculation.absenceDeduction)}</TableCell>
+                  </TableRow>
+                )}
                 <TableRow>
                   <TableCell className="font-medium">業務手当</TableCell>
                   <TableCell className="text-right">{formatCurrency(calculation.dailyAllowanceTotal)}</TableCell>
@@ -135,6 +141,12 @@ export function PayrollDetailDialog({ calculation, open, onOpenChange }: Payroll
                   <TableCell className="font-medium">厚生年金</TableCell>
                   <TableCell className="text-right">{formatCurrency(calculation.pension)}</TableCell>
                 </TableRow>
+                {calculation.childSupportContribution > 0 && (
+                  <TableRow>
+                    <TableCell className="font-medium">子育て支援金</TableCell>
+                    <TableCell className="text-right">{formatCurrency(calculation.childSupportContribution)}</TableCell>
+                  </TableRow>
+                )}
                 <TableRow>
                   <TableCell className="font-medium">雇用保険</TableCell>
                   <TableCell className="text-right">{formatCurrency(calculation.employmentInsurance)}</TableCell>
@@ -143,6 +155,18 @@ export function PayrollDetailDialog({ calculation, open, onOpenChange }: Payroll
                   <TableCell className="font-medium">所得税</TableCell>
                   <TableCell className="text-right">{formatCurrency(calculation.incomeTax)}</TableCell>
                 </TableRow>
+                {calculation.residentTax > 0 && (
+                  <TableRow>
+                    <TableCell className="font-medium">住民税</TableCell>
+                    <TableCell className="text-right">{formatCurrency(calculation.residentTax)}</TableCell>
+                  </TableRow>
+                )}
+                {calculation.savingsDeduction > 0 && (
+                  <TableRow>
+                    <TableCell className="font-medium">積立金</TableCell>
+                    <TableCell className="text-right">{formatCurrency(calculation.savingsDeduction)}</TableCell>
+                  </TableRow>
+                )}
                 <TableRow className="font-bold border-t-2">
                   <TableCell>控除合計</TableCell>
                   <TableCell className="text-right">{formatCurrency(calculation.totalDeductions)}</TableCell>

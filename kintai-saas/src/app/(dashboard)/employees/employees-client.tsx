@@ -28,6 +28,10 @@ interface Employee {
   dependents_count: number;
   tax_column: string;
   social_insurance_enrolled: boolean;
+  employment_insurance_enrolled: boolean;
+  standard_monthly_remuneration: number;
+  resident_tax: number;
+  savings_deduction: number;
   can_be_driver: boolean;
   board_char: string | null;
   pin: string | null;

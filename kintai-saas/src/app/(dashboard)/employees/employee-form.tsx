@@ -33,6 +33,10 @@ interface Employee {
   dependents_count: number;
   tax_column: string;
   social_insurance_enrolled: boolean;
+  employment_insurance_enrolled: boolean;
+  standard_monthly_remuneration: number;
+  resident_tax: number;
+  savings_deduction: number;
   can_be_driver: boolean;
   board_char: string | null;
   pin: string | null;
@@ -48,6 +52,7 @@ export function EmployeeForm({ employee, open, onOpenChange }: EmployeeFormProps
   const [employeeType, setEmployeeType] = useState(employee?.employee_type || "part_time");
   const [taxColumn, setTaxColumn] = useState(employee?.tax_column || "kou");
   const [socialInsurance, setSocialInsurance] = useState(employee?.social_insurance_enrolled || false);
+  const [employmentInsurance, setEmploymentInsurance] = useState(employee?.employment_insurance_enrolled || false);
   const [canBeDriver, setCanBeDriver] = useState(employee?.can_be_driver || false);
   const [loading, setLoading] = useState(false);
 
@@ -57,6 +62,7 @@ export function EmployeeForm({ employee, open, onOpenChange }: EmployeeFormProps
       setEmployeeType(employee?.employee_type || "part_time");
       setTaxColumn(employee?.tax_column || "kou");
       setSocialInsurance(employee?.social_insurance_enrolled || false);
+      setEmploymentInsurance(employee?.employment_insurance_enrolled || false);
       setCanBeDriver(employee?.can_be_driver || false);
     }
   }, [open, employee]);
@@ -69,6 +75,7 @@ export function EmployeeForm({ employee, open, onOpenChange }: EmployeeFormProps
       formData.set("employee_type", employeeType);
       formData.set("tax_column", taxColumn);
       formData.set("social_insurance_enrolled", String(socialInsurance));
+      formData.set("employment_insurance_enrolled", String(employmentInsurance));
       formData.set("can_be_driver", String(canBeDriver));
       if (employee) {
         formData.set("is_active", String(employee.is_active));
@@ -222,8 +229,53 @@ export function EmployeeForm({ employee, open, onOpenChange }: EmployeeFormProps
                   onCheckedChange={(checked) => setSocialInsurance(checked === true)}
                 />
                 <Label htmlFor="social_insurance_enrolled" className="cursor-pointer">
-                  社会保険加入
+                  社会保険加入（協会けんぽ）
                 </Label>
+              </div>
+              {socialInsurance && (
+                <div className="space-y-2 ml-6">
+                  <Label htmlFor="standard_monthly_remuneration">標準報酬月額（円）</Label>
+                  <Input
+                    id="standard_monthly_remuneration"
+                    name="standard_monthly_remuneration"
+                    type="number"
+                    defaultValue={employee?.standard_monthly_remuneration || 0}
+                    placeholder="200000"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    健康保険・厚生年金・子ども子育て支援金を自動計算します
+                  </p>
+                </div>
+              )}
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="employment_insurance_enrolled"
+                  checked={employmentInsurance}
+                  onCheckedChange={(checked) => setEmploymentInsurance(checked === true)}
+                />
+                <Label htmlFor="employment_insurance_enrolled" className="cursor-pointer">
+                  雇用保険加入（0.5%）
+                </Label>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="resident_tax">住民税（月額・円）</Label>
+                <Input
+                  id="resident_tax"
+                  name="resident_tax"
+                  type="number"
+                  defaultValue={employee?.resident_tax || 0}
+                  placeholder="0"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="savings_deduction">積立金（月額・円）</Label>
+                <Input
+                  id="savings_deduction"
+                  name="savings_deduction"
+                  type="number"
+                  defaultValue={employee?.savings_deduction || 0}
+                  placeholder="0"
+                />
               </div>
               <div className="flex items-center gap-2">
                 <Checkbox

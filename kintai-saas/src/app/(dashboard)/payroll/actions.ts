@@ -105,6 +105,10 @@ export async function calculateMonthlyPayroll(year: number, month: number): Prom
       dependents_count: emp.dependents_count ?? 0,
       tax_column: (emp.tax_column as "kou" | "otsu") ?? "kou",
       social_insurance_enrolled: emp.social_insurance_enrolled ?? false,
+      employment_insurance_enrolled: emp.employment_insurance_enrolled ?? false,
+      standard_monthly_remuneration: emp.standard_monthly_remuneration ?? 0,
+      resident_tax: emp.resident_tax ?? 0,
+      savings_deduction: emp.savings_deduction ?? 0,
     };
     const empRecords = normalizedRecords.filter((r) => r.employee_id === emp.id);
     const calculation = calculateEmployeePayroll(empForPayroll, empRecords);
@@ -157,10 +161,14 @@ export async function confirmPayroll(year: number, month: number, calculations: 
           driver_allowance: calc.driverAllowance,
           transportation_allowance: calc.transportationAllowance,
           gross_pay: calc.grossPay,
+          absence_deduction: calc.absenceDeduction,
           health_insurance: calc.healthInsurance,
           pension: calc.pension,
+          child_support_contribution: calc.childSupportContribution,
           employment_insurance: calc.employmentInsurance,
           income_tax: calc.incomeTax,
+          resident_tax: calc.residentTax,
+          savings_deduction: calc.savingsDeduction,
           total_deductions: calc.totalDeductions,
           net_pay: calc.netPay,
           status: "confirmed",

@@ -81,7 +81,7 @@ export default async function DashboardPage() {
               {activeRecords?.map((record) => {
                 const emp = record.employees as unknown as { name: string };
                 const wt = record.work_types as unknown as { name: string };
-                const clockIn = new Date(record.clock_in).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" });
+                const clockIn = new Date(record.clock_in).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Tokyo" });
                 return (
                   <div key={record.id} className="flex items-center justify-between rounded-lg border p-3">
                     <div className="flex items-center gap-3">
@@ -96,8 +96,8 @@ export default async function DashboardPage() {
               {completedRecords?.map((record) => {
                 const emp = record.employees as unknown as { name: string };
                 const wt = record.work_types as unknown as { name: string };
-                const clockIn = new Date(record.clock_in).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" });
-                const clockOut = new Date(record.clock_out!).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" });
+                const clockIn = new Date(record.clock_in).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Tokyo" });
+                const clockOut = new Date(record.clock_out!).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Tokyo" });
                 return (
                   <div key={record.id} className="flex items-center justify-between rounded-lg border p-3">
                     <div className="flex items-center gap-3">

@@ -11,6 +11,10 @@ export interface EmployeeForPayroll {
   dependents_count: number;
   tax_column: "kou" | "otsu";
   social_insurance_enrolled: boolean;
+  employment_insurance_enrolled: boolean;
+  standard_monthly_remuneration: number;
+  resident_tax: number;
+  savings_deduction: number;
 }
 
 export interface TimeRecordForPayroll {
@@ -60,6 +64,7 @@ export interface PayrollCalculation {
   overtimePay: number;
   lateNightPay: number;
   holidayPay: number;
+  absenceDeduction: number; // 不就労控除（マイナス値）
   dailyAllowanceTotal: number;
   driverDays: number;
   driverAllowance: number;
@@ -69,8 +74,11 @@ export interface PayrollCalculation {
   // 控除
   healthInsurance: number;
   pension: number;
+  childSupportContribution: number; // 子ども・子育て支援金
   employmentInsurance: number;
   incomeTax: number;
+  residentTax: number;       // 住民税
+  savingsDeduction: number;  // 積立金
   totalDeductions: number;
 
   // 差引支給額
