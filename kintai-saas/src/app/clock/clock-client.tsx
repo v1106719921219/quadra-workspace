@@ -80,7 +80,7 @@ export function ClockClient({
     return () => clearInterval(timer);
   }, [refresh]);
 
-  const timeStr = now.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  const timeStr = now.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit", second: "2-digit", timeZone: "Asia/Tokyo" });
   const dateStr = now.toLocaleDateString("ja-JP", {
     year: "numeric",
     month: "long",
@@ -141,6 +141,7 @@ export function ClockClient({
               ? new Date(emp.active_record.clock_in).toLocaleTimeString("ja-JP", {
                   hour: "2-digit",
                   minute: "2-digit",
+                  timeZone: "Asia/Tokyo",
                 })
               : null;
 
@@ -241,6 +242,7 @@ export function ClockClient({
                 ? new Date(clockOutDialog.active_record.clock_in).toLocaleTimeString("ja-JP", {
                     hour: "2-digit",
                     minute: "2-digit",
+                    timeZone: "Asia/Tokyo",
                   })
                 : ""}
               ~{timeStr.slice(0, 5)}
