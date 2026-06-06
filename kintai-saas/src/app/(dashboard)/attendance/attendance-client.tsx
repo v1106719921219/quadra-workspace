@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChevronLeft, ChevronRight, Plus, Trash2, Pencil } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Trash2, Pencil, Printer } from "lucide-react";
 import {
   getTimeRecords,
   getMonthlyRecords,
@@ -190,33 +190,80 @@ export function AttendanceClient({
     }
   }
 
-  // 月別の集計
-  const monthlyByEmployee = new Map<string, { name: string; days: number; totalHours: number; records: number }>();
-  monthRecords.forEach((r) => {
-    const emp = r.employees as unknown as { name: string };
-    const key = r.employee_id;
-    if (!monthlyByEmployee.has(key)) {
-      monthlyByEmployee.set(key, { name: emp.name, days: 0, totalHours: 0, records: 0 });
+  const [monthFilterEmployee, setMonthFilterEmployee] = useState<string>("all");
+  const [monthFilterSite, setMonthFilterSite] = useState<string>("all");
+
+  // 月別レコードのフィルタリング
+  const filteredMonthRecords = monthRecords.filter((r) => {
+    if (monthFilterEmployee !== "all" && r.employee_id !== monthFilterEmployee) return false;
+    if (monthFilterSite !== "all") {
+      const siteId = r.job_site_id || "";
+      if (siteId !== monthFilterSite) return false;
     }
-    const entry = monthlyByEmployee.get(key)!;
-    entry.records++;
-    const hours = calcWorkHours(r.clock_in, r.clock_out, r.break_minutes);
-    if (hours !== null) {
-      entry.totalHours += hours;
-    }
+    return true;
   });
-  // 日数計算（ユニークなwork_dateの数）
-  const datesByEmployee = new Map<string, Set<string>>();
-  monthRecords.forEach((r) => {
-    if (!datesByEmployee.has(r.employee_id)) {
-      datesByEmployee.set(r.employee_id, new Set());
-    }
-    datesByEmployee.get(r.employee_id)!.add(r.work_date);
-  });
-  datesByEmployee.forEach((dates, empId) => {
-    const entry = monthlyByEmployee.get(empId);
-    if (entry) entry.days = dates.size;
-  });
+
+  // 曜日文字列
+  const dayOfWeekNames = ["日", "月", "火", "水", "木", "金", "土"];
+  function formatDateWithDay(dateStr: string) {
+    const d = new Date(dateStr + "T00:00:00+09:00");
+    const m = d.getMonth() + 1;
+    const day = d.getDate();
+    const dow = dayOfWeekNames[d.getDay()];
+    return { display: `${m}/${day}（${dow}）`, dayOfWeek: d.getDay() };
+  }
+
+  function calcOvertimeHours(clockIn: string, clockOut: string | null, breakMinutes: number) {
+    if (!clockOut) return 0;
+    const diff = (new Date(clockOut).getTime() - new Date(clockIn).getTime()) / 1000 / 60;
+    const workMinutes = diff - breakMinutes;
+    const overtimeMinutes = Math.max(0, workMinutes - 480); // 8時間=480分超過分
+    return Math.round(overtimeMinutes / 60 * 4) / 4;
+  }
+
+  function formatHoursMinutes(clockIn: string, clockOut: string | null, breakMinutes: number) {
+    if (!clockOut) return "-";
+    const diff = (new Date(clockOut).getTime() - new Date(clockIn).getTime()) / 1000 / 60;
+    const workMinutes = Math.max(0, diff - breakMinutes);
+    const h = Math.floor(workMinutes / 60);
+    const m = Math.round(workMinutes % 60);
+    return `${h}:${String(m).padStart(2, "0")}`;
+  }
+
+  function formatOvertimeHM(clockIn: string, clockOut: string | null, breakMinutes: number) {
+    if (!clockOut) return "-";
+    const diff = (new Date(clockOut).getTime() - new Date(clockIn).getTime()) / 1000 / 60;
+    const workMinutes = diff - breakMinutes;
+    const overtimeMinutes = Math.max(0, workMinutes - 480);
+    if (overtimeMinutes <= 0) return "-";
+    const h = Math.floor(overtimeMinutes / 60);
+    const m = Math.round(overtimeMinutes % 60);
+    return `${h}:${String(m).padStart(2, "0")}`;
+  }
+
+  // 月別集計サマリ（フィルタ後）
+  const monthSummary = (() => {
+    const uniqueDates = new Set<string>();
+    let totalMinutes = 0;
+    let overtimeMinutes = 0;
+    filteredMonthRecords.forEach((r) => {
+      uniqueDates.add(r.work_date);
+      if (r.clock_out) {
+        const diff = (new Date(r.clock_out).getTime() - new Date(r.clock_in).getTime()) / 1000 / 60;
+        const work = Math.max(0, diff - r.break_minutes);
+        totalMinutes += work;
+        overtimeMinutes += Math.max(0, work - 480);
+      }
+    });
+    return {
+      days: uniqueDates.size,
+      records: filteredMonthRecords.length,
+      totalH: Math.floor(totalMinutes / 60),
+      totalM: Math.round(totalMinutes % 60),
+      overtimeH: Math.floor(overtimeMinutes / 60),
+      overtimeM: Math.round(overtimeMinutes % 60),
+    };
+  })();
 
   return (
     <div className="space-y-4">
@@ -310,52 +357,132 @@ export function AttendanceClient({
         </TabsContent>
 
         <TabsContent value="monthly" className="space-y-4">
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" onClick={() => {
-              const m = viewMonth - 1;
-              if (m < 1) loadMonthRecords(viewYear - 1, 12);
-              else loadMonthRecords(viewYear, m);
-            }}>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <span className="font-medium">{viewYear}年{viewMonth}月</span>
-            <Button variant="outline" size="icon" onClick={() => {
-              const m = viewMonth + 1;
-              if (m > 12) loadMonthRecords(viewYear + 1, 1);
-              else loadMonthRecords(viewYear, m);
-            }}>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="icon" onClick={() => {
+                const m = viewMonth - 1;
+                if (m < 1) loadMonthRecords(viewYear - 1, 12);
+                else loadMonthRecords(viewYear, m);
+              }}>
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <span className="font-semibold text-lg">
+                {viewYear}年{viewMonth}月
+                {monthFilterEmployee === "all" ? "（全従業員）" : `（${employees.find(e => e.id === monthFilterEmployee)?.name}）`}
+              </span>
+              <Button variant="outline" size="icon" onClick={() => {
+                const m = viewMonth + 1;
+                if (m > 12) loadMonthRecords(viewYear + 1, 1);
+                else loadMonthRecords(viewYear, m);
+              }}>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="flex items-center gap-2">
+              <Select value={monthFilterEmployee} onValueChange={setMonthFilterEmployee}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue placeholder="従業員" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全従業員</SelectItem>
+                  {employees.map((e) => (
+                    <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={monthFilterSite} onValueChange={setMonthFilterSite}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue placeholder="拠点" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">すべての拠点</SelectItem>
+                  {jobSites.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>{s.short_name || s.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button variant="outline" size="sm" onClick={() => window.print()}>
+                <Printer className="h-4 w-4 mr-1" />
+                印刷
+              </Button>
+            </div>
           </div>
 
-          <Table>
+          {/* 集計サマリ */}
+          {monthLoaded && filteredMonthRecords.length > 0 && (
+            <div className="flex gap-6 text-sm text-muted-foreground border rounded-lg p-3">
+              <span>出勤日数: <strong className="text-foreground">{monthSummary.days}日</strong></span>
+              <span>記録数: <strong className="text-foreground">{monthSummary.records}件</strong></span>
+              <span>合計労働: <strong className="text-foreground">{monthSummary.totalH}:{String(monthSummary.totalM).padStart(2, "0")}</strong></span>
+              <span>合計残業: <strong className="text-foreground">{monthSummary.overtimeH}:{String(monthSummary.overtimeM).padStart(2, "0")}</strong></span>
+            </div>
+          )}
+
+          <div className="overflow-x-auto">
+          <Table className="min-w-[800px]">
             <TableHeader>
               <TableRow>
                 <TableHead>従業員</TableHead>
-                <TableHead>出勤日数</TableHead>
-                <TableHead>合計時間</TableHead>
-                <TableHead>記録数</TableHead>
+                <TableHead>日付</TableHead>
+                <TableHead>出勤</TableHead>
+                <TableHead>退勤</TableHead>
+                <TableHead>休憩</TableHead>
+                <TableHead>労働時間</TableHead>
+                <TableHead>残業</TableHead>
+                <TableHead>状態</TableHead>
+                <TableHead className="w-[50px]">編集</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {monthlyByEmployee.size === 0 ? (
+              {filteredMonthRecords.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-muted-foreground">
-                    この月の記録はありません
+                  <TableCell colSpan={9} className="text-center text-muted-foreground">
+                    {monthLoaded ? "この月の記録はありません" : "読み込み中..."}
                   </TableCell>
                 </TableRow>
               ) : (
-                Array.from(monthlyByEmployee.entries()).map(([empId, data]) => (
-                  <TableRow key={empId}>
-                    <TableCell className="font-medium">{data.name}</TableCell>
-                    <TableCell>{data.days}日</TableCell>
-                    <TableCell>{data.totalHours.toFixed(2)}h</TableCell>
-                    <TableCell>{data.records}件</TableCell>
-                  </TableRow>
-                ))
+                filteredMonthRecords.map((r) => {
+                  const emp = r.employees as unknown as { name: string };
+                  const { display, dayOfWeek } = formatDateWithDay(r.work_date);
+                  const overtime = formatOvertimeHM(r.clock_in, r.clock_out, r.break_minutes);
+                  const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+                  return (
+                    <TableRow key={r.id} className={isWeekend ? "bg-muted/30" : ""}>
+                      <TableCell className="font-medium whitespace-nowrap">{emp.name}</TableCell>
+                      <TableCell className={`whitespace-nowrap ${dayOfWeek === 0 ? "text-red-500" : dayOfWeek === 6 ? "text-blue-500" : ""}`}>
+                        {display}
+                      </TableCell>
+                      <TableCell>{formatTime(r.clock_in)}</TableCell>
+                      <TableCell>
+                        {r.clock_out ? formatTime(r.clock_out) : <Badge variant="default" className="bg-green-500">出勤中</Badge>}
+                      </TableCell>
+                      <TableCell>{r.break_minutes > 0 ? `${Math.floor(r.break_minutes / 60)}:${String(r.break_minutes % 60).padStart(2, "0")}` : "0:00"}</TableCell>
+                      <TableCell>{formatHoursMinutes(r.clock_in, r.clock_out, r.break_minutes)}</TableCell>
+                      <TableCell className={overtime !== "-" ? "text-red-500 font-medium" : ""}>
+                        {overtime}
+                      </TableCell>
+                      <TableCell>
+                        {r.clock_out ? (
+                          <Badge variant="default" className="bg-green-600 text-[11px]">完了</Badge>
+                        ) : (
+                          <Badge variant="secondary" className="text-[11px]">出勤中</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Button variant="ghost" size="icon" onClick={() => {
+                          setEditRecord(r);
+                          setDate(r.work_date);
+                        }}>
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
           </Table>
+          </div>
         </TabsContent>
 
         <TabsContent value="corrections" className="space-y-4">

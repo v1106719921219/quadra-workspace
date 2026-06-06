@@ -281,6 +281,55 @@ export function PayrollClient() {
     setDetailOpen(true);
   }
 
+  function exportMFPayrollCSV() {
+    if (calculations.length === 0) return;
+
+    // マネーフォワードクラウド給与「他社ソフトCSVインポート」形式
+    // Version, 従業員番号, 勤怠項目名（MFの項目名と完全一致が必要）
+    const headers = [
+      "Version",
+      "従業員番号",
+      "出勤日数",
+      "所定内出勤時間",
+      "残業時間",
+      "深夜残業時間",
+      "法定休日出勤日数",
+    ];
+
+    const rows = calculations
+      .filter((c) => c.workDays > 0)
+      .map((c) => {
+        // 所定内出勤時間 = 総労働時間 - 残業時間 - 休日時間
+        const regularHours = Math.max(0, c.totalHours - c.overtimeHours - c.holidayHours);
+        // 休日出勤日数（休日時間を8hで割って概算）
+        const holidayDays = c.holidayHours > 0 ? Math.ceil(c.holidayHours / 8) : 0;
+
+        return [
+          "2", // Version固定値
+          c.employee.employee_number || "",
+          c.workDays,
+          regularHours.toFixed(2),
+          c.overtimeHours.toFixed(2),
+          c.lateNightHours.toFixed(2),
+          holidayDays,
+        ];
+      });
+
+    const csvContent = [headers, ...rows]
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n");
+
+    // BOM付きUTF-8
+    const bom = "\uFEFF";
+    const blob = new Blob([bom + csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `MFクラウド給与_勤怠_${year}年${month}月.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   function exportCSV() {
     if (calculations.length === 0) return;
 
@@ -356,6 +405,10 @@ export function PayrollClient() {
         <div className="flex items-center gap-2">
           {hasData && (
             <>
+              <Button variant="outline" size="sm" onClick={exportMFPayrollCSV}>
+                <Download className="h-4 w-4 mr-1" />
+                MFクラウド給与用
+              </Button>
               <Button variant="outline" size="sm" onClick={exportCSV}>
                 <Download className="h-4 w-4 mr-1" />
                 CSV出力
