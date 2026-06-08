@@ -13,9 +13,12 @@ import discord
 import pytz
 
 from config import GOOGLE_APPS_SCRIPT_URL
-from db.supabase import get_product_prices, get_today_product_prices, save_product_prices, get_product_sort_orders
+from db.supabase import get_product_prices, save_product_prices, get_product_sort_orders
 from handlers.animac_price_sync import sync_prices_to_animac
 from handlers.domestic_price_sync import sync_prices_to_domestic
+
+# 今日更新された価格のみ保持（同期ボタン押下時にこれだけを同期）
+_session_changed_prices: Dict[str, int] = {}
 
 
 class AnimacSyncConfirmView(discord.ui.View):
@@ -32,8 +35,9 @@ class AnimacSyncConfirmView(discord.ui.View):
 
             def _do_sync():
                 from db.supabase import get_animac_mapping
-                today_prices = get_today_product_prices()
-                syncable = {name: price for name, price in today_prices.items() if get_animac_mapping(name)}
+                syncable = {name: price for name, price in _session_changed_prices.items() if get_animac_mapping(name)}
+                if not syncable:
+                    return {}, []
                 synced = sync_prices_to_animac(syncable)
                 return syncable, synced
 
@@ -50,7 +54,7 @@ class AnimacSyncConfirmView(discord.ui.View):
                     lines.append(f"　・{quadra_name} → {animac_name}  仕入値 {price:,}円")
                 await interaction.followup.send("\n".join(lines))
             else:
-                await interaction.followup.send("⚠️ 同期できた商品がありませんでした（マッピング未登録）")
+                await interaction.followup.send("⚠️ 同期できた商品がありませんでした（今日更新された商品がないか、マッピング未登録です）")
         except Exception as e:
             print(f"[ERROR] Animac同期ボタン処理失敗: {e}", flush=True)
             import traceback; traceback.print_exc()
@@ -81,9 +85,8 @@ class DomesticSyncConfirmView(discord.ui.View):
             await interaction.response.defer()
             import asyncio
 
-            today_prices = await asyncio.to_thread(get_today_product_prices)
             sort_orders = await asyncio.to_thread(get_product_sort_orders)
-            result = await asyncio.to_thread(sync_prices_to_domestic, today_prices, sort_orders)
+            result = await asyncio.to_thread(sync_prices_to_domestic, _session_changed_prices, sort_orders)
 
             await interaction.edit_original_response(view=None)
 
@@ -353,10 +356,9 @@ async def _generate_from_inventory(bot, message: discord.Message):
                     await message.channel.send(chunk)
                     text = text[2000:]
 
-        # 国内受注サイト・Animacへの同期ボタンを表示
+        # 国内受注サイト・Animacへの同期ボタンを表示（セッション内の変更分のみ）
         from db.supabase import get_animac_mapping
-        today_prices = await asyncio.to_thread(get_today_product_prices)
-        syncable_animac = {name: p for name, p in today_prices.items() if get_animac_mapping(name)}
+        syncable_animac = {name: p for name, p in _session_changed_prices.items() if get_animac_mapping(name)}
         if syncable_animac:
             animac_view = AnimacSyncConfirmView()
             await message.channel.send(
@@ -364,11 +366,12 @@ async def _generate_from_inventory(bot, message: discord.Message):
                 view=animac_view,
             )
 
-        domestic_view = DomesticSyncConfirmView()
-        await message.channel.send(
-            f"🏠 国内受注サイトに価格を同期できます（{len(today_prices)}件）",
-            view=domestic_view,
-        )
+        if _session_changed_prices:
+            domestic_view = DomesticSyncConfirmView()
+            await message.channel.send(
+                f"🏠 国内受注サイトに価格を同期できます（{len(_session_changed_prices)}件）",
+                view=domestic_view,
+            )
 
     except Exception as e:
         import traceback
@@ -377,9 +380,11 @@ async def _generate_from_inventory(bot, message: discord.Message):
 
 
 async def _set_price(message: discord.Message, product_name: str, price: int):
+    global _session_changed_prices
     prices = _load_prices()
     prices[product_name] = price
     _save_prices(prices)
+    _session_changed_prices[product_name] = price
     msg = f"✅ {product_name} の価格を {price:,}円 に設定しました"
 
     # Animacマッピングがあれば確認ボタンを表示
@@ -468,7 +473,10 @@ async def _save_prices_from_pricelist(message: discord.Message, text: str):
             print(f"⚠️ パース失敗 line[{j}] repr={repr(dl[:80])} chars={chars}", flush=True)
         await message.channel.send("⚠️ 価格を解析できませんでした（形式: ・商品名 → 数量箱/価格円）")
         return
+    global _session_changed_prices
     _save_prices(parsed)
+    _session_changed_prices.update(parsed)
+    print(f"[INFO] _session_changed_prices更新: {len(_session_changed_prices)}件（今回パース: {len(parsed)}件）", flush=True)
     lines = [f"✅ {len(parsed)}商品の価格を保存しました（東京・山口共通・次回も引き継ぎ）\n"]
     for name, price in parsed.items():
         lines.append(f"・{name}: {price:,}円")
