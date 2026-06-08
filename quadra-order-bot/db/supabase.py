@@ -380,14 +380,14 @@ def get_product_prices() -> dict:
 
 
 def get_today_product_prices() -> dict:
-    """今日更新された商品価格のみ取得 {商品名: 価格}"""
+    """今日価格が変更された商品のみ取得 {商品名: 価格}"""
     try:
         today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
         res = (
             get_client()
             .table("product_prices")
             .select("product_name, price")
-            .gte("updated_at", today.isoformat())
+            .gte("price_changed_at", today.isoformat())
             .execute()
         )
         return {row["product_name"]: row["price"] for row in (res.data or [])}
@@ -421,7 +421,7 @@ def save_product_sort_orders(sort_orders: dict) -> None:
 
 def save_product_prices(prices: dict, sort_orders: dict = None) -> None:
     """商品価格をSupabaseに一括upsert {商品名: 価格}
-    updated_at は価格が実際に変わった場合のみ更新する。
+    price_changed_at は価格が実際に変わった場合のみ更新する。
     """
     if not prices:
         return
@@ -431,9 +431,9 @@ def save_product_prices(prices: dict, sort_orders: dict = None) -> None:
         rows = []
         for name, price in prices.items():
             row = {"product_name": name, "price": price}
-            # 価格が変わった場合、または新規商品の場合のみ updated_at を更新
+            # 価格が変わった場合、または新規商品の場合のみ price_changed_at を更新
             if existing.get(name) != price:
-                row["updated_at"] = now
+                row["price_changed_at"] = now
             if sort_orders and name in sort_orders:
                 row["sort_order"] = sort_orders[name]
             rows.append(row)
