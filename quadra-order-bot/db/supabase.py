@@ -420,13 +420,20 @@ def save_product_sort_orders(sort_orders: dict) -> None:
 
 
 def save_product_prices(prices: dict, sort_orders: dict = None) -> None:
-    """商品価格をSupabaseに一括upsert {商品名: 価格}"""
+    """商品価格をSupabaseに一括upsert {商品名: 価格}
+    updated_at は価格が実際に変わった場合のみ更新する。
+    """
     if not prices:
         return
     try:
+        existing = get_product_prices()
+        now = datetime.now(timezone.utc).isoformat()
         rows = []
         for name, price in prices.items():
-            row = {"product_name": name, "price": price, "updated_at": datetime.now(timezone.utc).isoformat()}
+            row = {"product_name": name, "price": price}
+            # 価格が変わった場合、または新規商品の場合のみ updated_at を更新
+            if existing.get(name) != price:
+                row["updated_at"] = now
             if sort_orders and name in sort_orders:
                 row["sort_order"] = sort_orders[name]
             rows.append(row)
