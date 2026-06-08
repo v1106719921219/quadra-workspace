@@ -5,6 +5,7 @@ from typing import Optional, List, Dict
 import json
 import os
 import re
+import unicodedata
 from datetime import datetime
 
 import httpx
@@ -12,34 +13,109 @@ import discord
 import pytz
 
 from config import GOOGLE_APPS_SCRIPT_URL
-from db.supabase import get_product_prices, save_product_prices
+from db.supabase import get_product_prices, get_today_product_prices, save_product_prices, get_product_sort_orders
 from handlers.animac_price_sync import sync_prices_to_animac
+from handlers.domestic_price_sync import sync_prices_to_domestic
 
 
 class AnimacSyncConfirmView(discord.ui.View):
-    """Animac同期確認ボタン"""
+    """Animac同期確認ボタン（永続的View: Bot再起動後も動作）"""
 
-    def __init__(self, prices: dict):
-        super().__init__(timeout=300)  # 5分で失効
-        self.prices = prices
+    def __init__(self):
+        super().__init__(timeout=None)  # 永続的（タイムアウトなし）
 
-    @discord.ui.button(label="✅ Animacに同期する", style=discord.ButtonStyle.success)
+    @discord.ui.button(label="✅ Animacに同期する", style=discord.ButtonStyle.success, custom_id="animac_sync_all_prices")
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.defer()
-        synced = sync_prices_to_animac(self.prices)
-        if synced:
-            lines = [f"🔄 Animac同期完了 ({len(synced)}件):"]
-            for quadra_name, animac_name in synced:
-                price = self.prices[quadra_name]
-                lines.append(f"　・{quadra_name} → {animac_name}  仕入値 {price:,}円")
-            await interaction.edit_original_response(content=interaction.message.content + "\n" + "\n".join(lines), view=None)
-        else:
-            await interaction.edit_original_response(content=interaction.message.content + "\n⚠️ 同期できた商品がありませんでした", view=None)
+        try:
+            await interaction.response.defer()
+            import asyncio
 
-    @discord.ui.button(label="キャンセル", style=discord.ButtonStyle.secondary)
+            def _do_sync():
+                from db.supabase import get_animac_mapping
+                today_prices = get_today_product_prices()
+                syncable = {name: price for name, price in today_prices.items() if get_animac_mapping(name)}
+                synced = sync_prices_to_animac(syncable)
+                return syncable, synced
+
+            syncable, synced = await asyncio.to_thread(_do_sync)
+
+            # 元メッセージのボタンを消す
+            await interaction.edit_original_response(view=None)
+
+            # 結果を新しいメッセージで通知
+            if synced:
+                lines = [f"✅ **Animac同期完了（{len(synced)}件）**"]
+                for quadra_name, animac_name in synced:
+                    price = syncable.get(quadra_name, 0)
+                    lines.append(f"　・{quadra_name} → {animac_name}  仕入値 {price:,}円")
+                await interaction.followup.send("\n".join(lines))
+            else:
+                await interaction.followup.send("⚠️ 同期できた商品がありませんでした（マッピング未登録）")
+        except Exception as e:
+            print(f"[ERROR] Animac同期ボタン処理失敗: {e}", flush=True)
+            import traceback; traceback.print_exc()
+            try:
+                await interaction.followup.send(f"⚠️ 同期中にエラーが発生しました: {e}")
+            except Exception:
+                pass
+
+    @discord.ui.button(label="キャンセル", style=discord.ButtonStyle.secondary, custom_id="animac_sync_cancel")
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.defer()
-        await interaction.edit_original_response(content=interaction.message.content + "\n　　　　↳ 同期をキャンセルしました", view=None)
+        try:
+            await interaction.response.defer()
+            original_content = interaction.message.content if interaction.message else ""
+            await interaction.edit_original_response(content=original_content + "\n　　　　↳ 同期をキャンセルしました", view=None)
+        except Exception as e:
+            print(f"[ERROR] Animacキャンセルボタン処理失敗: {e}", flush=True)
+
+
+class DomesticSyncConfirmView(discord.ui.View):
+    """国内受注サイト同期確認ボタン（永続的View: Bot再起動後も動作）"""
+
+    def __init__(self):
+        super().__init__(timeout=None)
+
+    @discord.ui.button(label="🏠 国内サイトに同期する", style=discord.ButtonStyle.primary, custom_id="domestic_sync_all_prices")
+    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
+        try:
+            await interaction.response.defer()
+            import asyncio
+
+            today_prices = await asyncio.to_thread(get_today_product_prices)
+            sort_orders = await asyncio.to_thread(get_product_sort_orders)
+            result = await asyncio.to_thread(sync_prices_to_domestic, today_prices, sort_orders)
+
+            await interaction.edit_original_response(view=None)
+
+            if result and result.get("updated", 0) > 0:
+                lines = [f"✅ **国内サイト価格同期完了（{result['updated']}件）**"]
+                for d in result.get("details", []):
+                    lines.append(f"　・{d['name']}: {d['old_price']:,}円 → {d['new_price']:,}円")
+                if result.get("not_found"):
+                    lines.append(f"\n⚠️ 未登録商品（{len(result['not_found'])}件）: {', '.join(result['not_found'][:10])}")
+                await interaction.followup.send("\n".join(lines))
+            elif result and result.get("not_found"):
+                await interaction.followup.send(
+                    f"⚠️ 価格変更なし。未登録商品: {', '.join(result['not_found'][:10])}"
+                )
+            else:
+                await interaction.followup.send("✅ 価格に変更はありませんでした（全商品同額）")
+        except Exception as e:
+            print(f"[ERROR] 国内同期ボタン処理失敗: {e}", flush=True)
+            import traceback; traceback.print_exc()
+            try:
+                await interaction.followup.send(f"⚠️ 同期中にエラーが発生しました: {e}")
+            except Exception:
+                pass
+
+    @discord.ui.button(label="キャンセル", style=discord.ButtonStyle.secondary, custom_id="domestic_sync_cancel")
+    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+        try:
+            await interaction.response.defer()
+            original_content = interaction.message.content if interaction.message else ""
+            await interaction.edit_original_response(content=original_content + "\n　　　　↳ 国内同期をキャンセルしました", view=None)
+        except Exception as e:
+            print(f"[ERROR] 国内キャンセルボタン処理失敗: {e}", flush=True)
 
 JST = pytz.timezone("Asia/Tokyo")
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
@@ -117,8 +193,8 @@ def _load_units() -> Dict[str, str]:
         return {}
 
 
-def _save_prices(prices: Dict[str, int]):
-    save_product_prices(prices)
+def _save_prices(prices: Dict[str, int], sort_orders: Dict[str, int] = None):
+    save_product_prices(prices, sort_orders)
 
 
 def _load_footer(location: str) -> str:
@@ -178,16 +254,16 @@ def _format_location_pricelist(
     for item in filtered:
         name = item["name"]
         qty = max(item["available"], 0)
-        price = prices.get(name)
+        display_name = re.sub(r'【.*?】\s*', '', name).strip()
+        price = prices.get(name) or prices.get(display_name)
 
         if price and price > 0:
             price_str = f"{price}円"
         else:
             price_str = "円"
 
-        unit = units.get(name, "箱")
-        lines.append(f"・{name}　")
-        lines.append(f"{qty}{unit}/{price_str}\n")
+        lines.append(f"・{display_name}　")
+        lines.append(f"在庫{qty}/{price_str}\n")
 
     # フッター
     location_key = "tokyo" if "東京" in location_label else "yamaguchi"
@@ -221,7 +297,8 @@ async def handle(bot, message: discord.Message):
         return
 
     # 価格入り価格表が貼り付けられた → 全商品の価格を一括保存
-    if HAS_PRICE_RE.search(content) and "・" in content:
+    normalized = _normalize_text(content)
+    if HAS_PRICE_RE.search(normalized) and re.search(r"[・•·]", normalized):
         await _save_prices_from_pricelist(message, content)
         return
 
@@ -249,6 +326,20 @@ async def _generate_from_inventory(bot, message: discord.Message):
         prices = await asyncio.to_thread(_load_prices)
         units = _load_units()
 
+        # 在庫データの順番からsort_orderを生成して保存
+        all_items = data.get("tokyo", []) + data.get("yamaguchi", [])
+        seen = set()
+        sort_orders = {}
+        idx = 0
+        for item in all_items:
+            name = item["name"]
+            if name not in seen:
+                seen.add(name)
+                sort_orders[name] = idx
+                idx += 1
+        if sort_orders:
+            await asyncio.to_thread(_save_prices, prices, sort_orders)
+
         # 東京・山口それぞれ生成
         for location_key, location_label in [("tokyo", "東京"), ("yamaguchi", "山口")]:
             items = data.get(location_key, [])
@@ -260,6 +351,23 @@ async def _generate_from_inventory(bot, message: discord.Message):
                     chunk = text[:2000]
                     await message.channel.send(chunk)
                     text = text[2000:]
+
+        # 国内受注サイト・Animacへの同期ボタンを表示
+        from db.supabase import get_animac_mapping
+        today_prices = await asyncio.to_thread(get_today_product_prices)
+        syncable_animac = {name: p for name, p in today_prices.items() if get_animac_mapping(name)}
+        if syncable_animac:
+            animac_view = AnimacSyncConfirmView()
+            await message.channel.send(
+                f"🔄 Animacに {len(syncable_animac)}件の価格を同期できます",
+                view=animac_view,
+            )
+
+        domestic_view = DomesticSyncConfirmView()
+        await message.channel.send(
+            f"🏠 国内受注サイトに価格を同期できます（{len(today_prices)}件）",
+            view=domestic_view,
+        )
 
     except Exception as e:
         import traceback
@@ -277,29 +385,52 @@ async def _set_price(message: discord.Message, product_name: str, price: int):
     from db.supabase import get_animac_mapping
     mapping = get_animac_mapping(product_name)
     if mapping:
-        view = AnimacSyncConfirmView({product_name: price})
+        view = AnimacSyncConfirmView()
         msg += f"\n\n🔄 Animac同期可能: **{mapping['animac_product_name']}** → 仕入値 {price:,}円"
         await message.channel.send(msg, view=view)
     else:
         await message.channel.send(msg)
+
+    # 国内受注サイトへの同期ボタン
+    domestic_view = DomesticSyncConfirmView()
+    await message.channel.send(
+        f"🏠 国内受注サイトにも価格を同期できます（{product_name}: {price:,}円）",
+        view=domestic_view,
+    )
+
+
+def _normalize_text(text: str) -> str:
+    """全角英数字・記号を半角に正規化（商品名のカタカナ等は維持）"""
+    # NFKC正規化: 全角英数字→半角、全角スラッシュ／→/、等
+    text = unicodedata.normalize("NFKC", text)
+    # ゼロ幅スペース等の不可視文字を除去（コピペ時に混入しやすい）
+    text = re.sub(r"[\u200b\u200c\u200d\u2060\ufeff\u00ad\u200e\u200f\u202a-\u202e\u2066-\u2069]", "", text)
+    # 各種中黒・ビュレットを統一 (∙⦁⋅‧⸱ → ・)
+    text = re.sub(r"[\u2219\u2981\u22c5\u2027\u2e31]", "・", text)
+    return text
 
 
 def _parse_prices_from_pricelist(text: str) -> Dict[str, int]:
     """価格表テキストから商品名と価格を一括抽出。
     対応形式1（2行）:
       ・商品名
-      3箱/18500円
+      3箱/18500円  or  在庫20/16000円
     対応形式2（1行）:
-      ・商品名　3箱/18500円
+      ・商品名　3箱/18500円  or  ・商品名　在庫20/16000円
     """
+    text = _normalize_text(text)
     prices = {}
     lines = [l.strip() for l in text.split("\n") if l.strip()]
     i = 0
+    # 数量/価格 or 在庫数/価格 のパターン（在庫と数字の間のスペース許容）
+    _qty_price = r"(?:在庫\s*|)\d+\S*\s*/\s*([\d,]+)\s*円"
+    # 中黒の複数バリエーション対応 (・U+30FB, •U+2022, ·U+00B7)
+    _bullet = r"[・•·]"
     while i < len(lines):
         line = lines[i]
 
         # 1行形式: ・商品名　数量/価格円
-        single = re.match(r"^・(.+?)[\s　]+\d+\S+/([\d,]+)円", line)
+        single = re.match(r"^" + _bullet + r"(.+?)[\s　]+" + _qty_price, line)
         if single:
             name = single.group(1).strip()
             price = int(single.group(2).replace(",", ""))
@@ -309,10 +440,10 @@ def _parse_prices_from_pricelist(text: str) -> Dict[str, int]:
             continue
 
         # 2行形式の1行目: ・商品名
-        name_match = re.match(r"^・(.+?)[\s　]*$", line)
+        name_match = re.match(r"^" + _bullet + r"(.+?)[\s　]*$", line)
         if name_match and i + 1 < len(lines):
             name = name_match.group(1).strip()
-            price_match = re.match(r"^\d+\S+/([\d,]+)円", lines[i + 1])
+            price_match = re.match(r"^" + _qty_price, lines[i + 1])
             if price_match:
                 price = int(price_match.group(1).replace(",", ""))
                 if price > 0:
@@ -328,6 +459,12 @@ async def _save_prices_from_pricelist(message: discord.Message, text: str):
     """貼り付けられた価格表から全商品の価格を保存"""
     parsed = _parse_prices_from_pricelist(text)
     if not parsed:
+        # デバッグ: パース失敗時にメッセージ内容をログ出力（文字コード付き）
+        normalized = _normalize_text(text)
+        lines_debug = [l.strip() for l in normalized.split("\n") if l.strip()][:5]
+        for j, dl in enumerate(lines_debug):
+            chars = " ".join(f"U+{ord(c):04X}" for c in dl[:20])
+            print(f"⚠️ パース失敗 line[{j}] repr={repr(dl[:80])} chars={chars}", flush=True)
         await message.channel.send("⚠️ 価格を解析できませんでした（形式: ・商品名 → 数量箱/価格円）")
         return
     prices = _load_prices()
@@ -342,10 +479,17 @@ async def _save_prices_from_pricelist(message: discord.Message, text: str):
     syncable = {name: price for name, price in parsed.items() if get_animac_mapping(name)}
     if syncable:
         lines.append(f"\n🔄 Animac同期可能: {len(syncable)}件")
-        view = AnimacSyncConfirmView(syncable)
+        view = AnimacSyncConfirmView()
         await message.channel.send("\n".join(lines), view=view)
     else:
         await message.channel.send("\n".join(lines))
+
+    # 国内受注サイトへの同期ボタン
+    domestic_view = DomesticSyncConfirmView()
+    await message.channel.send(
+        f"🏠 国内受注サイトにも {len(parsed)}件の価格を同期できます",
+        view=domestic_view,
+    )
 
 
 # ---- 受注データ書き戻し ----

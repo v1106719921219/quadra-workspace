@@ -155,9 +155,9 @@ def get_latest_open_thread(server_id: str) -> Optional[dict]:
 
 
 def get_active_threads_for_today(thread_date: date) -> List[dict]:
-    """未確定スレッド（pending / in_progress / modified）を取得（直近30日）"""
+    """未確定スレッド（pending / in_progress / modified）を取得（直近2日）"""
     from datetime import timedelta
-    cutoff = (thread_date - timedelta(days=30)).isoformat()
+    cutoff = (thread_date - timedelta(days=2)).isoformat()
     res = (
         get_client()
         .table("discord_mirror_threads")
@@ -379,15 +379,44 @@ def get_product_prices() -> dict:
         return {}
 
 
-def save_product_prices(prices: dict) -> None:
+def get_today_product_prices() -> dict:
+    """今日更新された商品価格のみ取得 {商品名: 価格}"""
+    try:
+        today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+        res = (
+            get_client()
+            .table("product_prices")
+            .select("product_name, price")
+            .gte("updated_at", today.isoformat())
+            .execute()
+        )
+        return {row["product_name"]: row["price"] for row in (res.data or [])}
+    except Exception as e:
+        print(f"[ERROR] get_today_product_prices失敗: {e}", flush=True)
+        return {}
+
+
+def get_product_sort_orders() -> dict:
+    """全商品のsort_orderをSupabaseから取得 {商品名: sort_order}"""
+    try:
+        res = get_client().table("product_prices").select("product_name, sort_order").execute()
+        return {row["product_name"]: row.get("sort_order", 0) or 0 for row in (res.data or [])}
+    except Exception as e:
+        print(f"[ERROR] get_product_sort_orders失敗: {e}", flush=True)
+        return {}
+
+
+def save_product_prices(prices: dict, sort_orders: dict = None) -> None:
     """商品価格をSupabaseに一括upsert {商品名: 価格}"""
     if not prices:
         return
     try:
-        rows = [
-            {"product_name": name, "price": price, "updated_at": datetime.now(timezone.utc).isoformat()}
-            for name, price in prices.items()
-        ]
+        rows = []
+        for name, price in prices.items():
+            row = {"product_name": name, "price": price, "updated_at": datetime.now(timezone.utc).isoformat()}
+            if sort_orders and name in sort_orders:
+                row["sort_order"] = sort_orders[name]
+            rows.append(row)
         get_client().table("product_prices").upsert(rows, on_conflict="product_name").execute()
     except Exception as e:
         print(f"[ERROR] save_product_prices失敗: {e}", flush=True)
@@ -445,5 +474,45 @@ def cleanup_old_processed_messages() -> None:
     cutoff = (datetime.now(timezone.utc) - timedelta(hours=1)).isoformat()
     try:
         get_client().table("processed_messages").delete().lt("processed_at", cutoff).execute()
+    except Exception:
+        pass
+
+
+# --- discord_message_mirrors ---
+
+def save_message_mirror(source_message_id: str, mirror_message_id: str, thread_id: str) -> None:
+    """元メッセージID→ミラーメッセージIDのマッピングを保存"""
+    try:
+        get_client().table("discord_message_mirrors").upsert({
+            "source_message_id": source_message_id,
+            "mirror_message_id": mirror_message_id,
+            "thread_id": thread_id,
+        }, on_conflict="source_message_id").execute()
+    except Exception as e:
+        print(f"[ERROR] save_message_mirror失敗: {e}", flush=True)
+
+
+def get_message_mirror(source_message_id: str) -> Optional[dict]:
+    """元メッセージIDからミラー情報を取得"""
+    try:
+        res = (
+            get_client()
+            .table("discord_message_mirrors")
+            .select("*")
+            .eq("source_message_id", source_message_id)
+            .execute()
+        )
+        return res.data[0] if res.data else None
+    except Exception as e:
+        print(f"[ERROR] get_message_mirror失敗: {e}", flush=True)
+        return None
+
+
+def cleanup_old_message_mirrors() -> None:
+    """24時間以上前のメッセージミラーマッピングを削除"""
+    from datetime import timedelta
+    cutoff = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
+    try:
+        get_client().table("discord_message_mirrors").delete().lt("created_at", cutoff).execute()
     except Exception:
         pass
