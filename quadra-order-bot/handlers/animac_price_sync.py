@@ -61,6 +61,11 @@ def sync_price_to_animac(quadra_name: str, price: int) -> Optional[str]:
             if current.get("is_ask_price"):
                 print(f"[INFO] Animac価格同期スキップ(Each/ASK): {quadra_name} — ASK設定中のため同期しません", flush=True)
                 return None
+            # 価格が同じなら更新不要
+            current_cost = int(float(current.get("cost_price") or 0))
+            if current_cost == price:
+                print(f"[INFO] Animac価格同期スキップ(Each/同額): {quadra_name} — 仕入値={price:,}円 変更なし", flush=True)
+                return None
             # Each商品: cost_price / unit_price を更新
             profit = float(current.get("profit") or 0)
             unit_price = price + profit
@@ -75,6 +80,11 @@ def sync_price_to_animac(quadra_name: str, price: int) -> Optional[str]:
             # ASKに設定されている場合は同期をスキップ
             if current.get("is_ask_price_box"):
                 print(f"[INFO] Animac価格同期スキップ(BOX/ASK): {quadra_name} — ASK設定中のため同期しません", flush=True)
+                return None
+            # 価格が同じなら更新不要
+            current_box_cost = int(float(current.get("box_cost_price") or 0))
+            if current_box_cost == price:
+                print(f"[INFO] Animac価格同期スキップ(BOX/同額): {quadra_name} — 仕入値={price:,}円 変更なし", flush=True)
                 return None
             # BOX商品: box_cost_price / box_price を更新
             profit = float(current.get("box_profit") or 0)
