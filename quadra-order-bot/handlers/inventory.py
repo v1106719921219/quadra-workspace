@@ -338,7 +338,8 @@ async def _generate_from_inventory(bot, message: discord.Message):
                 sort_orders[name] = idx
                 idx += 1
         if sort_orders:
-            await asyncio.to_thread(_save_prices, prices, sort_orders)
+            from db.supabase import save_product_sort_orders
+            await asyncio.to_thread(save_product_sort_orders, sort_orders)
 
         # 東京・山口それぞれ生成
         for location_key, location_label in [("tokyo", "東京"), ("yamaguchi", "山口")]:
@@ -467,9 +468,7 @@ async def _save_prices_from_pricelist(message: discord.Message, text: str):
             print(f"⚠️ パース失敗 line[{j}] repr={repr(dl[:80])} chars={chars}", flush=True)
         await message.channel.send("⚠️ 価格を解析できませんでした（形式: ・商品名 → 数量箱/価格円）")
         return
-    prices = _load_prices()
-    prices.update(parsed)
-    _save_prices(prices)
+    _save_prices(parsed)
     lines = [f"✅ {len(parsed)}商品の価格を保存しました（東京・山口共通・次回も引き継ぎ）\n"]
     for name, price in parsed.items():
         lines.append(f"・{name}: {price:,}円")

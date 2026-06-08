@@ -406,6 +406,19 @@ def get_product_sort_orders() -> dict:
         return {}
 
 
+def save_product_sort_orders(sort_orders: dict) -> None:
+    """sort_orderのみ更新（updated_atは変更しない）"""
+    if not sort_orders:
+        return
+    try:
+        for name, order in sort_orders.items():
+            get_client().table("product_prices").update(
+                {"sort_order": order}
+            ).eq("product_name", name).execute()
+    except Exception as e:
+        print(f"[ERROR] save_product_sort_orders失敗: {e}", flush=True)
+
+
 def save_product_prices(prices: dict, sort_orders: dict = None) -> None:
     """商品価格をSupabaseに一括upsert {商品名: 価格}"""
     if not prices:
