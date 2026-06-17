@@ -205,7 +205,7 @@ export function StaffBoardClient({
       </div>
 
       {/* ボード */}
-      <div className="flex-1 overflow-auto rounded border bg-white shadow">
+      <div className="flex-1 overflow-auto rounded border bg-white shadow" style={{ WebkitOverflowScrolling: "touch" }}>
         <ReadOnlyBoard
           dates={displayDates}
           jobSites={activeSites}
@@ -236,10 +236,10 @@ function ReadOnlyBoard({
 
   return (
     <table className="border-collapse text-sm" style={{ minWidth: `${LABEL_W + dates.length * CELL_W}px` }}>
-      <thead>
+      <thead className="sticky top-0 z-30">
         <tr className="border-b">
           <th
-            className="sticky left-0 z-20 bg-gray-100 border-r p-1 text-left"
+            className="sticky left-0 z-40 bg-gray-100 border-r p-1 text-left"
             style={{ width: `${LABEL_W}px`, minWidth: `${LABEL_W}px` }}
           >
             <span className="text-[10px] text-gray-400">会社 / 現場</span>
