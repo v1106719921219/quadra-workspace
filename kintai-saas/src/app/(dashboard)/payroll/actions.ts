@@ -28,7 +28,7 @@ export async function calculateMonthlyPayroll(year: number, month: number): Prom
 
   const { data: records, error: recordsError } = await supabase
     .from("time_records")
-    .select("id, employee_id, work_date, clock_in, clock_out, break_minutes, is_driver, work_types(name, daily_allowance, hourly_rate)")
+    .select("id, employee_id, work_date, clock_in, clock_out, break_minutes, is_driver, actual_hours_override, work_types(name, daily_allowance, hourly_rate)")
     .gte("work_date", startDate)
     .lt("work_date", endDateForLt)
     .not("clock_out", "is", null)
@@ -83,6 +83,7 @@ export async function calculateMonthlyPayroll(year: number, month: number): Prom
       clock_out: r.clock_out,
       break_minutes: r.break_minutes,
       is_driver: r.is_driver,
+      actual_hours_override: r.actual_hours_override ?? null,
       work_types: Array.isArray(r.work_types) ? r.work_types[0] : r.work_types,
       site_daily_allowance: siteInfo?.daily_allowance ?? 0,
       site_hourly_rate: siteInfo?.hourly_rate ?? null,

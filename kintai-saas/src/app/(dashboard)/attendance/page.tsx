@@ -22,11 +22,17 @@ export default async function AttendancePage() {
     .eq("is_active", true)
     .order("sort_order");
 
+  const { data: settings } = await supabase
+    .from("tenant_settings")
+    .select("time_rounding_minutes")
+    .single();
+
   return (
     <AttendanceClient
       employees={employees || []}
       workTypes={workTypes || []}
       jobSites={jobSites || []}
+      roundingMinutes={settings?.time_rounding_minutes ?? 15}
     />
   );
 }

@@ -17,7 +17,7 @@ export async function getTimeRecordsForPeriod(employeeId: string, startDate: str
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("time_records")
-    .select("id, work_date, clock_in, clock_out, break_minutes, is_driver, work_types(name), job_site_id, job_sites(name, short_name)")
+    .select("id, work_date, clock_in, clock_out, break_minutes, is_driver, work_types(name), job_site_id, job_sites(name, short_name), actual_hours_override")
     .eq("employee_id", employeeId)
     .gte("work_date", startDate)
     .lte("work_date", endDate)

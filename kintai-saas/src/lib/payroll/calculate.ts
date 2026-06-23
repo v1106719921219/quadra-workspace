@@ -87,10 +87,16 @@ function calculateDailyWork(record: TimeRecordForPayroll, roundingMinutes: numbe
   const clockIn = new Date(record.clock_in);
   const clockOut = new Date(record.clock_out);
 
-  // 15分刻み丸め: 出勤は切り上げ、退勤は切り下げ
-  const roundedIn = roundUpToInterval(clockIn, roundingMinutes);
-  const roundedOut = roundDownToInterval(clockOut, roundingMinutes);
-  const totalMinutes = (roundedOut.getTime() - roundedIn.getTime()) / 60000 - record.break_minutes;
+  let totalMinutes: number;
+  if (record.actual_hours_override != null) {
+    // 手動上書き値を使用
+    totalMinutes = record.actual_hours_override * 60;
+  } else {
+    // 15分刻み丸め: 出勤は切り上げ、退勤は切り下げ
+    const roundedIn = roundUpToInterval(clockIn, roundingMinutes);
+    const roundedOut = roundDownToInterval(clockOut, roundingMinutes);
+    totalMinutes = (roundedOut.getTime() - roundedIn.getTime()) / 60000 - record.break_minutes;
+  }
 
   if (totalMinutes <= 0) return null;
 

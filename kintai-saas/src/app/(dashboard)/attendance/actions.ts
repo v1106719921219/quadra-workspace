@@ -45,6 +45,7 @@ export async function updateTimeRecord(
     work_type_id?: string;
     job_site_id?: string | null;
     note?: string;
+    actual_hours_override?: number | null;
   }
 ) {
   const supabase = await createClient();

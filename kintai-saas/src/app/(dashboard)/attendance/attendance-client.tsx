@@ -50,6 +50,7 @@ interface TimeRecord {
   clock_out: string | null;
   break_minutes: number;
   note: string | null;
+  actual_hours_override: number | null;
   employees: { name: string; employee_type: string };
   work_types: { name: string; daily_allowance: number };
   job_sites: { name: string; short_name: string | null } | null;
@@ -75,22 +76,34 @@ function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Tokyo" });
 }
 
+function roundUp15(date: Date): Date {
+  const ms = 15 * 60 * 1000;
+  return new Date(Math.ceil(date.getTime() / ms) * ms);
+}
+function roundDown15(date: Date): Date {
+  const ms = 15 * 60 * 1000;
+  return new Date(Math.floor(date.getTime() / ms) * ms);
+}
+
 function calcWorkHours(clockIn: string, clockOut: string | null, breakMinutes: number) {
   if (!clockOut) return null;
-  const diff = (new Date(clockOut).getTime() - new Date(clockIn).getTime()) / 1000 / 60;
-  const workMinutes = diff - breakMinutes;
-  const hours = Math.max(0, workMinutes / 60);
-  return Math.round(hours * 4) / 4; // 0.25h刻みに丸め
+  const roundedIn = roundUp15(new Date(clockIn));
+  const roundedOut = roundDown15(new Date(clockOut));
+  const diffMinutes = (roundedOut.getTime() - roundedIn.getTime()) / 60000 - breakMinutes;
+  const hours = Math.max(0, diffMinutes / 60);
+  return Math.round(hours * 4) / 4;
 }
 
 export function AttendanceClient({
   employees,
   workTypes,
   jobSites,
+  roundingMinutes = 15,
 }: {
   employees: Employee[];
   workTypes: WorkType[];
   jobSites: JobSite[];
+  roundingMinutes?: number;
 }) {
   const today = new Date().toISOString().split("T")[0];
   const [date, setDate] = useState(today);
@@ -172,6 +185,10 @@ export function AttendanceClient({
       const clockOutTime = formData.get("clock_out_time") as string;
       const breakMin = parseInt(formData.get("break_minutes") as string) || 0;
 
+      const useOverride = formData.get("use_override") === "on";
+      const overrideVal = formData.get("actual_hours_override") as string;
+      const actualHoursOverride = useOverride && overrideVal ? parseFloat(overrideVal) : null;
+
       const jobSiteId = formData.get("job_site_id") as string;
       await updateTimeRecord(editRecord.id, {
         clock_in: new Date(`${editRecord.work_date}T${clockInTime}:00+09:00`).toISOString(),
@@ -179,6 +196,7 @@ export function AttendanceClient({
         break_minutes: breakMin,
         work_type_id: formData.get("work_type_id") as string,
         job_site_id: jobSiteId || null,
+        actual_hours_override: actualHoursOverride,
       });
       toast.success("記録を更新しました");
       setEditRecord(null);
@@ -213,18 +231,16 @@ export function AttendanceClient({
     return { display: `${m}/${day}（${dow}）`, dayOfWeek: d.getDay() };
   }
 
-  function calcOvertimeHours(clockIn: string, clockOut: string | null, breakMinutes: number) {
+  function calcRoundedWorkMinutes(clockIn: string, clockOut: string | null, breakMinutes: number) {
     if (!clockOut) return 0;
-    const diff = (new Date(clockOut).getTime() - new Date(clockIn).getTime()) / 1000 / 60;
-    const workMinutes = diff - breakMinutes;
-    const overtimeMinutes = Math.max(0, workMinutes - 480); // 8時間=480分超過分
-    return Math.round(overtimeMinutes / 60 * 4) / 4;
+    const roundedIn = roundUp15(new Date(clockIn));
+    const roundedOut = roundDown15(new Date(clockOut));
+    return Math.max(0, (roundedOut.getTime() - roundedIn.getTime()) / 60000 - breakMinutes);
   }
 
   function formatHoursMinutes(clockIn: string, clockOut: string | null, breakMinutes: number) {
     if (!clockOut) return "-";
-    const diff = (new Date(clockOut).getTime() - new Date(clockIn).getTime()) / 1000 / 60;
-    const workMinutes = Math.max(0, diff - breakMinutes);
+    const workMinutes = calcRoundedWorkMinutes(clockIn, clockOut, breakMinutes);
     const h = Math.floor(workMinutes / 60);
     const m = Math.round(workMinutes % 60);
     return `${h}:${String(m).padStart(2, "0")}`;
@@ -232,8 +248,7 @@ export function AttendanceClient({
 
   function formatOvertimeHM(clockIn: string, clockOut: string | null, breakMinutes: number) {
     if (!clockOut) return "-";
-    const diff = (new Date(clockOut).getTime() - new Date(clockIn).getTime()) / 1000 / 60;
-    const workMinutes = diff - breakMinutes;
+    const workMinutes = calcRoundedWorkMinutes(clockIn, clockOut, breakMinutes);
     const overtimeMinutes = Math.max(0, workMinutes - 480);
     if (overtimeMinutes <= 0) return "-";
     const h = Math.floor(overtimeMinutes / 60);
@@ -249,10 +264,15 @@ export function AttendanceClient({
     filteredMonthRecords.forEach((r) => {
       uniqueDates.add(r.work_date);
       if (r.clock_out) {
-        const diff = (new Date(r.clock_out).getTime() - new Date(r.clock_in).getTime()) / 1000 / 60;
-        const work = Math.max(0, diff - r.break_minutes);
-        totalMinutes += work;
-        overtimeMinutes += Math.max(0, work - 480);
+        if (r.actual_hours_override != null) {
+          const overrideMin = r.actual_hours_override * 60;
+          totalMinutes += overrideMin;
+          overtimeMinutes += Math.max(0, overrideMin - 480);
+        } else {
+          const work = calcRoundedWorkMinutes(r.clock_in, r.clock_out, r.break_minutes);
+          totalMinutes += work;
+          overtimeMinutes += Math.max(0, work - 480);
+        }
       }
     });
     return {
@@ -324,7 +344,9 @@ export function AttendanceClient({
                 records.map((r) => {
                   const emp = r.employees as unknown as { name: string };
                   const js = r.job_sites as { name: string; short_name: string | null } | null;
-                  const hours = calcWorkHours(r.clock_in, r.clock_out, r.break_minutes);
+                  const autoHours = calcWorkHours(r.clock_in, r.clock_out, r.break_minutes);
+                  const hours = r.actual_hours_override != null ? r.actual_hours_override : autoHours;
+                  const isOverridden = r.actual_hours_override != null;
                   return (
                     <TableRow key={r.id}>
                       <TableCell className="font-medium">{emp.name}</TableCell>
@@ -335,7 +357,12 @@ export function AttendanceClient({
                       </TableCell>
                       <TableCell className="hidden sm:table-cell">{r.break_minutes}分</TableCell>
                       <TableCell>
-                        {hours !== null ? `${hours.toFixed(2)}h` : "-"}
+                        {hours !== null ? (
+                          <span className={isOverridden ? "text-blue-600 font-medium" : ""}>
+                            {Number(hours).toFixed(2)}h
+                            {isOverridden && <span className="text-[10px] ml-0.5">✎</span>}
+                          </span>
+                        ) : "-"}
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-1">
@@ -446,6 +473,10 @@ export function AttendanceClient({
                   const { display, dayOfWeek } = formatDateWithDay(r.work_date);
                   const overtime = formatOvertimeHM(r.clock_in, r.clock_out, r.break_minutes);
                   const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+                  const isOverridden = r.actual_hours_override != null;
+                  const displayHours = isOverridden
+                    ? (() => { const h = Math.floor(r.actual_hours_override!); const m = Math.round((r.actual_hours_override! - h) * 60); return `${h}:${String(m).padStart(2, "0")}`; })()
+                    : formatHoursMinutes(r.clock_in, r.clock_out, r.break_minutes);
                   return (
                     <TableRow key={r.id} className={isWeekend ? "bg-muted/30" : ""}>
                       <TableCell className="font-medium whitespace-nowrap">{emp.name}</TableCell>
@@ -457,7 +488,7 @@ export function AttendanceClient({
                         {r.clock_out ? formatTime(r.clock_out) : <Badge variant="default" className="bg-green-500">出勤中</Badge>}
                       </TableCell>
                       <TableCell>{r.break_minutes > 0 ? `${Math.floor(r.break_minutes / 60)}:${String(r.break_minutes % 60).padStart(2, "0")}` : "0:00"}</TableCell>
-                      <TableCell>{formatHoursMinutes(r.clock_in, r.clock_out, r.break_minutes)}</TableCell>
+                      <TableCell className={isOverridden ? "text-blue-600 font-medium" : ""}>{displayHours}{isOverridden && <span className="text-[10px] ml-0.5">✎</span>}</TableCell>
                       <TableCell className={overtime !== "-" ? "text-red-500 font-medium" : ""}>
                         {overtime}
                       </TableCell>
@@ -592,6 +623,32 @@ export function AttendanceClient({
               <div className="space-y-2">
                 <Label>休憩（分）</Label>
                 <Input name="break_minutes" type="number" defaultValue={editRecord.break_minutes} />
+              </div>
+              <div className="space-y-2 border rounded-lg p-3 bg-muted/30">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    name="use_override"
+                    id="use_override"
+                    defaultChecked={editRecord.actual_hours_override != null}
+                    className="h-4 w-4"
+                  />
+                  <Label htmlFor="use_override" className="text-sm font-medium">実働時間を手動で設定</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Input
+                    name="actual_hours_override"
+                    type="number"
+                    step="0.25"
+                    min="0"
+                    max="24"
+                    placeholder="例: 7.5"
+                    defaultValue={editRecord.actual_hours_override ?? ""}
+                    className="w-[120px]"
+                  />
+                  <span className="text-sm text-muted-foreground">時間（0.25刻み）</span>
+                </div>
+                <p className="text-xs text-muted-foreground">チェックを入れると自動計算を上書きします</p>
               </div>
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setEditRecord(null)}>キャンセル</Button>

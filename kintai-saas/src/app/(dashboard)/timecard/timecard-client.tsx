@@ -35,6 +35,7 @@ interface TimeRecord {
   clock_out: string | null;
   break_minutes: number;
   is_driver: boolean;
+  actual_hours_override: number | null;
   work_types: { name: string } | null;
   job_site_id: string | null;
   job_sites: { name: string; short_name: string | null } | null;
@@ -117,17 +118,22 @@ export function TimecardClient({
           const clockOut = new Date(record.clock_out);
           clockOutStr = formatTimeJST(clockOut);
 
-          // 15分丸め
-          const roundedIn = roundUpToInterval(clockIn, roundingMinutes);
-          const roundedOut = roundDownToInterval(clockOut, roundingMinutes);
-          const diffMin = (roundedOut.getTime() - roundedIn.getTime()) / 60000 - record.break_minutes;
-          workHours = Math.max(0, diffMin / 60);
-          // 正社員は出勤すれば一律8時間扱い
-          if (isFullTime) {
-            workHours = 8;
+          if (record.actual_hours_override != null) {
+            // 手動上書き値を使用
+            workHours = record.actual_hours_override;
+          } else {
+            // 15分丸め
+            const roundedIn = roundUpToInterval(clockIn, roundingMinutes);
+            const roundedOut = roundDownToInterval(clockOut, roundingMinutes);
+            const diffMin = (roundedOut.getTime() - roundedIn.getTime()) / 60000 - record.break_minutes;
+            workHours = Math.max(0, diffMin / 60);
+            // 正社員は出勤すれば一律8時間扱い
+            if (isFullTime) {
+              workHours = 8;
+            }
+            // 0.25刻みに丸め
+            workHours = Math.round(workHours * 4) / 4;
           }
-          // 0.25刻みに丸め
-          workHours = Math.round(workHours * 4) / 4;
         }
 
         breakStr = record.break_minutes > 0 ? formatBreak(record.break_minutes) : "";
@@ -150,6 +156,7 @@ export function TimecardClient({
         cumHours,
         siteName,
         isDriver: record?.is_driver || false,
+        isOverridden: record?.actual_hours_override != null,
       };
     });
   }, [allDates, recordMap, roundingMinutes, isFullTime]);
@@ -238,8 +245,8 @@ export function TimecardClient({
                       {day.isOff ? "" : day.clockOut || "-"}
                     </td>
                     <td className="p-2 text-right font-mono">{day.breakTime}</td>
-                    <td className="p-2 text-right font-mono">
-                      {day.isOff ? (isSunday || isSaturday ? "休" : "") : day.workHours > 0 ? `${day.workHours.toFixed(2)}` : "-"}
+                    <td className={`p-2 text-right font-mono ${day.isOverridden ? "text-blue-600 font-medium" : ""}`}>
+                      {day.isOff ? (isSunday || isSaturday ? "休" : "") : day.workHours > 0 ? `${day.workHours.toFixed(2)}${day.isOverridden ? "✎" : ""}` : "-"}
                     </td>
                     <td className="p-2 text-right font-mono font-medium">
                       {day.cumHours > 0 ? `${day.cumHours.toFixed(2)}` : ""}

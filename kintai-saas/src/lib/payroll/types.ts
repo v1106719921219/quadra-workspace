@@ -24,6 +24,7 @@ export interface TimeRecordForPayroll {
   clock_in: string;
   clock_out: string | null;
   break_minutes: number;
+  actual_hours_override: number | null;
   work_types: { name: string; daily_allowance: number; hourly_rate: number | null };
   is_driver: boolean;
   // 配置ボード（ホワイトボード）から取得した現場情報
