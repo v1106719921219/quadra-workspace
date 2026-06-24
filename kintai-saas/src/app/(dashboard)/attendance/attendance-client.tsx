@@ -37,6 +37,7 @@ import {
   updateTimeRecord,
 } from "./actions";
 import { toast } from "sonner";
+import { roundUpToInterval, roundDownToInterval } from "@/lib/time-utils";
 import { CorrectionApprovalList } from "@/components/correction-approval-list";
 import { CorrectionRequestDialog } from "@/components/correction-request-dialog";
 
@@ -76,19 +77,10 @@ function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Tokyo" });
 }
 
-function roundUp15(date: Date): Date {
-  const ms = 15 * 60 * 1000;
-  return new Date(Math.ceil(date.getTime() / ms) * ms);
-}
-function roundDown15(date: Date): Date {
-  const ms = 15 * 60 * 1000;
-  return new Date(Math.floor(date.getTime() / ms) * ms);
-}
-
-function calcWorkHours(clockIn: string, clockOut: string | null, breakMinutes: number) {
+function calcWorkHours(clockIn: string, clockOut: string | null, breakMinutes: number, roundingMin: number = 15) {
   if (!clockOut) return null;
-  const roundedIn = roundUp15(new Date(clockIn));
-  const roundedOut = roundDown15(new Date(clockOut));
+  const roundedIn = roundUpToInterval(new Date(clockIn), roundingMin);
+  const roundedOut = roundDownToInterval(new Date(clockOut), roundingMin);
   const diffMinutes = (roundedOut.getTime() - roundedIn.getTime()) / 60000 - breakMinutes;
   const hours = Math.max(0, diffMinutes / 60);
   return Math.round(hours * 4) / 4;
@@ -233,8 +225,8 @@ export function AttendanceClient({
 
   function calcRoundedWorkMinutes(clockIn: string, clockOut: string | null, breakMinutes: number) {
     if (!clockOut) return 0;
-    const roundedIn = roundUp15(new Date(clockIn));
-    const roundedOut = roundDown15(new Date(clockOut));
+    const roundedIn = roundUpToInterval(new Date(clockIn), roundingMinutes);
+    const roundedOut = roundDownToInterval(new Date(clockOut), roundingMinutes);
     return Math.max(0, (roundedOut.getTime() - roundedIn.getTime()) / 60000 - breakMinutes);
   }
 
@@ -344,7 +336,7 @@ export function AttendanceClient({
                 records.map((r) => {
                   const emp = r.employees as unknown as { name: string };
                   const js = r.job_sites as { name: string; short_name: string | null } | null;
-                  const autoHours = calcWorkHours(r.clock_in, r.clock_out, r.break_minutes);
+                  const autoHours = calcWorkHours(r.clock_in, r.clock_out, r.break_minutes, roundingMinutes);
                   const hours = r.actual_hours_override != null ? r.actual_hours_override : autoHours;
                   const isOverridden = r.actual_hours_override != null;
                   return (
