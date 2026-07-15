@@ -60,30 +60,31 @@ function buildHolidaysForYear(year: number): Map<string, string> {
   const holidays = getFixedHolidays(year);
 
   // 振替休日: 祝日が日曜の場合、翌日（月曜）以降の最初の平日
+  // 実行環境のTZに依存しないようUTCベースで計算（"YYYY-MM-DD"はUTC深夜0時としてパース）
   const sortedDates = Array.from(holidays.keys()).sort();
   for (const dateStr of sortedDates) {
-    const d = new Date(dateStr + "T00:00:00+09:00");
-    if (d.getDay() === 0) {
-      let substitute = new Date(d);
-      substitute.setDate(substitute.getDate() + 1);
-      while (holidays.has(formatDateStr(substitute))) {
-        substitute.setDate(substitute.getDate() + 1);
+    const d = new Date(dateStr + "T00:00:00Z");
+    if (d.getUTCDay() === 0) {
+      const substitute = new Date(d);
+      substitute.setUTCDate(substitute.getUTCDate() + 1);
+      while (holidays.has(formatDateStrUTC(substitute))) {
+        substitute.setUTCDate(substitute.getUTCDate() + 1);
       }
-      holidays.set(formatDateStr(substitute), "振替休日");
+      holidays.set(formatDateStrUTC(substitute), "振替休日");
     }
   }
 
   // 国民の休日: 祝日に挟まれた平日
   const allDates = Array.from(holidays.keys()).sort();
   for (let i = 0; i < allDates.length - 1; i++) {
-    const current = new Date(allDates[i] + "T00:00:00+09:00");
-    const next = new Date(allDates[i + 1] + "T00:00:00+09:00");
+    const current = new Date(allDates[i] + "T00:00:00Z");
+    const next = new Date(allDates[i + 1] + "T00:00:00Z");
     const diff = (next.getTime() - current.getTime()) / (1000 * 60 * 60 * 24);
     if (diff === 2) {
       const between = new Date(current);
-      between.setDate(between.getDate() + 1);
-      const betweenStr = formatDateStr(between);
-      if (!holidays.has(betweenStr) && between.getDay() !== 0) {
+      between.setUTCDate(between.getUTCDate() + 1);
+      const betweenStr = formatDateStrUTC(between);
+      if (!holidays.has(betweenStr) && between.getUTCDay() !== 0) {
         holidays.set(betweenStr, "国民の休日");
       }
     }
@@ -96,6 +97,13 @@ function formatDateStr(d: Date): string {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function formatDateStrUTC(d: Date): string {
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
 }
 
