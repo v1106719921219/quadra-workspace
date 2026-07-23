@@ -166,6 +166,27 @@ export function TimecardClient({
   // 残業合計（1日8時間超過分）
   const overtimeHours = dailyData.reduce((sum, d) => sum + Math.max(0, d.workHours - 8), 0);
 
+  // 現場別内訳（平日は現場ごと、土日勤務は「休日」として集計）
+  const siteBreakdown = useMemo(() => {
+    const map = new Map<string, { hours: number; days: number }>();
+    let holidayHours = 0;
+    let holidayDays = 0;
+    dailyData.forEach((d) => {
+      if (d.isOff || d.workHours <= 0) return;
+      if (d.dayOfWeek === 0 || d.dayOfWeek === 6) {
+        holidayHours += d.workHours;
+        holidayDays += 1;
+      } else {
+        const key = d.siteName || "通常勤務";
+        const cur = map.get(key) || { hours: 0, days: 0 };
+        cur.hours += d.workHours;
+        cur.days += 1;
+        map.set(key, cur);
+      }
+    });
+    return { sites: [...map.entries()], holidayHours, holidayDays };
+  }, [dailyData]);
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -258,6 +279,18 @@ export function TimecardClient({
             )}
           </tbody>
           <tfoot>
+            <tr className="bg-muted/30 border-t print:bg-gray-50">
+              <td colSpan={8} className="p-2 text-right text-xs">
+                {siteBreakdown.sites.map(([name, v]) => (
+                  <span key={name} className="ml-3 whitespace-nowrap">
+                    {name}: {v.days}日 {v.hours.toFixed(2)}h
+                  </span>
+                ))}
+                <span className="ml-3 whitespace-nowrap">
+                  休日: {siteBreakdown.holidayDays}日 {siteBreakdown.holidayHours.toFixed(2)}h
+                </span>
+              </td>
+            </tr>
             <tr className="bg-muted/50 font-bold border-t print:bg-gray-100">
               <td colSpan={6} className="p-2 text-right">
                 出勤日数: {workDays}日 ・ 残業: {overtimeHours.toFixed(2)}h
