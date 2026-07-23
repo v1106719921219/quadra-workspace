@@ -39,6 +39,7 @@ import {
   getWeeklyDayOffRequests,
 } from "./actions";
 import { toast } from "sonner";
+import { jstToday, jstDayOfWeek, addDaysToDateStr } from "@/lib/time-utils";
 
 interface Employee {
   id: string;
@@ -73,17 +74,16 @@ interface ShiftTemplate {
   work_types: { name: string };
 }
 
-// 週の月曜日を取得
-function getMonday(d: Date): Date {
-  const date = new Date(d);
-  const day = date.getDay();
+// 週の月曜日を取得（JST・TZ非依存）
+function getMonday(dateStr: string): string {
+  const day = jstDayOfWeek(dateStr);
   const diff = day === 0 ? -6 : 1 - day;
-  date.setDate(date.getDate() + diff);
-  return date;
+  return addDaysToDateStr(dateStr, diff);
 }
 
-function formatDate(d: Date): string {
-  return d.toISOString().split("T")[0];
+// "YYYY-MM-DD" → "M/D"
+function formatMD(dateStr: string): string {
+  return `${Number(dateStr.slice(5, 7))}/${Number(dateStr.slice(8, 10))}`;
 }
 
 const DAY_LABELS = ["月", "火", "水", "木", "金", "土", "日"];
@@ -108,7 +108,7 @@ export function ShiftsClient({
   workTypes: WorkType[];
   shiftTemplates: ShiftTemplate[];
 }) {
-  const [weekStart, setWeekStart] = useState(() => getMonday(new Date()));
+  const [weekStart, setWeekStart] = useState(() => getMonday(jstToday()));
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [dayOffRequests, setDayOffRequests] = useState<{employee_id: string; request_date: string}[]>([]);
   const [loading, setLoading] = useState(false);
@@ -128,21 +128,16 @@ export function ShiftsClient({
   const [dragOverCell, setDragOverCell] = useState<string | null>(null);
   const loadingSeq = useRef(0);
 
-  const weekDates = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(weekStart);
-    d.setDate(d.getDate() + i);
-    return d;
-  });
+  const weekDates = Array.from({ length: 7 }, (_, i) => addDaysToDateStr(weekStart, i));
 
   const loadShifts = useCallback(async () => {
     const seq = ++loadingSeq.current;
     setLoading(true);
     try {
-      const endDate = new Date(weekStart);
-      endDate.setDate(endDate.getDate() + 6);
+      const endDate = addDaysToDateStr(weekStart, 6);
       const [shiftsResult, dayOffResult] = await Promise.allSettled([
-        getWeeklyShifts(formatDate(weekStart)),
-        getWeeklyDayOffRequests(formatDate(weekStart), formatDate(endDate)),
+        getWeeklyShifts(weekStart),
+        getWeeklyDayOffRequests(weekStart, endDate),
       ]);
       // 古いリクエストの結果は無視
       if (seq !== loadingSeq.current) return;
@@ -177,11 +172,7 @@ export function ShiftsClient({
   }
 
   function changeWeek(delta: number) {
-    setWeekStart((prev) => {
-      const d = new Date(prev);
-      d.setDate(d.getDate() + delta * 7);
-      return d;
-    });
+    setWeekStart((prev) => addDaysToDateStr(prev, delta * 7));
   }
 
   async function handleSave(e: React.FormEvent<HTMLFormElement>) {
@@ -225,7 +216,7 @@ export function ShiftsClient({
   async function handleCopyPrevWeek() {
     if (!confirm("前週のシフトを今週にコピーしますか？\n既存のシフトは上書きされます。")) return;
     try {
-      await copyPreviousWeek(formatDate(weekStart));
+      await copyPreviousWeek(weekStart);
       toast.success("前週のシフトをコピーしました");
       await loadShifts();
     } catch (err) {
@@ -344,7 +335,7 @@ export function ShiftsClient({
   }
 
   // 週の表示ラベル
-  const weekLabel = `${weekDates[0].getMonth() + 1}/${weekDates[0].getDate()} 〜 ${weekDates[6].getMonth() + 1}/${weekDates[6].getDate()}`;
+  const weekLabel = `${formatMD(weekDates[0])} 〜 ${formatMD(weekDates[6])}`;
 
   return (
     <div className="space-y-4">
@@ -374,7 +365,7 @@ export function ShiftsClient({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => setWeekStart(getMonday(new Date()))}
+          onClick={() => setWeekStart(getMonday(jstToday()))}
           className="no-print"
         >
           今週
@@ -447,8 +438,8 @@ export function ShiftsClient({
                 <TableHead className="sticky left-0 bg-background min-w-[100px]">
                   従業員
                 </TableHead>
-                {weekDates.map((d, i) => {
-                  const isToday = formatDate(d) === formatDate(new Date());
+                {weekDates.map((dateStr, i) => {
+                  const isToday = dateStr === jstToday();
                   const isSat = i === 5;
                   const isSun = i === 6;
                   return (
@@ -460,7 +451,7 @@ export function ShiftsClient({
                     >
                       <div>{DAY_LABELS[i]}</div>
                       <div className="text-xs font-normal">
-                        {d.getMonth() + 1}/{d.getDate()}
+                        {formatMD(dateStr)}
                       </div>
                     </TableHead>
                   );
@@ -483,10 +474,9 @@ export function ShiftsClient({
                     <TableCell className="sticky left-0 bg-background font-medium">
                       {emp.name}
                     </TableCell>
-                    {weekDates.map((d, i) => {
-                      const dateStr = formatDate(d);
+                    {weekDates.map((dateStr, i) => {
                       const shift = getShiftForCell(emp.id, dateStr);
-                      const isToday = dateStr === formatDate(new Date());
+                      const isToday = dateStr === jstToday();
                       const cellKey = `${emp.id}-${dateStr}`;
                       const isDragOver = dragOverCell === cellKey;
                       const hasDayOff = dayOffRequests.some(

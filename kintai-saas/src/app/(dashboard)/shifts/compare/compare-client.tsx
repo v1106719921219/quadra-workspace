@@ -15,6 +15,7 @@ import {
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { getShiftComparison } from "../actions";
 import { toast } from "sonner";
+import { jstToday, addDaysToDateStr } from "@/lib/time-utils";
 
 interface ShiftRecord {
   id: string;
@@ -97,7 +98,7 @@ interface ComparisonRow {
 }
 
 export function CompareClient() {
-  const today = new Date().toISOString().split("T")[0];
+  const today = jstToday();
   const [date, setDate] = useState(today);
   const [rows, setRows] = useState<ComparisonRow[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -152,10 +153,7 @@ export function CompareClient() {
   }
 
   function changeDate(delta: number) {
-    const d = new Date(date);
-    d.setDate(d.getDate() + delta);
-    const newDate = d.toISOString().split("T")[0];
-    loadComparison(newDate);
+    loadComparison(addDaysToDateStr(date, delta));
   }
 
   // 統計サマリー

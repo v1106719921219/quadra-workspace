@@ -1,4 +1,5 @@
 import { BoardClient } from "./board-client";
+import { jstToday, jstDayOfWeek, addDaysToDateStr } from "@/lib/time-utils";
 import {
   getActiveJobSites,
   getActiveEmployees,
@@ -14,17 +15,12 @@ export default async function BoardPage() {
     getTenantSettings(),
   ]);
 
-  // 今週の月曜〜日曜の日付範囲
-  const now = new Date();
-  const day = now.getDay();
+  // 今週の月曜〜日曜の日付範囲（JST基準・TZ非依存）
+  const today = jstToday();
+  const day = jstDayOfWeek(today);
   const diff = day === 0 ? -6 : 1 - day;
-  const monday = new Date(now);
-  monday.setDate(monday.getDate() + diff);
-  const sunday = new Date(monday);
-  sunday.setDate(sunday.getDate() + 6);
-
-  const startDate = monday.toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
-  const endDate = sunday.toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
+  const startDate = addDaysToDateStr(today, diff);
+  const endDate = addDaysToDateStr(startDate, 6);
 
   const [assignments, dailyLabels] = await Promise.all([
     getAssignments(startDate, endDate),

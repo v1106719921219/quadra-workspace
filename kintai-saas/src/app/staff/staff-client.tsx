@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { verifyPin, getDayOffRequests, getOthersDayOffRequests, saveDayOffRequests } from "./actions";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { jstToday, jstYearMonth, jstDayOfWeek } from "@/lib/time-utils";
 
 interface Employee {
   id: string;
@@ -21,10 +22,10 @@ export function StaffClient({ employees }: { employees: Employee[] }) {
   const [pinError, setPinError] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // カレンダー状態
-  const now = new Date();
-  const [year, setYear] = useState(now.getMonth() === 11 ? now.getFullYear() + 1 : now.getFullYear());
-  const [month, setMonth] = useState(now.getMonth() === 11 ? 1 : now.getMonth() + 2); // 翌月
+  // カレンダー状態（JST基準の翌月）
+  const { year: nowYear, month: nowMonth } = jstYearMonth();
+  const [year, setYear] = useState(nowMonth === 12 ? nowYear + 1 : nowYear);
+  const [month, setMonth] = useState(nowMonth === 12 ? 1 : nowMonth + 1); // 翌月
   const [selectedDates, setSelectedDates] = useState<Set<string>>(new Set());
   const [othersRequests, setOthersRequests] = useState<Map<string, string[]>>(new Map());
   const [saved, setSaved] = useState(false);
@@ -243,9 +244,9 @@ export function StaffClient({ employees }: { employees: Employee[] }) {
           {calendarDays.map((dateStr, i) => {
             if (!dateStr) return <div key={i} />;
             const day = parseInt(dateStr.split("-")[2]);
-            const weekday = new Date(dateStr).getDay();
+            const weekday = jstDayOfWeek(dateStr);
             const isSelected = selectedDates.has(dateStr);
-            const isToday = dateStr === new Date().toLocaleDateString("sv-SE");
+            const isToday = dateStr === jstToday();
             const othersNames = othersRequests.get(dateStr) || [];
             return (
               <button

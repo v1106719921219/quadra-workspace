@@ -3,6 +3,7 @@ import { getTenantId } from "@/lib/tenant";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Users, Clock, Briefcase } from "lucide-react";
+import { jstToday } from "@/lib/time-utils";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -14,8 +15,8 @@ export default async function DashboardPage() {
     .select("*", { count: "exact", head: true })
     .eq("is_active", true);
 
-  // 今日の出勤中
-  const today = new Date().toISOString().split("T")[0];
+  // 今日の出勤中（JST基準）
+  const today = jstToday();
   const { data: activeRecords } = await supabase
     .from("time_records")
     .select("id, employee_id, clock_in, employees(name), work_types(name)")

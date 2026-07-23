@@ -29,6 +29,7 @@ interface Employee {
   tax_column: string;
   social_insurance_enrolled: boolean;
   employment_insurance_enrolled: boolean;
+  care_insurance_enrolled: boolean;
   standard_monthly_remuneration: number;
   resident_tax: number;
   savings_deduction: number;
@@ -72,6 +73,13 @@ export function EmployeesClient({ employees }: { employees: Employee[] }) {
     formData.set("dependents_count", emp.dependents_count?.toString() || "0");
     formData.set("tax_column", emp.tax_column || "kou");
     formData.set("social_insurance_enrolled", String(emp.social_insurance_enrolled || false));
+    formData.set("employment_insurance_enrolled", String(emp.employment_insurance_enrolled || false));
+    formData.set("care_insurance_enrolled", String(emp.care_insurance_enrolled || false));
+    formData.set("standard_monthly_remuneration", emp.standard_monthly_remuneration?.toString() || "0");
+    formData.set("resident_tax", emp.resident_tax?.toString() || "0");
+    formData.set("savings_deduction", emp.savings_deduction?.toString() || "0");
+    formData.set("board_char", emp.board_char || "");
+    formData.set("pin", emp.pin || "");
     formData.set("can_be_driver", String(emp.can_be_driver || false));
     formData.set("is_active", String(!emp.is_active));
     try {

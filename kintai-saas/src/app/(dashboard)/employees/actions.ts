@@ -30,6 +30,7 @@ export async function createEmployee(formData: FormData) {
   const taxColumn = formData.get("tax_column") as string;
   const socialInsuranceEnrolled = formData.get("social_insurance_enrolled") === "true";
   const employmentInsuranceEnrolled = formData.get("employment_insurance_enrolled") === "true";
+  const careInsuranceEnrolled = formData.get("care_insurance_enrolled") === "true";
   const standardMonthlyRemuneration = formData.get("standard_monthly_remuneration");
   const residentTax = formData.get("resident_tax");
   const savingsDeduction = formData.get("savings_deduction");
@@ -49,6 +50,7 @@ export async function createEmployee(formData: FormData) {
     tax_column: taxColumn || "kou",
     social_insurance_enrolled: socialInsuranceEnrolled,
     employment_insurance_enrolled: employmentInsuranceEnrolled,
+    care_insurance_enrolled: careInsuranceEnrolled,
     standard_monthly_remuneration: standardMonthlyRemuneration ? parseInt(standardMonthlyRemuneration as string) : 0,
     resident_tax: residentTax ? parseInt(residentTax as string) : 0,
     savings_deduction: savingsDeduction ? parseInt(savingsDeduction as string) : 0,
@@ -76,6 +78,7 @@ export async function updateEmployee(id: string, formData: FormData) {
   const taxColumn = formData.get("tax_column") as string;
   const socialInsuranceEnrolled = formData.get("social_insurance_enrolled") === "true";
   const employmentInsuranceEnrolled = formData.get("employment_insurance_enrolled") === "true";
+  const careInsuranceEnrolled = formData.get("care_insurance_enrolled") === "true";
   const standardMonthlyRemuneration = formData.get("standard_monthly_remuneration");
   const residentTax = formData.get("resident_tax");
   const savingsDeduction = formData.get("savings_deduction");
@@ -97,6 +100,7 @@ export async function updateEmployee(id: string, formData: FormData) {
       tax_column: taxColumn || "kou",
       social_insurance_enrolled: socialInsuranceEnrolled,
       employment_insurance_enrolled: employmentInsuranceEnrolled,
+      care_insurance_enrolled: careInsuranceEnrolled,
       standard_monthly_remuneration: standardMonthlyRemuneration ? parseInt(standardMonthlyRemuneration as string) : 0,
       resident_tax: residentTax ? parseInt(residentTax as string) : 0,
       savings_deduction: savingsDeduction ? parseInt(savingsDeduction as string) : 0,
@@ -115,4 +119,61 @@ export async function deleteEmployee(id: string) {
   const { error } = await supabase.from("employees").delete().eq("id", id);
   if (error) throw error;
   revalidatePath("/employees");
+}
+
+// ===== 住民税の月別内訳 =====
+// 年度（fiscalYear）= fiscalYear年6月 〜 fiscalYear+1年5月 の12ヶ月
+
+export interface ResidentTaxMonth {
+  year: number;
+  month: number;
+  amount: number;
+}
+
+function fiscalYearMonths(fiscalYear: number): { year: number; month: number }[] {
+  return Array.from({ length: 12 }, (_, i) => {
+    const m = 6 + i;
+    return m <= 12 ? { year: fiscalYear, month: m } : { year: fiscalYear + 1, month: m - 12 };
+  });
+}
+
+export async function getResidentTaxSchedule(employeeId: string, fiscalYear: number): Promise<ResidentTaxMonth[]> {
+  const supabase = await createClient();
+  const months = fiscalYearMonths(fiscalYear);
+
+  const { data, error } = await supabase
+    .from("resident_tax_schedules")
+    .select("year, month, amount")
+    .eq("employee_id", employeeId)
+    .or(`and(year.eq.${fiscalYear},month.gte.6),and(year.eq.${fiscalYear + 1},month.lte.5)`);
+
+  if (error) throw error;
+
+  const map = new Map<string, number>();
+  for (const r of data || []) map.set(`${r.year}-${r.month}`, r.amount);
+
+  return months.map((m) => ({ ...m, amount: map.get(`${m.year}-${m.month}`) ?? 0 }));
+}
+
+export async function saveResidentTaxSchedule(employeeId: string, fiscalYear: number, amounts: number[]) {
+  if (amounts.length !== 12) throw new Error("12ヶ月分の金額が必要です");
+  const supabase = await createClient();
+  const tenantId = await getTenantId();
+  const months = fiscalYearMonths(fiscalYear);
+
+  const rows = months.map((m, i) => ({
+    tenant_id: tenantId,
+    employee_id: employeeId,
+    year: m.year,
+    month: m.month,
+    amount: Math.max(0, Math.round(amounts[i] || 0)),
+  }));
+
+  const { error } = await supabase
+    .from("resident_tax_schedules")
+    .upsert(rows, { onConflict: "tenant_id,employee_id,year,month" });
+
+  if (error) throw error;
+  revalidatePath("/employees");
+  revalidatePath("/payroll");
 }

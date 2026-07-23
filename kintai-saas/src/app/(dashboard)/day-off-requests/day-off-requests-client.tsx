@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { getDayOffRequestsByMonth } from "./actions";
+import { jstDayOfWeek } from "@/lib/time-utils";
 
 interface DayOffRequest {
   id: string;
@@ -137,8 +138,7 @@ export function DayOffRequestsClient({
                   <div className="w-24 font-medium text-sm shrink-0">{name}</div>
                   <div className="flex flex-wrap gap-1">
                     {dates.sort().map((d) => {
-                      const date = new Date(d + "T00:00:00+09:00");
-                      const weekday = WEEKDAYS[date.getDay()];
+                      const weekday = WEEKDAYS[jstDayOfWeek(d)];
                       const day = parseInt(d.split("-")[2]);
                       return (
                         <span key={d} className="bg-red-100 text-red-700 text-xs px-2 py-1 rounded">

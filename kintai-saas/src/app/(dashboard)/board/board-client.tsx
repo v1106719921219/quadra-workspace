@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChevronLeft, ChevronRight, Copy, Trash2, X, Check } from "lucide-react";
 import { toast } from "sonner";
+import { jstToday, jstDayOfWeek, addDaysToDateStr } from "@/lib/time-utils";
 import {
   getAssignments,
   getSiteDailyLabels,
@@ -64,18 +65,22 @@ interface SelectedCell {
 
 const WEEKDAY_NAMES = ["日", "月", "火", "水", "木", "金", "土"];
 
-function getWeekDates(baseDate: Date, weeks = 1): string[] {
-  const monday = new Date(baseDate);
-  const day = monday.getDay();
+// "YYYY-MM-DD"基準・TZ非依存で週の日付一覧を生成
+function getWeekDates(baseDate: string, weeks = 1): string[] {
+  const day = jstDayOfWeek(baseDate);
   const diff = day === 0 ? -6 : 1 - day;
-  monday.setDate(monday.getDate() + diff);
+  const monday = addDaysToDateStr(baseDate, diff);
   const dates: string[] = [];
   for (let i = 0; i < 7 * weeks; i++) {
-    const d = new Date(monday);
-    d.setDate(d.getDate() + i);
-    dates.push(d.toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" }));
+    dates.push(addDaysToDateStr(monday, i));
   }
   return dates;
+}
+
+// "YYYY-MM-DD" → "M/D(曜)" TZ非依存
+function formatMDW(dateStr: string): string {
+  const [, m, d] = dateStr.split("-").map(Number);
+  return `${m}/${d}(${WEEKDAY_NAMES[jstDayOfWeek(dateStr)]})`;
 }
 
 
@@ -116,10 +121,8 @@ export function BoardClient({
   const [assignments, setAssignments] = useState(initialAssignments);
   const [dailyLabels, setDailyLabels] = useState(initialDailyLabels);
   const [viewMode, setViewMode] = useState<"week" | "2weeks" | "day">("week");
-  const [baseDate, setBaseDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(
-    () => new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" })
-  );
+  const [baseDate, setBaseDate] = useState(() => jstToday());
+  const [selectedDate, setSelectedDate] = useState(() => jstToday());
 
   // ボトムシート
   const [sheet, setSheet] = useState<SelectedCell | null>(null);
@@ -191,15 +194,12 @@ export function BoardClient({
   function navigatePrev() {
     setHiddenSiteIds(new Set());
     if (viewMode === "day") {
-      const d = new Date(selectedDate + "T00:00:00+09:00");
-      d.setDate(d.getDate() - 1);
-      const nd = d.toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
+      const nd = addDaysToDateStr(selectedDate, -1);
       setSelectedDate(nd);
       refreshAll(nd, nd);
     } else {
       const delta = viewMode === "2weeks" ? -14 : -7;
-      const d = new Date(baseDate);
-      d.setDate(d.getDate() + delta);
+      const d = addDaysToDateStr(baseDate, delta);
       setBaseDate(d);
       const dates = getWeekDates(d, viewMode === "2weeks" ? 2 : 1);
       refreshAll(dates[0], dates[dates.length - 1]);
@@ -209,15 +209,12 @@ export function BoardClient({
   function navigateNext() {
     setHiddenSiteIds(new Set());
     if (viewMode === "day") {
-      const d = new Date(selectedDate + "T00:00:00+09:00");
-      d.setDate(d.getDate() + 1);
-      const nd = d.toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
+      const nd = addDaysToDateStr(selectedDate, 1);
       setSelectedDate(nd);
       refreshAll(nd, nd);
     } else {
       const delta = viewMode === "2weeks" ? 14 : 7;
-      const d = new Date(baseDate);
-      d.setDate(d.getDate() + delta);
+      const d = addDaysToDateStr(baseDate, delta);
       setBaseDate(d);
       const dates = getWeekDates(d, viewMode === "2weeks" ? 2 : 1);
       refreshAll(dates[0], dates[dates.length - 1]);
@@ -329,8 +326,7 @@ export function BoardClient({
 
   const navLabel = useMemo(() => {
     if (viewMode === "day") {
-      const d = new Date(selectedDate + "T00:00:00+09:00");
-      return `${d.getMonth() + 1}/${d.getDate()}(${WEEKDAY_NAMES[d.getDay()]})`;
+      return formatMDW(selectedDate);
     }
     const dates = viewMode === "week" ? weekDates : twoWeekDates;
     const s = dates[0].slice(5).replace("-", "/");
@@ -496,8 +492,7 @@ function WhiteBoard({
           </th>
           {/* 日付ヘッダー */}
           {dates.map((dateStr) => {
-            const d = new Date(dateStr + "T00:00:00+09:00");
-            const di = d.getDay();
+            const di = jstDayOfWeek(dateStr);
             const isSun = di === 0;
             const isSat = di === 6;
             const bg = isSun ? "bg-red-100" : isSat ? "bg-blue-50" : "bg-gray-100";
@@ -509,7 +504,7 @@ function WhiteBoard({
               >
                 <div className="flex flex-col items-center py-1 gap-0">
                   <span className={`font-bold text-sm leading-tight ${isSun ? "text-red-600" : isSat ? "text-blue-600" : "text-gray-800"}`}>
-                    {d.getDate()}
+                    {Number(dateStr.slice(8, 10))}
                   </span>
                   <span className={`text-[10px] leading-tight ${isSun ? "text-red-500" : isSat ? "text-blue-500" : "text-gray-400"}`}>
                     {WEEKDAY_NAMES[di]}
@@ -538,8 +533,7 @@ function WhiteBoard({
               <span className="text-[13px] font-bold text-orange-500">先</span>
             </td>
             {dates.map((dateStr) => {
-              const d = new Date(dateStr + "T00:00:00+09:00");
-              const di = d.getDay();
+              const di = jstDayOfWeek(dateStr);
               const bg = di === 0 ? "bg-red-50/40" : di === 6 ? "bg-blue-50/20" : "bg-orange-50/20";
               return (
                 <td
@@ -627,8 +621,7 @@ function WhiteBoard({
 
             {/* 日付セル */}
             {dates.map((dateStr) => {
-              const d = new Date(dateStr + "T00:00:00+09:00");
-              const di = d.getDay();
+              const di = jstDayOfWeek(dateStr);
               const bg = di === 0 ? "bg-red-50/40" : di === 6 ? "bg-blue-50/20" : "";
               const key = `${site.id}__${dateStr}`;
               const cellAssignments = assignmentIndex.get(key) || [];
@@ -737,8 +730,7 @@ function BottomSheet({
     setDepartureTime(label?.departure_time ? label.departure_time.slice(0, 5) : "08:00");
   }, [label]);
 
-  const d = new Date(cell.date + "T00:00:00+09:00");
-  const dateLabel = `${d.getMonth() + 1}/${d.getDate()}(${WEEKDAY_NAMES[d.getDay()]})`;
+  const dateLabel = formatMDW(cell.date);
 
   const spotEmployees = employees.filter((e) => e.is_spot);
   const regularEmployees = employees.filter((e) => !e.is_spot);
@@ -948,8 +940,7 @@ function SitePicker({
   onSelect: (site: JobSite) => void;
   onClose: () => void;
 }) {
-  const d = new Date(date + "T00:00:00+09:00");
-  const dateLabel = `${d.getMonth() + 1}/${d.getDate()}(${WEEKDAY_NAMES[d.getDay()]})`;
+  const dateLabel = formatMDW(date);
 
   // この日すでに配置がある現場
   const activeSiteIds = new Set(

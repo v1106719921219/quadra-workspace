@@ -86,6 +86,7 @@ export function ClockClient({
     month: "long",
     day: "numeric",
     weekday: "short",
+    timeZone: "Asia/Tokyo",
   });
 
   async function handleClockIn() {

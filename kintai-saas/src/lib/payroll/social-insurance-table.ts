@@ -108,6 +108,7 @@ const PENSION_GRADES: InsuranceGrade[] = [
 const DEFAULT_HEALTH_INSURANCE_RATE = 0.05;  // 健康保険 被保険者負担 約5.0%（全国平均）
 const PENSION_RATE = 0.0915;                  // 厚生年金 被保険者負担 9.15%（全国一律）
 const CHILD_SUPPORT_RATE = 0.00036;           // 子ども・子育て支援金 R8.4〜 被保険者負担 0.036%
+const CARE_INSURANCE_RATE = 0.00795;          // 介護保険（40-64歳） 被保険者負担 0.795%（全国一律）
 
 /**
  * 標準報酬月額から健康保険の等級を取得
@@ -137,6 +138,7 @@ export interface SocialInsuranceResult {
   healthInsurance: number;          // 健康保険料（被保険者負担）
   pension: number;                  // 厚生年金保険料（被保険者負担）
   childSupportContribution: number; // 子ども・子育て支援金（被保険者負担）
+  careInsurance: number;            // 介護保険料（40-64歳・被保険者負担）
   healthGradeStandard: number;      // 健康保険 標準報酬月額
   pensionGradeStandard: number;     // 厚生年金 標準報酬月額
 }
@@ -144,10 +146,12 @@ export interface SocialInsuranceResult {
 /**
  * 標準報酬月額から社会保険料を計算
  * @param standardRemuneration 標準報酬月額（従業員マスタに登録された値）
+ * @param careInsuranceEnrolled 介護保険（40-64歳）対象かどうか
  * @param healthRate 健康保険料率（被保険者負担分、デフォルト5.0%）
  */
 export function calculateSocialInsurance(
   standardRemuneration: number,
+  careInsuranceEnrolled: boolean = false,
   healthRate: number = DEFAULT_HEALTH_INSURANCE_RATE
 ): SocialInsuranceResult {
   if (standardRemuneration <= 0) {
@@ -155,6 +159,7 @@ export function calculateSocialInsurance(
       healthInsurance: 0,
       pension: 0,
       childSupportContribution: 0,
+      careInsurance: 0,
       healthGradeStandard: 0,
       pensionGradeStandard: 0,
     };
@@ -167,11 +172,15 @@ export function calculateSocialInsurance(
   const healthInsurance = Math.round(healthGrade.standard * healthRate);
   const pension = Math.round(pensionGrade.standard * PENSION_RATE);
   const childSupportContribution = Math.round(healthGrade.standard * CHILD_SUPPORT_RATE);
+  const careInsurance = careInsuranceEnrolled
+    ? Math.round(healthGrade.standard * CARE_INSURANCE_RATE)
+    : 0;
 
   return {
     healthInsurance,
     pension,
     childSupportContribution,
+    careInsurance,
     healthGradeStandard: healthGrade.standard,
     pensionGradeStandard: pensionGrade.standard,
   };

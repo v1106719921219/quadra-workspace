@@ -15,10 +15,11 @@ import {
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { getMonthlyReport, type EmployeeSummary } from "./actions";
 import { toast } from "sonner";
+import { jstYearMonth } from "@/lib/time-utils";
 
 export function ReportsClient() {
-  const [year, setYear] = useState(new Date().getFullYear());
-  const [month, setMonth] = useState(new Date().getMonth() + 1);
+  const [year, setYear] = useState(() => jstYearMonth().year);
+  const [month, setMonth] = useState(() => jstYearMonth().month);
   const [report, setReport] = useState<EmployeeSummary[]>([]);
   const [loading, setLoading] = useState(false);
 

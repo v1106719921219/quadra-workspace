@@ -19,7 +19,7 @@ import {
   getDatesInPeriod,
   type ClosingPeriod,
 } from "@/lib/closing-period";
-import { roundUpToInterval, roundDownToInterval } from "@/lib/time-utils";
+import { roundUpToInterval, roundDownToInterval, jstDayOfWeek } from "@/lib/time-utils";
 
 interface Employee {
   id: string;
@@ -97,8 +97,7 @@ export function TimecardClient({
   const dailyData = useMemo(() => {
     let cumHours = 0;
     return allDates.map((dateStr) => {
-      const d = new Date(dateStr + "T00:00:00+09:00");
-      const dayOfWeek = d.getDay();
+      const dayOfWeek = jstDayOfWeek(dateStr);
       const dayName = WEEKDAY_NAMES[dayOfWeek];
       const record = recordMap.get(dateStr);
 

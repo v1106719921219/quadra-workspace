@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { createAttendanceCorrectionAction } from "@/app/(dashboard)/attendance/correction-actions";
+import { jstToday } from "@/lib/time-utils";
 
 interface Employee {
   id: string;
@@ -176,7 +177,7 @@ export function CorrectionRequestDialog({
                 type="date"
                 value={workDate}
                 onChange={(e) => setWorkDate(e.target.value)}
-                max={new Date().toISOString().split("T")[0]}
+                max={jstToday()}
                 required
               />
             </div>

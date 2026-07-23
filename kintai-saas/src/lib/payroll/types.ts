@@ -12,6 +12,7 @@ export interface EmployeeForPayroll {
   tax_column: "kou" | "otsu";
   social_insurance_enrolled: boolean;
   employment_insurance_enrolled: boolean;
+  care_insurance_enrolled: boolean;
   standard_monthly_remuneration: number;
   resident_tax: number;
   savings_deduction: number;
@@ -76,6 +77,7 @@ export interface PayrollCalculation {
   healthInsurance: number;
   pension: number;
   childSupportContribution: number; // 子ども・子育て支援金
+  careInsurance: number;            // 介護保険（40-64歳）
   employmentInsurance: number;
   incomeTax: number;
   residentTax: number;       // 住民税

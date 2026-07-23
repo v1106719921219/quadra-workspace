@@ -37,7 +37,7 @@ import {
   updateTimeRecord,
 } from "./actions";
 import { toast } from "sonner";
-import { roundUpToInterval, roundDownToInterval } from "@/lib/time-utils";
+import { roundUpToInterval, roundDownToInterval, jstToday, jstYearMonth, addDaysToDateStr } from "@/lib/time-utils";
 import { CorrectionApprovalList } from "@/components/correction-approval-list";
 import { CorrectionRequestDialog } from "@/components/correction-request-dialog";
 
@@ -97,7 +97,7 @@ export function AttendanceClient({
   jobSites: JobSite[];
   roundingMinutes?: number;
 }) {
-  const today = new Date().toISOString().split("T")[0];
+  const today = jstToday();
   const [date, setDate] = useState(today);
   const [records, setRecords] = useState<TimeRecord[]>([]);
   const [monthRecords, setMonthRecords] = useState<TimeRecord[]>([]);
@@ -108,8 +108,8 @@ export function AttendanceClient({
   const [loading, setLoading] = useState(false);
   const [correctionOpen, setCorrectionOpen] = useState(false);
 
-  const [viewYear, setViewYear] = useState(new Date().getFullYear());
-  const [viewMonth, setViewMonth] = useState(new Date().getMonth() + 1);
+  const [viewYear, setViewYear] = useState(() => jstYearMonth().year);
+  const [viewMonth, setViewMonth] = useState(() => jstYearMonth().month);
 
   async function loadRecords(d: string) {
     setDate(d);
@@ -135,9 +135,7 @@ export function AttendanceClient({
   }
 
   function changeDate(delta: number) {
-    const d = new Date(date);
-    d.setDate(d.getDate() + delta);
-    loadRecords(d.toISOString().split("T")[0]);
+    loadRecords(addDaysToDateStr(date, delta));
   }
 
   async function handleAdd(e: React.FormEvent<HTMLFormElement>) {

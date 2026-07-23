@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -15,12 +16,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Pencil } from "lucide-react";
 import type { PayrollCalculation } from "@/lib/payroll/types";
+
+type DeductionField = "healthInsurance" | "careInsurance" | "childSupportContribution" | "pension" | "employmentInsurance" | "incomeTax" | "residentTax" | "savingsDeduction";
 
 interface PayrollDetailDialogProps {
   calculation: PayrollCalculation | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  editable?: boolean;
+  onDeductionUpdate?: (employeeId: string, field: DeductionField, value: number) => void;
 }
 
 function formatCurrency(amount: number): string {
@@ -31,9 +38,80 @@ function formatHours(hours: number): string {
   return `${hours.toFixed(2)}h`;
 }
 
-export function PayrollDetailDialog({ calculation, open, onOpenChange }: PayrollDetailDialogProps) {
+// 控除明細の表示順（画像準拠）
+const DEDUCTION_ROWS: { field: DeductionField; label: string }[] = [
+  { field: "healthInsurance", label: "健康保険料" },
+  { field: "careInsurance", label: "介護保険料" },
+  { field: "childSupportContribution", label: "子ども・子育て支援金" },
+  { field: "pension", label: "厚生年金保険料" },
+  { field: "employmentInsurance", label: "雇用保険" },
+  { field: "incomeTax", label: "所得税" },
+  { field: "residentTax", label: "住民税" },
+  { field: "savingsDeduction", label: "積立金" },
+];
+
+export function PayrollDetailDialog({ calculation, open, onOpenChange, editable = false, onDeductionUpdate }: PayrollDetailDialogProps) {
+  const [editingField, setEditingField] = useState<DeductionField | null>(null);
+  const [editValue, setEditValue] = useState("");
+  const editInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editingField && editInputRef.current) {
+      editInputRef.current.focus();
+      editInputRef.current.select();
+    }
+  }, [editingField]);
+
   if (!calculation) return null;
   const { employee } = calculation;
+
+  function startEdit(field: DeductionField, currentValue: number) {
+    setEditingField(field);
+    setEditValue(String(currentValue));
+  }
+
+  function saveEdit(field: DeductionField) {
+    if (calculation && onDeductionUpdate) {
+      onDeductionUpdate(calculation.employee.id, field, parseInt(editValue) || 0);
+    }
+    setEditingField(null);
+  }
+
+  function renderDeductionAmount(field: DeductionField) {
+    if (!calculation) return null;
+    const value = calculation[field];
+    if (editable && editingField === field) {
+      return (
+        <div className="flex items-center justify-end gap-1">
+          <span>¥</span>
+          <Input
+            ref={editInputRef}
+            type="number"
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") saveEdit(field);
+              if (e.key === "Escape") setEditingField(null);
+            }}
+            onBlur={() => saveEdit(field)}
+            className="w-28 h-7 text-right text-sm"
+          />
+        </div>
+      );
+    }
+    if (editable) {
+      return (
+        <button
+          className="inline-flex items-center gap-1 hover:text-primary transition-colors"
+          onClick={() => startEdit(field, value)}
+        >
+          {formatCurrency(value)}
+          <Pencil className="h-3 w-3 text-muted-foreground" />
+        </button>
+      );
+    }
+    return formatCurrency(value);
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -133,42 +211,19 @@ export function PayrollDetailDialog({ calculation, open, onOpenChange }: Payroll
             <h3 className="font-semibold mb-2">控除明細</h3>
             <Table>
               <TableBody>
-                <TableRow>
-                  <TableCell className="font-medium">健康保険</TableCell>
-                  <TableCell className="text-right">{formatCurrency(calculation.healthInsurance)}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">厚生年金</TableCell>
-                  <TableCell className="text-right">{formatCurrency(calculation.pension)}</TableCell>
-                </TableRow>
-                {calculation.childSupportContribution > 0 && (
-                  <TableRow>
-                    <TableCell className="font-medium">子育て支援金</TableCell>
-                    <TableCell className="text-right">{formatCurrency(calculation.childSupportContribution)}</TableCell>
-                  </TableRow>
-                )}
-                <TableRow>
-                  <TableCell className="font-medium">雇用保険</TableCell>
-                  <TableCell className="text-right">{formatCurrency(calculation.employmentInsurance)}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">所得税</TableCell>
-                  <TableCell className="text-right">{formatCurrency(calculation.incomeTax)}</TableCell>
-                </TableRow>
-                {calculation.residentTax > 0 && (
-                  <TableRow>
-                    <TableCell className="font-medium">住民税</TableCell>
-                    <TableCell className="text-right">{formatCurrency(calculation.residentTax)}</TableCell>
-                  </TableRow>
-                )}
-                {calculation.savingsDeduction > 0 && (
-                  <TableRow>
-                    <TableCell className="font-medium">積立金</TableCell>
-                    <TableCell className="text-right">{formatCurrency(calculation.savingsDeduction)}</TableCell>
-                  </TableRow>
-                )}
+                {DEDUCTION_ROWS.map(({ field, label }) => {
+                  // 非編集時は0円の任意項目（介護保険・子育て・住民税・積立金）を非表示
+                  const optional = field === "careInsurance" || field === "childSupportContribution" || field === "residentTax" || field === "savingsDeduction";
+                  if (!editable && optional && calculation[field] === 0) return null;
+                  return (
+                    <TableRow key={field}>
+                      <TableCell className="font-medium">{label}</TableCell>
+                      <TableCell className="text-right">{renderDeductionAmount(field)}</TableCell>
+                    </TableRow>
+                  );
+                })}
                 <TableRow className="font-bold border-t-2">
-                  <TableCell>控除合計</TableCell>
+                  <TableCell>合計</TableCell>
                   <TableCell className="text-right">{formatCurrency(calculation.totalDeductions)}</TableCell>
                 </TableRow>
               </TableBody>

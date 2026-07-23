@@ -45,6 +45,18 @@ export async function calculateMonthlyPayroll(year: number, month: number): Prom
 
   if (empError) throw empError;
 
+  // 住民税の月別内訳（登録があれば従業員マスタの固定額より優先）
+  const { data: residentTaxSchedules } = await supabase
+    .from("resident_tax_schedules")
+    .select("employee_id, amount")
+    .eq("year", year)
+    .eq("month", month);
+
+  const residentTaxMap = new Map<string, number>();
+  for (const s of residentTaxSchedules || []) {
+    residentTaxMap.set(s.employee_id, s.amount);
+  }
+
   // ★ 配置ボード（ホワイトボード）のデータ取得
   const { data: assignments } = await supabase
     .from("site_assignments")
@@ -107,8 +119,9 @@ export async function calculateMonthlyPayroll(year: number, month: number): Prom
       tax_column: (emp.tax_column as "kou" | "otsu") ?? "kou",
       social_insurance_enrolled: emp.social_insurance_enrolled ?? false,
       employment_insurance_enrolled: emp.employment_insurance_enrolled ?? false,
+      care_insurance_enrolled: emp.care_insurance_enrolled ?? false,
       standard_monthly_remuneration: emp.standard_monthly_remuneration ?? 0,
-      resident_tax: emp.resident_tax ?? 0,
+      resident_tax: residentTaxMap.get(emp.id) ?? emp.resident_tax ?? 0,
       savings_deduction: emp.savings_deduction ?? 0,
     };
     const empRecords = normalizedRecords.filter((r) => r.employee_id === emp.id);
@@ -166,6 +179,7 @@ export async function confirmPayroll(year: number, month: number, calculations: 
           health_insurance: calc.healthInsurance,
           pension: calc.pension,
           child_support_contribution: calc.childSupportContribution,
+          care_insurance: calc.careInsurance,
           employment_insurance: calc.employmentInsurance,
           income_tax: calc.incomeTax,
           resident_tax: calc.residentTax,
@@ -201,10 +215,8 @@ export async function unconfirmPayroll(year: number, month: number) {
 }
 
 function addOneDay(dateStr: string): string {
-  const d = new Date(dateStr + "T00:00:00+09:00");
-  d.setDate(d.getDate() + 1);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+  // TZ非依存で1日加算（サーバーTZがUTCでもズレない）
+  const d = new Date(dateStr + "T00:00:00Z");
+  d.setUTCDate(d.getUTCDate() + 1);
+  return d.toISOString().slice(0, 10);
 }

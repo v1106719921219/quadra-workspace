@@ -18,6 +18,7 @@ import { calculateMonthlyPayroll, getPayrollRecords, confirmPayroll, unconfirmPa
 import { PayrollDetailDialog } from "./payroll-detail-dialog";
 import type { PayrollCalculation } from "@/lib/payroll/types";
 import { toast } from "sonner";
+import { jstYearMonth } from "@/lib/time-utils";
 
 function formatCurrency(amount: number): string {
   return `¥${amount.toLocaleString()}`;
@@ -44,6 +45,7 @@ function recordToCalculation(record: {
   health_insurance: number;
   pension: number;
   child_support_contribution: number;
+  care_insurance: number;
   employment_insurance: number;
   income_tax: number;
   resident_tax: number;
@@ -65,6 +67,7 @@ function recordToCalculation(record: {
     tax_column: "kou" as const,
     social_insurance_enrolled: false,
     employment_insurance_enrolled: false,
+    care_insurance_enrolled: false,
     standard_monthly_remuneration: 0,
     resident_tax: 0,
     savings_deduction: 0,
@@ -90,6 +93,7 @@ function recordToCalculation(record: {
     healthInsurance: record.health_insurance,
     pension: record.pension,
     childSupportContribution: record.child_support_contribution ?? 0,
+    careInsurance: record.care_insurance ?? 0,
     employmentInsurance: record.employment_insurance,
     incomeTax: record.income_tax,
     residentTax: record.resident_tax ?? 0,
@@ -101,14 +105,13 @@ function recordToCalculation(record: {
 }
 
 export function PayrollClient() {
-  const now = new Date();
-  const [year, setYear] = useState(now.getFullYear());
-  const [month, setMonth] = useState(now.getMonth() + 1);
+  const [year, setYear] = useState(() => jstYearMonth().year);
+  const [month, setMonth] = useState(() => jstYearMonth().month);
   const [calculations, setCalculations] = useState<PayrollCalculation[]>([]);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [hasData, setHasData] = useState(false);
-  const [selectedCalc, setSelectedCalc] = useState<PayrollCalculation | null>(null);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   // 編集中のセル: "employeeId__fieldName"
   const [editingCell, setEditingCell] = useState<string | null>(null);
@@ -207,6 +210,7 @@ export function PayrollClient() {
   }
 
   type EditableField = "basePay" | "overtimePay" | "lateNightPay" | "holidayPay" | "dailyAllowanceTotal" | "driverAllowance" | "transportationAllowance";
+  type DeductionField = "healthInsurance" | "careInsurance" | "childSupportContribution" | "pension" | "employmentInsurance" | "incomeTax" | "residentTax" | "savingsDeduction";
 
   function handleCellEdit(employeeId: string, field: EditableField, currentValue: number) {
     setEditingCell(`${employeeId}__${field}`);
@@ -219,27 +223,32 @@ export function PayrollClient() {
       prev.map((calc) => {
         if (calc.employee.id !== employeeId) return calc;
         const updated = { ...calc, [field]: newValue };
-        // 総支給額を再計算
+        // 総支給額を再計算（控除は手動編集値を維持するため再計算しない）
         updated.grossPay = updated.basePay + updated.overtimePay + updated.lateNightPay
-          + updated.holidayPay + updated.dailyAllowanceTotal + updated.driverAllowance
+          + updated.holidayPay - updated.absenceDeduction
+          + updated.dailyAllowanceTotal + updated.driverAllowance
           + updated.transportationAllowance;
-        // 控除を再計算
-        updated.healthInsurance = calc.employee.social_insurance_enrolled
-          ? Math.round(updated.grossPay * 0.05) : 0;
-        updated.pension = calc.employee.social_insurance_enrolled
-          ? Math.round(updated.grossPay * 0.0915) : 0;
-        updated.employmentInsurance = Math.round(updated.grossPay * 0.006);
-        const totalSocialInsurance = updated.healthInsurance + updated.pension + updated.employmentInsurance;
-        const taxableAmount = Math.max(0, updated.grossPay - totalSocialInsurance - updated.transportationAllowance);
-        const oldTaxable = Math.max(0, calc.grossPay - (calc.healthInsurance + calc.pension + calc.employmentInsurance) - calc.transportationAllowance);
-        const taxRate = oldTaxable > 0 ? calc.incomeTax / oldTaxable : 0;
-        updated.incomeTax = Math.round(taxableAmount * taxRate);
-        updated.totalDeductions = totalSocialInsurance + updated.incomeTax;
         updated.netPay = updated.grossPay - updated.totalDeductions;
         return updated;
       })
     );
     setEditingCell(null);
+  }
+
+  // 控除項目の手動編集（明細ダイアログから）
+  function handleDeductionUpdate(employeeId: string, field: DeductionField, value: number) {
+    setCalculations((prev) =>
+      prev.map((calc) => {
+        if (calc.employee.id !== employeeId) return calc;
+        const updated = { ...calc, [field]: value };
+        updated.totalDeductions =
+          updated.healthInsurance + updated.careInsurance + updated.childSupportContribution
+          + updated.pension + updated.employmentInsurance
+          + updated.incomeTax + updated.residentTax + updated.savingsDeduction;
+        updated.netPay = updated.grossPay - updated.totalDeductions;
+        return updated;
+      })
+    );
   }
 
   function renderEditableCell(calc: PayrollCalculation, field: EditableField) {
@@ -277,9 +286,14 @@ export function PayrollClient() {
   }
 
   function handleRowClick(calc: PayrollCalculation) {
-    setSelectedCalc(calc);
+    setSelectedEmployeeId(calc.employee.id);
     setDetailOpen(true);
   }
+
+  // 編集が即時反映されるよう、選択中の明細はcalculationsから導出
+  const selectedCalc = selectedEmployeeId
+    ? calculations.find((c) => c.employee.id === selectedEmployeeId) ?? null
+    : null;
 
   function exportMFPayrollCSV() {
     if (calculations.length === 0) return;
@@ -338,7 +352,7 @@ export function PayrollClient() {
       "総労働時間", "残業時間", "深夜時間", "休日時間",
       "基本給", "残業手当", "深夜手当", "休日手当", "不就労控除",
       "業務手当", "ドライバー日数", "ドライバー手当", "通勤手当", "総支給額",
-      "健康保険", "厚生年金", "子育て支援金", "雇用保険", "所得税", "住民税", "積立金", "控除合計",
+      "健康保険料", "介護保険料", "子ども・子育て支援金", "厚生年金保険料", "雇用保険", "所得税", "住民税", "積立金", "控除合計",
       "差引支給額",
     ];
 
@@ -362,8 +376,9 @@ export function PayrollClient() {
       c.transportationAllowance,
       c.grossPay,
       c.healthInsurance,
-      c.pension,
+      c.careInsurance,
       c.childSupportContribution,
+      c.pension,
       c.employmentInsurance,
       c.incomeTax,
       c.residentTax,
@@ -517,7 +532,7 @@ export function PayrollClient() {
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>{renderEditableCell(calc, "driverAllowance")}</TableCell>
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>{renderEditableCell(calc, "transportationAllowance")}</TableCell>
                   <TableCell className="text-right font-semibold">{formatCurrency(calc.grossPay)}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(calc.healthInsurance + calc.pension + calc.childSupportContribution + calc.employmentInsurance)}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(calc.healthInsurance + calc.careInsurance + calc.pension + calc.childSupportContribution + calc.employmentInsurance)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(calc.incomeTax)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(calc.residentTax)}</TableCell>
                   <TableCell className="text-right font-bold text-primary">{formatCurrency(calc.netPay)}</TableCell>
@@ -568,6 +583,8 @@ export function PayrollClient() {
         calculation={selectedCalc}
         open={detailOpen}
         onOpenChange={setDetailOpen}
+        editable={!isConfirmed}
+        onDeductionUpdate={handleDeductionUpdate}
       />
 
       {/* 印刷用個別明細 */}
@@ -603,11 +620,14 @@ export function PayrollClient() {
                 <div>
                   <h3 className="font-semibold border-b mb-2">控除</h3>
                   <div className="space-y-1 text-sm">
-                    <div className="flex justify-between"><span>健康保険</span><span>{formatCurrency(calc.healthInsurance)}</span></div>
-                    <div className="flex justify-between"><span>厚生年金</span><span>{formatCurrency(calc.pension)}</span></div>
-                    {calc.childSupportContribution > 0 && (
-                      <div className="flex justify-between"><span>子育て支援金</span><span>{formatCurrency(calc.childSupportContribution)}</span></div>
+                    <div className="flex justify-between"><span>健康保険料</span><span>{formatCurrency(calc.healthInsurance)}</span></div>
+                    {calc.careInsurance > 0 && (
+                      <div className="flex justify-between"><span>介護保険料</span><span>{formatCurrency(calc.careInsurance)}</span></div>
                     )}
+                    {calc.childSupportContribution > 0 && (
+                      <div className="flex justify-between"><span>子ども・子育て支援金</span><span>{formatCurrency(calc.childSupportContribution)}</span></div>
+                    )}
+                    <div className="flex justify-between"><span>厚生年金保険料</span><span>{formatCurrency(calc.pension)}</span></div>
                     <div className="flex justify-between"><span>雇用保険</span><span>{formatCurrency(calc.employmentInsurance)}</span></div>
                     <div className="flex justify-between"><span>所得税</span><span>{formatCurrency(calc.incomeTax)}</span></div>
                     {calc.residentTax > 0 && (
@@ -616,7 +636,7 @@ export function PayrollClient() {
                     {calc.savingsDeduction > 0 && (
                       <div className="flex justify-between"><span>積立金</span><span>{formatCurrency(calc.savingsDeduction)}</span></div>
                     )}
-                    <div className="flex justify-between font-bold border-t pt-1"><span>控除合計</span><span>{formatCurrency(calc.totalDeductions)}</span></div>
+                    <div className="flex justify-between font-bold border-t pt-1"><span>合計</span><span>{formatCurrency(calc.totalDeductions)}</span></div>
                   </div>
                 </div>
               </div>

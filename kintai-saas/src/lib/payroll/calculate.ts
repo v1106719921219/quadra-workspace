@@ -24,55 +24,61 @@ const STANDARD_DAILY_MINUTES = 480; // 8時間
 // 月の所定労働日数（不就労控除計算用）
 const STANDARD_MONTHLY_WORK_DAYS = 22;
 
+// JSTオフセット（サーバーTZに依存せずJSTの壁時計時刻で計算するため）
+const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
+
 /**
- * 日付が土日（休日）かどうか判定
+ * 日付が土日（休日）かどうか判定（TZ非依存）
  */
 function isHoliday(dateStr: string): boolean {
-  const date = new Date(dateStr + "T00:00:00+09:00");
-  const day = date.getDay();
+  const day = new Date(dateStr + "T00:00:00Z").getUTCDay();
   return day === 0 || day === 6; // 日曜=0, 土曜=6
 }
 
 /**
- * clock_in〜clock_outのうち22:00-05:00に重なる分数を計算
+ * clock_in〜clock_outのうちJSTの22:00-05:00に重なる分数を計算（TZ非依存）
+ * 実時刻を+9hシフトし、UTCメソッドでJSTの壁時計時刻として扱う
  */
 function calcLateNightMinutes(clockIn: Date, clockOut: Date): number {
-  let total = 0;
-  const current = new Date(clockIn);
+  const inJst = new Date(clockIn.getTime() + JST_OFFSET_MS);
+  const outJst = new Date(clockOut.getTime() + JST_OFFSET_MS);
 
-  while (current < clockOut) {
+  let total = 0;
+  const current = new Date(inJst);
+
+  while (current < outJst) {
     const dayStart = new Date(current);
-    dayStart.setHours(0, 0, 0, 0);
+    dayStart.setUTCHours(0, 0, 0, 0);
 
     const lateStart = new Date(dayStart);
-    lateStart.setHours(LATE_NIGHT_START, 0, 0, 0);
+    lateStart.setUTCHours(LATE_NIGHT_START, 0, 0, 0);
 
     const nextDay = new Date(dayStart);
-    nextDay.setDate(nextDay.getDate() + 1);
+    nextDay.setUTCDate(nextDay.getUTCDate() + 1);
 
     const lateEnd = new Date(dayStart);
-    lateEnd.setHours(LATE_NIGHT_END, 0, 0, 0);
+    lateEnd.setUTCHours(LATE_NIGHT_END, 0, 0, 0);
 
     // 0:00-5:00の深夜帯
-    if (lateEnd > clockIn && dayStart < clockOut) {
-      const overlapStart = new Date(Math.max(clockIn.getTime(), dayStart.getTime()));
-      const overlapEnd = new Date(Math.min(clockOut.getTime(), lateEnd.getTime()));
+    if (lateEnd > inJst && dayStart < outJst) {
+      const overlapStart = new Date(Math.max(inJst.getTime(), dayStart.getTime()));
+      const overlapEnd = new Date(Math.min(outJst.getTime(), lateEnd.getTime()));
       if (overlapEnd > overlapStart) {
         total += (overlapEnd.getTime() - overlapStart.getTime()) / 60000;
       }
     }
 
     // 22:00-24:00の深夜帯
-    if (nextDay > clockIn && lateStart < clockOut) {
-      const overlapStart = new Date(Math.max(clockIn.getTime(), lateStart.getTime()));
-      const overlapEnd = new Date(Math.min(clockOut.getTime(), nextDay.getTime()));
+    if (nextDay > inJst && lateStart < outJst) {
+      const overlapStart = new Date(Math.max(inJst.getTime(), lateStart.getTime()));
+      const overlapEnd = new Date(Math.min(outJst.getTime(), nextDay.getTime()));
       if (overlapEnd > overlapStart) {
         total += (overlapEnd.getTime() - overlapStart.getTime()) / 60000;
       }
     }
 
-    current.setDate(current.getDate() + 1);
-    current.setHours(0, 0, 0, 0);
+    current.setUTCDate(current.getUTCDate() + 1);
+    current.setUTCHours(0, 0, 0, 0);
   }
 
   return total;
@@ -228,12 +234,17 @@ export function calculateEmployeePayroll(
   let healthInsurance = 0;
   let pension = 0;
   let childSupportContribution = 0;
+  let careInsurance = 0;
 
   if (employee.social_insurance_enrolled && employee.standard_monthly_remuneration > 0) {
-    const siResult = calculateSocialInsurance(employee.standard_monthly_remuneration);
+    const siResult = calculateSocialInsurance(
+      employee.standard_monthly_remuneration,
+      employee.care_insurance_enrolled
+    );
     healthInsurance = siResult.healthInsurance;
     pension = siResult.pension;
     childSupportContribution = siResult.childSupportContribution;
+    careInsurance = siResult.careInsurance;
   }
 
   // 雇用保険（加入者のみ、総支給額ベース）
@@ -242,7 +253,7 @@ export function calculateEmployeePayroll(
     employmentInsurance = Math.round(grossPay * EMPLOYMENT_INSURANCE_RATE);
   }
 
-  const totalSocialInsurance = healthInsurance + pension + childSupportContribution + employmentInsurance;
+  const totalSocialInsurance = healthInsurance + pension + childSupportContribution + careInsurance + employmentInsurance;
 
   // 所得税（課税対象 = 総支給 - 社保 - 非課税通勤手当）
   const taxableAmount = Math.max(0, grossPay - totalSocialInsurance - transportationAllowance);
@@ -277,6 +288,7 @@ export function calculateEmployeePayroll(
     healthInsurance,
     pension,
     childSupportContribution,
+    careInsurance,
     employmentInsurance,
     incomeTax,
     residentTax,

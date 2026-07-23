@@ -20,6 +20,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { createEmployee, updateEmployee } from "./actions";
 import { toast } from "sonner";
+import { ResidentTaxDialog } from "./resident-tax-dialog";
 
 interface Employee {
   id: string;
@@ -34,6 +35,7 @@ interface Employee {
   tax_column: string;
   social_insurance_enrolled: boolean;
   employment_insurance_enrolled: boolean;
+  care_insurance_enrolled: boolean;
   standard_monthly_remuneration: number;
   resident_tax: number;
   savings_deduction: number;
@@ -53,8 +55,10 @@ export function EmployeeForm({ employee, open, onOpenChange }: EmployeeFormProps
   const [taxColumn, setTaxColumn] = useState(employee?.tax_column || "kou");
   const [socialInsurance, setSocialInsurance] = useState(employee?.social_insurance_enrolled || false);
   const [employmentInsurance, setEmploymentInsurance] = useState(employee?.employment_insurance_enrolled || false);
+  const [careInsurance, setCareInsurance] = useState(employee?.care_insurance_enrolled || false);
   const [canBeDriver, setCanBeDriver] = useState(employee?.can_be_driver || false);
   const [loading, setLoading] = useState(false);
+  const [residentTaxOpen, setResidentTaxOpen] = useState(false);
 
   // ダイアログが開くたびに既存データで状態を初期化
   useEffect(() => {
@@ -63,6 +67,7 @@ export function EmployeeForm({ employee, open, onOpenChange }: EmployeeFormProps
       setTaxColumn(employee?.tax_column || "kou");
       setSocialInsurance(employee?.social_insurance_enrolled || false);
       setEmploymentInsurance(employee?.employment_insurance_enrolled || false);
+      setCareInsurance(employee?.care_insurance_enrolled || false);
       setCanBeDriver(employee?.can_be_driver || false);
     }
   }, [open, employee]);
@@ -76,6 +81,7 @@ export function EmployeeForm({ employee, open, onOpenChange }: EmployeeFormProps
       formData.set("tax_column", taxColumn);
       formData.set("social_insurance_enrolled", String(socialInsurance));
       formData.set("employment_insurance_enrolled", String(employmentInsurance));
+      formData.set("care_insurance_enrolled", String(careInsurance));
       formData.set("can_be_driver", String(canBeDriver));
       if (employee) {
         formData.set("is_active", String(employee.is_active));
@@ -245,6 +251,16 @@ export function EmployeeForm({ employee, open, onOpenChange }: EmployeeFormProps
                   <p className="text-xs text-muted-foreground">
                     健康保険・厚生年金・子ども子育て支援金を自動計算します
                   </p>
+                  <div className="flex items-center gap-2 pt-1">
+                    <Checkbox
+                      id="care_insurance_enrolled"
+                      checked={careInsurance}
+                      onCheckedChange={(checked) => setCareInsurance(checked === true)}
+                    />
+                    <Label htmlFor="care_insurance_enrolled" className="cursor-pointer">
+                      介護保険対象（40〜64歳）
+                    </Label>
+                  </div>
                 </div>
               )}
               <div className="flex items-center gap-2">
@@ -259,13 +275,29 @@ export function EmployeeForm({ employee, open, onOpenChange }: EmployeeFormProps
               </div>
               <div className="space-y-2">
                 <Label htmlFor="resident_tax">住民税（月額・円）</Label>
-                <Input
-                  id="resident_tax"
-                  name="resident_tax"
-                  type="number"
-                  defaultValue={employee?.resident_tax || 0}
-                  placeholder="0"
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="resident_tax"
+                    name="resident_tax"
+                    type="number"
+                    defaultValue={employee?.resident_tax || 0}
+                    placeholder="0"
+                  />
+                  {employee && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="shrink-0"
+                      onClick={() => setResidentTaxOpen(true)}
+                    >
+                      月別内訳
+                    </Button>
+                  )}
+                </div>
+                <p className="text-[10px] text-gray-400">
+                  月別内訳の登録がある月はそちらが優先されます
+                </p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="savings_deduction">積立金（月額・円）</Label>
@@ -299,6 +331,14 @@ export function EmployeeForm({ employee, open, onOpenChange }: EmployeeFormProps
           </div>
         </form>
       </DialogContent>
+      {employee && (
+        <ResidentTaxDialog
+          employeeId={employee.id}
+          employeeName={employee.name}
+          open={residentTaxOpen}
+          onOpenChange={setResidentTaxOpen}
+        />
+      )}
     </Dialog>
   );
 }
