@@ -168,7 +168,7 @@ export function SettingsClient({
               />
             </div>
             <p className="text-xs text-muted-foreground">
-              所得税徴収高計算書（納付書）などの帳票に使用されます
+              帳票などに使用されます
             </p>
             <Button type="submit" disabled={loading}>
               {loading ? "保存中..." : "保存"}

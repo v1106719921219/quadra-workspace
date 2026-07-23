@@ -75,7 +75,6 @@ interface RosterEmployee {
 type ReportType =
   | "payment_deduction"
   | "bank_transfer"
-  | "income_tax"
   | "resident_tax"
   | "wage_ledger"
   | "withholding_book"
@@ -84,7 +83,6 @@ type ReportType =
 const REPORTS: { key: ReportType; label: string; period: "month" | "year" | "none" }[] = [
   { key: "payment_deduction", label: "支給控除一覧表", period: "month" },
   { key: "bank_transfer", label: "給与振込一覧表", period: "month" },
-  { key: "income_tax", label: "所得税徴収高計算書", period: "month" },
   { key: "resident_tax", label: "住民税徴収額一覧表", period: "month" },
   { key: "wage_ledger", label: "賃金台帳", period: "year" },
   { key: "withholding_book", label: "源泉徴収簿", period: "year" },
@@ -99,15 +97,7 @@ function num(n: number): string {
   return (n || 0).toLocaleString();
 }
 
-export function DocumentsClient({
-  orgName,
-  companyAddress,
-  companyPhone,
-}: {
-  orgName: string;
-  companyAddress: string;
-  companyPhone: string;
-}) {
+export function DocumentsClient({ orgName }: { orgName: string }) {
   const [reportType, setReportType] = useState<ReportType>("payment_deduction");
   const [year, setYear] = useState(() => jstYearMonth().year);
   const [month, setMonth] = useState(() => jstYearMonth().month);
@@ -245,16 +235,6 @@ export function DocumentsClient({
         <>
           {reportType === "payment_deduction" && <PaymentDeductionTable records={monthRecords} />}
           {reportType === "bank_transfer" && <BankTransferTable records={monthRecords} />}
-          {reportType === "income_tax" && (
-            <IncomeTaxSheet
-              records={monthRecords}
-              year={year}
-              month={month}
-              orgName={orgName}
-              companyAddress={companyAddress}
-              companyPhone={companyPhone}
-            />
-          )}
           {reportType === "resident_tax" && (
             <ResidentTaxTable records={monthRecords} year={year} month={month} orgName={orgName} />
           )}
@@ -404,164 +384,6 @@ function BankTransferTable({ records }: { records: PayRecord[] }) {
           </tfoot>
         </table>
       </div>
-    </div>
-  );
-}
-
-// ===== 所得税徴収高計算書（納付書様式） =====
-function IncomeTaxSheet({
-  records,
-  year,
-  month,
-  orgName,
-  companyAddress,
-  companyPhone,
-}: {
-  records: PayRecord[];
-  year: number;
-  month: number;
-  orgName: string;
-  companyAddress: string;
-  companyPhone: string;
-}) {
-  const count = records.filter((r) => r.gross_pay > 0).length;
-  const totalGross = records.reduce((s, r) => s + r.gross_pay, 0);
-  const totalTax = records.reduce((s, r) => s + r.income_tax, 0);
-  // 会計年度（4月〜翌3月）の令和表記
-  const fiscalReiwa = month >= 4 ? year - 2018 : year - 2019;
-  const reiwaYear = year - 2018;
-
-  const cell = "border border-black p-1.5";
-
-  return (
-    <div className="max-w-3xl mx-auto text-sm">
-      <p className="text-center font-bold mb-3">
-        給与所得・退職所得等の所得税徴収高計算書（納付書）
-      </p>
-
-      {/* 上段: 年度・税務署・整理番号・納期等の区分 */}
-      <table className="w-full border-collapse mb-3">
-        <tbody>
-          <tr>
-            <td className={`${cell} bg-muted/50 print:bg-gray-100 w-[80px] text-center`}>年度</td>
-            <td className={`${cell} text-center font-mono w-[100px]`}>令和{fiscalReiwa}年度</td>
-            <td className={`${cell} bg-muted/50 print:bg-gray-100 w-[90px] text-center`}>税務署名</td>
-            <td className={`${cell} w-[120px]`}></td>
-            <td className={`${cell} bg-muted/50 print:bg-gray-100 w-[90px] text-center`}>整理番号</td>
-            <td className={`${cell}`}></td>
-            <td className={`${cell} bg-muted/50 print:bg-gray-100 w-[110px] text-center`}>
-              納期等の区分
-            </td>
-            <td className={`${cell} text-center font-mono w-[130px]`}>
-              令和{reiwaYear}年{String(month).padStart(2, "0")}月分
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      {/* 中段: 区分・支払年月日・人員・支給額・税額 */}
-      <table className="w-full border-collapse mb-3">
-        <thead>
-          <tr className="bg-muted/50 print:bg-gray-100">
-            <th className={`${cell} text-left w-[200px]`}>区分</th>
-            <th className={`${cell} w-[110px]`}>支払年月日</th>
-            <th className={`${cell} w-[70px]`}>人員</th>
-            <th className={`${cell}`}>支給額</th>
-            <th className={`${cell}`}>税額</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className={cell}>俸給・給料等（01）</td>
-            <td className={`${cell} text-center font-mono`}>
-              令{reiwaYear}.{String(month).padStart(2, "0")}
-            </td>
-            <td className={`${cell} text-right font-mono`}>{count}人</td>
-            <td className={`${cell} text-right font-mono`}>{num(totalGross)}</td>
-            <td className={`${cell} text-right font-mono`}>{num(totalTax)}</td>
-          </tr>
-          <tr>
-            <td className={cell}>賞与（役員賞与を除く）（02）</td>
-            <td className={cell}></td>
-            <td className={cell}></td>
-            <td className={cell}></td>
-            <td className={cell}></td>
-          </tr>
-          <tr>
-            <td className={cell}>日雇労務者の賃金（06）</td>
-            <td className={cell}></td>
-            <td className={cell}></td>
-            <td className={cell}></td>
-            <td className={cell}></td>
-          </tr>
-          <tr>
-            <td className={cell}>退職手当等（07）</td>
-            <td className={cell}></td>
-            <td className={cell}></td>
-            <td className={cell}></td>
-            <td className={cell}></td>
-          </tr>
-          <tr>
-            <td className={cell}>税理士等の報酬（08）</td>
-            <td className={cell}></td>
-            <td className={cell}></td>
-            <td className={cell}></td>
-            <td className={cell}></td>
-          </tr>
-          <tr>
-            <td className={cell} colSpan={4}>年末調整による不足税額（04）</td>
-            <td className={cell}></td>
-          </tr>
-          <tr>
-            <td className={cell} colSpan={4}>年末調整による超過税額（05）</td>
-            <td className={cell}></td>
-          </tr>
-          <tr className="font-bold">
-            <td className={`${cell} bg-muted/50 print:bg-gray-100`} colSpan={4}>
-              本税
-            </td>
-            <td className={`${cell} text-right font-mono`}>{num(totalTax)}</td>
-          </tr>
-          <tr>
-            <td className={cell} colSpan={4}>延滞税</td>
-            <td className={cell}></td>
-          </tr>
-          <tr className="font-bold">
-            <td className={`${cell} bg-muted/50 print:bg-gray-100`} colSpan={4}>
-              合計額
-            </td>
-            <td className={`${cell} text-right font-mono`}>¥{num(totalTax)}</td>
-          </tr>
-        </tbody>
-      </table>
-
-      {/* 下段: 徴収義務者 */}
-      <table className="w-full border-collapse">
-        <tbody>
-          <tr>
-            <td
-              className={`${cell} bg-muted/50 print:bg-gray-100 w-[110px] text-center align-middle`}
-              rowSpan={3}
-            >
-              徴収義務者
-            </td>
-            <td className={`${cell} bg-muted/50 print:bg-gray-100 w-[130px]`}>住所（所在地）</td>
-            <td className={cell}>{companyAddress || ""}</td>
-          </tr>
-          <tr>
-            <td className={`${cell} bg-muted/50 print:bg-gray-100`}>氏名（名称）</td>
-            <td className={cell}>{orgName}</td>
-          </tr>
-          <tr>
-            <td className={`${cell} bg-muted/50 print:bg-gray-100`}>電話番号</td>
-            <td className={cell}>{companyPhone || ""}</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <p className="text-xs text-muted-foreground mt-3 print:text-black">
-        ※実際の納付書へ転記する際の参考値です。住所・電話番号は設定ページの「会社情報」から登録できます。
-      </p>
     </div>
   );
 }
