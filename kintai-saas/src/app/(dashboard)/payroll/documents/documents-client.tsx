@@ -253,6 +253,7 @@ export function DocumentsClient({ orgName }: { orgName: string }) {
           nav, header, [data-sidebar], button, .no-print { display: none !important; }
           body { font-size: 8pt; }
           .overflow-x-auto { overflow: visible !important; }
+          .print-fit { zoom: var(--print-zoom, 1); }
           table { page-break-inside: auto; width: 100%; }
           tr { page-break-inside: avoid; }
           th, td { padding: 2px 4px !important; }
@@ -292,8 +293,14 @@ function PaymentDeductionTable({ records }: { records: PayRecord[] }) {
   const isHours = (label: string) => label.includes("時間");
   const isDays = (label: string) => label.includes("日数");
 
+  // 印刷時: 従業員数が多い場合は縮小して1ページ幅に収める
+  const printZoom = Math.min(1, 16 / (records.length + 3));
+
   return (
-    <div className="border rounded-lg overflow-x-auto print:border-black">
+    <div
+      className="border rounded-lg overflow-x-auto print:border-black print-fit"
+      style={{ "--print-zoom": printZoom } as React.CSSProperties}
+    >
       <table className="w-full text-xs">
         <thead>
           <tr className="bg-muted/50 border-b print:bg-gray-100">
