@@ -116,6 +116,7 @@ export function PayrollClient() {
   const [detailOpen, setDetailOpen] = useState(false);
   // 編集中のセル: "employeeId__fieldName"
   const [editingCell, setEditingCell] = useState<string | null>(null);
+  const [printMode, setPrintMode] = useState<"list" | "slips">("slips");
   const [editValue, setEditValue] = useState("");
   const editInputRef = useRef<HTMLInputElement>(null);
 
@@ -291,7 +292,7 @@ export function PayrollClient() {
         disabled={isConfirmed}
       >
         {formatCurrency(value)}
-        {!isConfirmed && <Pencil className="h-3 w-3 text-muted-foreground" />}
+        {!isConfirmed && <Pencil className="h-3 w-3 text-muted-foreground print:hidden" />}
       </button>
     );
   }
@@ -413,8 +414,9 @@ export function PayrollClient() {
     URL.revokeObjectURL(url);
   }
 
-  function handlePrint() {
-    window.print();
+  function handlePrint(mode: "list" | "slips") {
+    setPrintMode(mode);
+    setTimeout(() => window.print(), 100);
   }
 
   // サマリ計算
@@ -445,9 +447,13 @@ export function PayrollClient() {
                 <Download className="h-4 w-4 mr-1" />
                 CSV出力
               </Button>
-              <Button variant="outline" size="sm" onClick={handlePrint}>
+              <Button variant="outline" size="sm" onClick={() => handlePrint("list")}>
                 <Printer className="h-4 w-4 mr-1" />
-                印刷
+                一覧印刷
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => handlePrint("slips")}>
+                <Printer className="h-4 w-4 mr-1" />
+                明細印刷
               </Button>
             </>
           )}
@@ -499,9 +505,16 @@ export function PayrollClient() {
         </div>
       )}
 
+      {/* 印刷用ヘッダー（一覧印刷時） */}
+      {printMode === "list" && (
+        <div className="hidden print:block text-center mb-2">
+          <h1 className="text-xl font-bold">給与一覧 {year}年{month}月分</h1>
+        </div>
+      )}
+
       {/* 給与テーブル */}
       {hasData && (
-        <div className="overflow-x-auto print:hidden">
+        <div className={`overflow-x-auto ${printMode === "list" ? "" : "print:hidden"}`}>
           <Table>
             <TableHeader>
               <TableRow>
@@ -597,7 +610,7 @@ export function PayrollClient() {
       />
 
       {/* 印刷用個別明細 */}
-      <div className="hidden print:block">
+      <div className={printMode === "slips" ? "hidden print:block" : "hidden"}>
         {calculations.map((calc, i) => (
           <div key={calc.employee.id} className={i > 0 ? "break-before-page" : ""}>
             <div className="border rounded-lg p-6 mb-4">
