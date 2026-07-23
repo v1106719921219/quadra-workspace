@@ -28,14 +28,6 @@ const STANDARD_MONTHLY_WORK_DAYS = 22;
 const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
 
 /**
- * 日付が土日（休日）かどうか判定（TZ非依存）
- */
-function isHoliday(dateStr: string): boolean {
-  const day = new Date(dateStr + "T00:00:00Z").getUTCDay();
-  return day === 0 || day === 6; // 日曜=0, 土曜=6
-}
-
-/**
  * clock_in〜clock_outのうちJSTの22:00-05:00に重なる分数を計算（TZ非依存）
  * 実時刻を+9hシフトし、UTCメソッドでJSTの壁時計時刻として扱う
  */
@@ -109,7 +101,8 @@ function calculateDailyWork(record: TimeRecordForPayroll, roundingMinutes: numbe
   const overtimeMinutes = Math.max(0, totalMinutes - STANDARD_DAILY_MINUTES);
   const normalMinutes = totalMinutes - overtimeMinutes;
   const lateNightMinutes = calcLateNightMinutes(clockIn, clockOut);
-  const holiday = isHoliday(record.work_date);
+  // 土日勤務も通常勤務扱い（休日出勤手当は適用しない）
+  const holiday = false;
 
   // 日当加算: 配置ボードの現場日当 → work_typeの日当 の優先順位
   const dailyAllowance = record.site_daily_allowance > 0
