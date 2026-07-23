@@ -213,22 +213,32 @@ export function PayrollClient() {
   type EditableField = "basePay" | "overtimePay" | "lateNightPay" | "holidayPay" | "dailyAllowanceTotal" | "driverAllowance" | "transportationAllowance";
   type DeductionField = "healthInsurance" | "careInsurance" | "childSupportContribution" | "pension" | "employmentInsurance" | "incomeTax" | "residentTax" | "savingsDeduction";
 
-  function handleCellEdit(employeeId: string, field: EditableField, currentValue: number) {
+  const DEDUCTION_FIELDS: DeductionField[] = ["healthInsurance", "careInsurance", "childSupportContribution", "pension", "employmentInsurance", "incomeTax", "residentTax", "savingsDeduction"];
+
+  function handleCellEdit(employeeId: string, field: EditableField | DeductionField, currentValue: number) {
     setEditingCell(`${employeeId}__${field}`);
     setEditValue(String(currentValue));
   }
 
-  function handleCellSave(employeeId: string, field: EditableField) {
+  function handleCellSave(employeeId: string, field: EditableField | DeductionField) {
     const newValue = parseInt(editValue) || 0;
     setCalculations((prev) =>
       prev.map((calc) => {
         if (calc.employee.id !== employeeId) return calc;
         const updated = { ...calc, [field]: newValue };
-        // 総支給額を再計算（控除は手動編集値を維持するため再計算しない）
-        updated.grossPay = updated.basePay + updated.overtimePay + updated.lateNightPay
-          + updated.holidayPay - updated.absenceDeduction
-          + updated.dailyAllowanceTotal + updated.driverAllowance
-          + updated.transportationAllowance;
+        if (DEDUCTION_FIELDS.includes(field as DeductionField)) {
+          // 控除項目の編集: 控除合計を再計算
+          updated.totalDeductions =
+            updated.healthInsurance + updated.careInsurance + updated.childSupportContribution
+            + updated.pension + updated.employmentInsurance
+            + updated.incomeTax + updated.residentTax + updated.savingsDeduction;
+        } else {
+          // 支給項目の編集: 総支給額を再計算
+          updated.grossPay = updated.basePay + updated.overtimePay + updated.lateNightPay
+            + updated.holidayPay - updated.absenceDeduction
+            + updated.dailyAllowanceTotal + updated.driverAllowance
+            + updated.transportationAllowance;
+        }
         updated.netPay = updated.grossPay - updated.totalDeductions;
         return updated;
       })
@@ -252,7 +262,7 @@ export function PayrollClient() {
     );
   }
 
-  function renderEditableCell(calc: PayrollCalculation, field: EditableField) {
+  function renderEditableCell(calc: PayrollCalculation, field: EditableField | DeductionField) {
     const cellKey = `${calc.employee.id}__${field}`;
     const value = calc[field] as number;
     if (editingCell === cellKey) {
@@ -539,9 +549,9 @@ export function PayrollClient() {
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>{renderEditableCell(calc, "driverAllowance")}</TableCell>
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>{renderEditableCell(calc, "transportationAllowance")}</TableCell>
                   <TableCell className="text-right font-semibold">{formatCurrency(calc.grossPay)}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(calc.healthInsurance + calc.careInsurance + calc.pension + calc.childSupportContribution + calc.employmentInsurance)}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(calc.incomeTax)}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(calc.residentTax)}</TableCell>
+                  <TableCell className="text-right" title="クリックで明細を開いて健保・介護・厚年・雇用保険を個別編集できます">{formatCurrency(calc.healthInsurance + calc.careInsurance + calc.pension + calc.childSupportContribution + calc.employmentInsurance)}</TableCell>
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>{renderEditableCell(calc, "incomeTax")}</TableCell>
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>{renderEditableCell(calc, "residentTax")}</TableCell>
                   <TableCell className="text-right font-bold text-primary">{formatCurrency(calc.netPay)}</TableCell>
                 </TableRow>
               ))}
