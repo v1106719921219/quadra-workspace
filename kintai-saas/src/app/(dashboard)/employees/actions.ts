@@ -15,6 +15,26 @@ export async function getEmployees() {
   return data;
 }
 
+function extractBankRosterFields(formData: FormData) {
+  const str = (key: string) => {
+    const v = formData.get(key) as string | null;
+    return v?.trim() || null;
+  };
+  return {
+    bank_name: str("bank_name"),
+    bank_branch: str("bank_branch"),
+    account_type: (formData.get("account_type") as string) || "ordinary",
+    account_number: str("account_number"),
+    account_holder: str("account_holder"),
+    address: str("address"),
+    birth_date: str("birth_date"),
+    gender: str("gender"),
+    hire_date: str("hire_date"),
+    retire_date: str("retire_date"),
+    job_description: str("job_description"),
+  };
+}
+
 export async function createEmployee(formData: FormData) {
   const supabase = await createClient();
   const tenantId = await getTenantId();
@@ -40,6 +60,7 @@ export async function createEmployee(formData: FormData) {
 
   const { error } = await supabase.from("employees").insert({
     tenant_id: tenantId,
+    ...extractBankRosterFields(formData),
     name,
     employee_number: employeeNumber || null,
     employee_type: employeeType,
@@ -89,6 +110,7 @@ export async function updateEmployee(id: string, formData: FormData) {
   const { error } = await supabase
     .from("employees")
     .update({
+      ...extractBankRosterFields(formData),
       name,
       employee_number: employeeNumber || null,
       employee_type: employeeType,
@@ -110,6 +132,16 @@ export async function updateEmployee(id: string, formData: FormData) {
     })
     .eq("id", id);
 
+  if (error) throw error;
+  revalidatePath("/employees");
+}
+
+export async function toggleEmployeeActive(id: string, isActive: boolean) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("employees")
+    .update({ is_active: isActive })
+    .eq("id", id);
   if (error) throw error;
   revalidatePath("/employees");
 }

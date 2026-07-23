@@ -42,6 +42,17 @@ interface Employee {
   can_be_driver: boolean;
   board_char: string | null;
   pin: string | null;
+  bank_name: string | null;
+  bank_branch: string | null;
+  account_type: string | null;
+  account_number: string | null;
+  account_holder: string | null;
+  address: string | null;
+  birth_date: string | null;
+  gender: string | null;
+  hire_date: string | null;
+  retire_date: string | null;
+  job_description: string | null;
 }
 
 interface EmployeeFormProps {
@@ -59,6 +70,8 @@ export function EmployeeForm({ employee, open, onOpenChange }: EmployeeFormProps
   const [canBeDriver, setCanBeDriver] = useState(employee?.can_be_driver || false);
   const [loading, setLoading] = useState(false);
   const [residentTaxOpen, setResidentTaxOpen] = useState(false);
+  const [accountType, setAccountType] = useState(employee?.account_type || "ordinary");
+  const [gender, setGender] = useState(employee?.gender || "");
 
   // ダイアログが開くたびに既存データで状態を初期化
   useEffect(() => {
@@ -69,6 +82,8 @@ export function EmployeeForm({ employee, open, onOpenChange }: EmployeeFormProps
       setEmploymentInsurance(employee?.employment_insurance_enrolled || false);
       setCareInsurance(employee?.care_insurance_enrolled || false);
       setCanBeDriver(employee?.can_be_driver || false);
+      setAccountType(employee?.account_type || "ordinary");
+      setGender(employee?.gender || "");
     }
   }, [open, employee]);
 
@@ -83,6 +98,8 @@ export function EmployeeForm({ employee, open, onOpenChange }: EmployeeFormProps
       formData.set("employment_insurance_enrolled", String(employmentInsurance));
       formData.set("care_insurance_enrolled", String(careInsurance));
       formData.set("can_be_driver", String(canBeDriver));
+      formData.set("account_type", accountType);
+      formData.set("gender", gender);
       if (employee) {
         formData.set("is_active", String(employee.is_active));
         await updateEmployee(employee.id, formData);
@@ -101,7 +118,7 @@ export function EmployeeForm({ employee, open, onOpenChange }: EmployeeFormProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{employee ? "従業員編集" : "従業員追加"}</DialogTitle>
         </DialogHeader>
@@ -318,6 +335,76 @@ export function EmployeeForm({ employee, open, onOpenChange }: EmployeeFormProps
                 <Label htmlFor="can_be_driver" className="cursor-pointer">
                   ドライバー対象
                 </Label>
+              </div>
+            </div>
+          </div>
+          <div className="border-t pt-4 mt-4">
+            <p className="text-sm font-medium mb-3">振込口座（給与振込一覧表用）</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="bank_name">銀行名</Label>
+                <Input id="bank_name" name="bank_name" defaultValue={employee?.bank_name || ""} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="bank_branch">支店名</Label>
+                <Input id="bank_branch" name="bank_branch" defaultValue={employee?.bank_branch || ""} />
+              </div>
+              <div className="space-y-2">
+                <Label>口座種別</Label>
+                <Select value={accountType} onValueChange={setAccountType}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ordinary">普通</SelectItem>
+                    <SelectItem value="checking">当座</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="account_number">口座番号</Label>
+                <Input id="account_number" name="account_number" inputMode="numeric" defaultValue={employee?.account_number || ""} />
+              </div>
+              <div className="col-span-2 space-y-2">
+                <Label htmlFor="account_holder">口座名義（カナ）</Label>
+                <Input id="account_holder" name="account_holder" defaultValue={employee?.account_holder || ""} />
+              </div>
+            </div>
+          </div>
+          <div className="border-t pt-4 mt-4">
+            <p className="text-sm font-medium mb-3">労働者名簿情報</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="col-span-2 space-y-2">
+                <Label htmlFor="address">住所</Label>
+                <Input id="address" name="address" defaultValue={employee?.address || ""} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="birth_date">生年月日</Label>
+                <Input id="birth_date" name="birth_date" type="date" defaultValue={employee?.birth_date || ""} />
+              </div>
+              <div className="space-y-2">
+                <Label>性別</Label>
+                <Select value={gender || undefined} onValueChange={setGender}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="未設定" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">男</SelectItem>
+                    <SelectItem value="female">女</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="hire_date">入社日</Label>
+                <Input id="hire_date" name="hire_date" type="date" defaultValue={employee?.hire_date || ""} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="retire_date">退職日</Label>
+                <Input id="retire_date" name="retire_date" type="date" defaultValue={employee?.retire_date || ""} />
+              </div>
+              <div className="col-span-2 space-y-2">
+                <Label htmlFor="job_description">従事する業務の種類</Label>
+                <Input id="job_description" name="job_description" defaultValue={employee?.job_description || ""} placeholder="ハウスクリーニング業務" />
               </div>
             </div>
           </div>

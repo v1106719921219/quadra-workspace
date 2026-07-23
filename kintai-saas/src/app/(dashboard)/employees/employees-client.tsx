@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { EmployeeForm } from "./employee-form";
-import { deleteEmployee, updateEmployee } from "./actions";
+import { deleteEmployee, toggleEmployeeActive } from "./actions";
 import { toast } from "sonner";
 
 interface Employee {
@@ -36,6 +36,17 @@ interface Employee {
   can_be_driver: boolean;
   board_char: string | null;
   pin: string | null;
+  bank_name: string | null;
+  bank_branch: string | null;
+  account_type: string | null;
+  account_number: string | null;
+  account_holder: string | null;
+  address: string | null;
+  birth_date: string | null;
+  gender: string | null;
+  hire_date: string | null;
+  retire_date: string | null;
+  job_description: string | null;
 }
 
 export function EmployeesClient({ employees }: { employees: Employee[] }) {
@@ -63,27 +74,8 @@ export function EmployeesClient({ employees }: { employees: Employee[] }) {
   }
 
   async function handleToggleActive(emp: Employee) {
-    const formData = new FormData();
-    formData.set("name", emp.name);
-    formData.set("employee_number", emp.employee_number || "");
-    formData.set("employee_type", emp.employee_type);
-    formData.set("hourly_rate", emp.hourly_rate?.toString() || "");
-    formData.set("monthly_salary", emp.monthly_salary?.toString() || "");
-    formData.set("transportation_allowance", emp.transportation_allowance?.toString() || "0");
-    formData.set("dependents_count", emp.dependents_count?.toString() || "0");
-    formData.set("tax_column", emp.tax_column || "kou");
-    formData.set("social_insurance_enrolled", String(emp.social_insurance_enrolled || false));
-    formData.set("employment_insurance_enrolled", String(emp.employment_insurance_enrolled || false));
-    formData.set("care_insurance_enrolled", String(emp.care_insurance_enrolled || false));
-    formData.set("standard_monthly_remuneration", emp.standard_monthly_remuneration?.toString() || "0");
-    formData.set("resident_tax", emp.resident_tax?.toString() || "0");
-    formData.set("savings_deduction", emp.savings_deduction?.toString() || "0");
-    formData.set("board_char", emp.board_char || "");
-    formData.set("pin", emp.pin || "");
-    formData.set("can_be_driver", String(emp.can_be_driver || false));
-    formData.set("is_active", String(!emp.is_active));
     try {
-      await updateEmployee(emp.id, formData);
+      await toggleEmployeeActive(emp.id, !emp.is_active);
       toast.success(emp.is_active ? "無効化しました" : "有効化しました");
     } catch {
       toast.error("更新に失敗しました");

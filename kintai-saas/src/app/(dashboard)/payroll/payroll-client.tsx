@@ -13,7 +13,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ChevronLeft, ChevronRight, Download, Printer, Play, Check, Undo2, Pencil } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, Printer, Play, Check, Undo2, Pencil, FileText } from "lucide-react";
+import Link from "next/link";
 import { calculateMonthlyPayroll, getPayrollRecords, confirmPayroll, unconfirmPayroll } from "./actions";
 import { PayrollDetailDialog } from "./payroll-detail-dialog";
 import type { PayrollCalculation } from "@/lib/payroll/types";
@@ -418,6 +419,12 @@ export function PayrollClient() {
       <div className="flex items-center justify-between print:hidden">
         <h1 className="text-2xl font-bold">給与計算</h1>
         <div className="flex items-center gap-2">
+          <Link href="/payroll/documents">
+            <Button variant="outline" size="sm">
+              <FileText className="h-4 w-4 mr-1" />
+              帳票
+            </Button>
+          </Link>
           {hasData && (
             <>
               <Button variant="outline" size="sm" onClick={exportMFPayrollCSV}>
