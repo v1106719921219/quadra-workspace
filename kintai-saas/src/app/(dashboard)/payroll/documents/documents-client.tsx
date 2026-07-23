@@ -247,10 +247,13 @@ export function DocumentsClient({ orgName }: { orgName: string }) {
       {/* 印刷用CSS */}
       <style>{`
         @media print {
+          @page { size: A4 landscape; margin: 10mm; }
           nav, header, [data-sidebar], button, .no-print { display: none !important; }
-          body { font-size: 9pt; }
-          table { page-break-inside: auto; }
+          body { font-size: 8pt; }
+          .overflow-x-auto { overflow: visible !important; }
+          table { page-break-inside: auto; width: 100%; }
           tr { page-break-inside: avoid; }
+          th, td { padding: 2px 4px !important; }
         }
       `}</style>
     </div>
