@@ -19,10 +19,33 @@ import { calculateMonthlyPayroll, getPayrollRecords, confirmPayroll, unconfirmPa
 import { PayrollDetailDialog } from "./payroll-detail-dialog";
 import type { PayrollCalculation } from "@/lib/payroll/types";
 import { toast } from "sonner";
-import { jstYearMonth } from "@/lib/time-utils";
+import { jstYearMonth, jstDayOfWeek } from "@/lib/time-utils";
 
 function formatCurrency(amount: number): string {
   return `¥${amount.toLocaleString()}`;
+}
+
+// 現場別内訳（平日は現場ごと、土日勤務は「休日」として集計）
+function getSiteBreakdown(calc: PayrollCalculation) {
+  const map = new Map<string, { hours: number; days: number }>();
+  let holidayHours = 0;
+  let holidayDays = 0;
+  (calc.dailyDetails || []).forEach((d) => {
+    const hours = d.totalMinutes / 60;
+    if (hours <= 0) return;
+    const dow = jstDayOfWeek(d.date);
+    if (dow === 0 || dow === 6) {
+      holidayHours += hours;
+      holidayDays += 1;
+    } else {
+      const key = d.siteName || "通常勤務";
+      const cur = map.get(key) || { hours: 0, days: 0 };
+      cur.hours += hours;
+      cur.days += 1;
+      map.set(key, cur);
+    }
+  });
+  return { sites: [...map.entries()], holidayHours, holidayDays };
 }
 
 // 確定レコードからPayrollCalculation形式に変換
@@ -625,11 +648,28 @@ export function PayrollClient() {
             <div className="border rounded-lg p-6 mb-4">
               <h2 className="text-xl font-bold mb-1">{calc.employee.name} - 給与明細</h2>
               <p className="text-sm mb-4">{year}年{month}月分</p>
-              <div className="grid grid-cols-3 gap-4 mb-4">
+              <div className="grid grid-cols-3 gap-4 mb-2">
                 <div><span className="text-sm text-muted-foreground">出勤日数:</span> {calc.workDays}日</div>
                 <div><span className="text-sm text-muted-foreground">総労働:</span> {calc.totalHours.toFixed(1)}h</div>
                 <div><span className="text-sm text-muted-foreground">残業:</span> {calc.overtimeHours.toFixed(1)}h</div>
               </div>
+              {(() => {
+                const bd = getSiteBreakdown(calc);
+                if (bd.sites.length === 0 && bd.holidayDays === 0) return null;
+                return (
+                  <div className="text-sm mb-4 border rounded p-2">
+                    <span className="text-muted-foreground mr-2">内訳:</span>
+                    {bd.sites.map(([name, v]) => (
+                      <span key={name} className="mr-3 whitespace-nowrap">
+                        {name}: {v.days}日 {v.hours.toFixed(2)}h
+                      </span>
+                    ))}
+                    <span className="whitespace-nowrap">
+                      休日: {bd.holidayDays}日 {bd.holidayHours.toFixed(2)}h
+                    </span>
+                  </div>
+                );
+              })()}
               <div className="grid grid-cols-2 gap-8">
                 <div>
                   <h3 className="font-semibold border-b mb-2">支給</h3>
