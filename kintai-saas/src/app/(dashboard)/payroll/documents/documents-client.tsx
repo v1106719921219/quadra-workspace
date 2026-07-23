@@ -77,7 +77,6 @@ type ReportType =
   | "bank_transfer"
   | "resident_tax"
   | "wage_ledger"
-  | "withholding_book"
   | "roster";
 
 const REPORTS: { key: ReportType; label: string; period: "month" | "year" | "none" }[] = [
@@ -85,7 +84,6 @@ const REPORTS: { key: ReportType; label: string; period: "month" | "year" | "non
   { key: "bank_transfer", label: "給与振込一覧表", period: "month" },
   { key: "resident_tax", label: "住民税徴収額一覧表", period: "month" },
   { key: "wage_ledger", label: "賃金台帳", period: "year" },
-  { key: "withholding_book", label: "源泉徴収簿", period: "year" },
   { key: "roster", label: "労働者名簿", period: "none" },
 ];
 
@@ -239,9 +237,6 @@ export function DocumentsClient({ orgName }: { orgName: string }) {
             <ResidentTaxTable records={monthRecords} year={year} month={month} orgName={orgName} />
           )}
           {reportType === "wage_ledger" && <WageLedger records={yearRecords} year={year} orgName={orgName} />}
-          {reportType === "withholding_book" && (
-            <WithholdingBook records={yearRecords} year={year} orgName={orgName} />
-          )}
           {reportType === "roster" && <Roster employees={roster} orgName={orgName} />}
         </>
       )}
@@ -597,84 +592,6 @@ function WageLedger({ records, year, orgName }: { records: PayRecord[]; year: nu
                     );
                   })}
                 </tbody>
-              </table>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// ===== 源泉徴収簿（年・従業員別） =====
-function WithholdingBook({ records, year, orgName }: { records: PayRecord[]; year: number; orgName: string }) {
-  const byEmployee = new Map<string, PayRecord[]>();
-  records.forEach((r) => {
-    const list = byEmployee.get(r.employee_id) || [];
-    list.push(r);
-    byEmployee.set(r.employee_id, list);
-  });
-
-  return (
-    <div className="space-y-8">
-      {[...byEmployee.entries()].map(([empId, empRecords], idx) => {
-        const emp = empRecords[0].employees;
-        const monthMap = new Map(empRecords.map((r) => [r.month, r]));
-        const socialIns = (r: PayRecord) =>
-          r.health_insurance + (r.care_insurance || 0) + r.pension + (r.child_support_contribution || 0) + r.employment_insurance;
-        const totGross = empRecords.reduce((s, r) => s + r.gross_pay, 0);
-        const totSocial = empRecords.reduce((s, r) => s + socialIns(r), 0);
-        const totTax = empRecords.reduce((s, r) => s + r.income_tax, 0);
-        return (
-          <div key={empId} className={idx > 0 ? "break-before-page" : ""}>
-            <div className="flex items-baseline justify-between mb-2">
-              <p className="font-bold">
-                {emp.name}
-                <span className="text-sm font-normal text-muted-foreground ml-2 print:text-black">
-                  {emp.employee_number || ""} ・ {emp.tax_column === "otsu" ? "乙欄" : "甲欄"} ・ 扶養
-                  {emp.dependents_count}人
-                </span>
-              </p>
-              <p className="text-sm text-muted-foreground print:text-black">
-                {orgName} ・ {year}年分 源泉徴収簿
-              </p>
-            </div>
-            <div className="border rounded-lg overflow-x-auto print:border-black">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="bg-muted/50 border-b print:bg-gray-100">
-                    <th className="text-left p-1.5 w-[50px]">月</th>
-                    <th className="text-right p-1.5">総支給金額</th>
-                    <th className="text-right p-1.5">社会保険料等</th>
-                    <th className="text-right p-1.5">社保控除後の給与等</th>
-                    <th className="text-right p-1.5">算出税額</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {Array.from({ length: 12 }, (_, i) => {
-                    const rec = monthMap.get(i + 1);
-                    return (
-                      <tr key={i} className="border-b">
-                        <td className="p-1.5">{i + 1}月</td>
-                        <td className="p-1.5 text-right font-mono">{rec ? num(rec.gross_pay) : ""}</td>
-                        <td className="p-1.5 text-right font-mono">{rec ? num(socialIns(rec)) : ""}</td>
-                        <td className="p-1.5 text-right font-mono">
-                          {rec ? num(rec.gross_pay - socialIns(rec)) : ""}
-                        </td>
-                        <td className="p-1.5 text-right font-mono">{rec ? num(rec.income_tax) : ""}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-                <tfoot>
-                  <tr className="bg-muted/50 font-bold border-t print:bg-gray-100">
-                    <td className="p-1.5">合計</td>
-                    <td className="p-1.5 text-right font-mono">{num(totGross)}</td>
-                    <td className="p-1.5 text-right font-mono">{num(totSocial)}</td>
-                    <td className="p-1.5 text-right font-mono">{num(totGross - totSocial)}</td>
-                    <td className="p-1.5 text-right font-mono">{num(totTax)}</td>
-                  </tr>
-                </tfoot>
               </table>
             </div>
           </div>
