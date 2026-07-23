@@ -469,15 +469,9 @@ export function PayrollClient() {
         {hasData && !isConfirmed && <Badge variant="secondary">未確定</Badge>}
       </div>
 
-      {/* 印刷用ヘッダー */}
-      <div className="hidden print:block text-center mb-6">
-        <h1 className="text-2xl font-bold">給与明細書</h1>
-        <p className="text-lg">{year}年{month}月分</p>
-      </div>
-
       {/* サマリカード */}
       {hasData && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 print:grid-cols-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 print:hidden">
           <Card>
             <CardContent className="pt-4">
               <p className="text-sm text-muted-foreground">総支給額</p>
@@ -507,7 +501,7 @@ export function PayrollClient() {
 
       {/* 給与テーブル */}
       {hasData && (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto print:hidden">
           <Table>
             <TableHeader>
               <TableRow>
@@ -607,7 +601,8 @@ export function PayrollClient() {
         {calculations.map((calc, i) => (
           <div key={calc.employee.id} className={i > 0 ? "break-before-page" : ""}>
             <div className="border rounded-lg p-6 mb-4">
-              <h2 className="text-xl font-bold mb-4">{calc.employee.name} - 給与明細</h2>
+              <h2 className="text-xl font-bold mb-1">{calc.employee.name} - 給与明細</h2>
+              <p className="text-sm mb-4">{year}年{month}月分</p>
               <div className="grid grid-cols-3 gap-4 mb-4">
                 <div><span className="text-sm text-muted-foreground">出勤日数:</span> {calc.workDays}日</div>
                 <div><span className="text-sm text-muted-foreground">総労働:</span> {calc.totalHours.toFixed(1)}h</div>
