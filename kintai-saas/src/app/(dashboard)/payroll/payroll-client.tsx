@@ -679,6 +679,19 @@ export function PayrollClient() {
           </div>
         ))}
       </div>
+
+      {/* 印刷用CSS（一覧印刷時は横向き・縮小して1ページ幅に収める） */}
+      {printMode === "list" && (
+        <style>{`
+          @media print {
+            @page { size: A4 landscape; margin: 10mm; }
+            body { font-size: 9pt; }
+            .overflow-x-auto { overflow: visible !important; }
+            table { width: 100%; }
+            th, td { padding: 3px 6px !important; white-space: nowrap; }
+          }
+        `}</style>
+      )}
     </div>
   );
 }
