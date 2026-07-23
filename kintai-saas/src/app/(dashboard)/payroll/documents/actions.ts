@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 
 const EMPLOYEE_SELECT =
-  "name, employee_number, employee_type, bank_name, bank_branch, account_type, account_number, account_holder, dependents_count, tax_column";
+  "name, employee_number, employee_type, is_active, bank_name, bank_branch, account_type, account_number, account_holder, dependents_count, tax_column, resident_tax_city, resident_tax_city_code, resident_tax_designation_number, resident_tax_addressee_number";
 
 export async function getPayrollForMonth(year: number, month: number) {
   const supabase = await createClient();

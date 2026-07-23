@@ -22,12 +22,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Trash2 } from "lucide-react";
-import { updateTenantSettings, updateMemberRole, removeMember } from "./actions";
+import { updateTenantSettings, updateCompanyInfo, updateMemberRole, removeMember } from "./actions";
 import { toast } from "sonner";
 
 interface TenantSettings {
   closing_day: number;
   timezone: string;
+  company_address: string | null;
+  company_phone: string | null;
 }
 
 interface Member {
@@ -53,6 +55,20 @@ export function SettingsClient({
       const formData = new FormData(e.currentTarget);
       await updateTenantSettings(formData);
       toast.success("設定を保存しました");
+    } catch {
+      toast.error("保存に失敗しました");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleSaveCompanyInfo(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const formData = new FormData(e.currentTarget);
+      await updateCompanyInfo(formData);
+      toast.success("会社情報を保存しました");
     } catch {
       toast.error("保存に失敗しました");
     } finally {
@@ -120,6 +136,40 @@ export function SettingsClient({
                 readOnly
               />
             </div>
+            <Button type="submit" disabled={loading}>
+              {loading ? "保存中..." : "保存"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>会社情報</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSaveCompanyInfo} className="space-y-4 max-w-md">
+            <div className="space-y-2">
+              <Label htmlFor="company_address">所在地（住所）</Label>
+              <Input
+                id="company_address"
+                name="company_address"
+                defaultValue={settings?.company_address ?? ""}
+                placeholder="例: 千葉県千葉市○○区○○ 1-2-3"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="company_phone">電話番号</Label>
+              <Input
+                id="company_phone"
+                name="company_phone"
+                defaultValue={settings?.company_phone ?? ""}
+                placeholder="例: 043-000-0000"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              所得税徴収高計算書（納付書）などの帳票に使用されます
+            </p>
             <Button type="submit" disabled={loading}>
               {loading ? "保存中..." : "保存"}
             </Button>

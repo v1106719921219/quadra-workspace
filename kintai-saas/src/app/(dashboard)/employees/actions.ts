@@ -32,6 +32,10 @@ function extractBankRosterFields(formData: FormData) {
     hire_date: str("hire_date"),
     retire_date: str("retire_date"),
     job_description: str("job_description"),
+    resident_tax_city: str("resident_tax_city"),
+    resident_tax_city_code: str("resident_tax_city_code"),
+    resident_tax_designation_number: str("resident_tax_designation_number"),
+    resident_tax_addressee_number: str("resident_tax_addressee_number"),
   };
 }
 

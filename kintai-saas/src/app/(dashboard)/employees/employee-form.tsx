@@ -53,6 +53,10 @@ interface Employee {
   hire_date: string | null;
   retire_date: string | null;
   job_description: string | null;
+  resident_tax_city: string | null;
+  resident_tax_city_code: string | null;
+  resident_tax_designation_number: string | null;
+  resident_tax_addressee_number: string | null;
 }
 
 interface EmployeeFormProps {
@@ -315,6 +319,42 @@ export function EmployeeForm({ employee, open, onOpenChange }: EmployeeFormProps
                 <p className="text-[10px] text-gray-400">
                   月別内訳の登録がある月はそちらが優先されます
                 </p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="resident_tax_city">住民税納付先（市区町村）</Label>
+                  <Input
+                    id="resident_tax_city"
+                    name="resident_tax_city"
+                    defaultValue={employee?.resident_tax_city || ""}
+                    placeholder="例: 千葉市"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="resident_tax_city_code">自治体コード</Label>
+                  <Input
+                    id="resident_tax_city_code"
+                    name="resident_tax_city_code"
+                    defaultValue={employee?.resident_tax_city_code || ""}
+                    placeholder="例: 121002"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="resident_tax_designation_number">指定番号</Label>
+                  <Input
+                    id="resident_tax_designation_number"
+                    name="resident_tax_designation_number"
+                    defaultValue={employee?.resident_tax_designation_number || ""}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="resident_tax_addressee_number">宛名番号</Label>
+                  <Input
+                    id="resident_tax_addressee_number"
+                    name="resident_tax_addressee_number"
+                    defaultValue={employee?.resident_tax_addressee_number || ""}
+                  />
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="savings_deduction">積立金（月額・円）</Label>

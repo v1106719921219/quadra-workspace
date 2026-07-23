@@ -47,6 +47,10 @@ interface Employee {
   hire_date: string | null;
   retire_date: string | null;
   job_description: string | null;
+  resident_tax_city: string | null;
+  resident_tax_city_code: string | null;
+  resident_tax_designation_number: string | null;
+  resident_tax_addressee_number: string | null;
 }
 
 export function EmployeesClient({ employees }: { employees: Employee[] }) {

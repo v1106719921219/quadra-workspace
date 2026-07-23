@@ -33,6 +33,22 @@ export async function updateTenantSettings(formData: FormData) {
   revalidatePath("/settings");
 }
 
+export async function updateCompanyInfo(formData: FormData) {
+  const supabase = await createClient();
+  const tenantId = await getTenantId();
+
+  const companyAddress = (formData.get("company_address") as string)?.trim() || null;
+  const companyPhone = (formData.get("company_phone") as string)?.trim() || null;
+
+  const { error } = await supabase
+    .from("tenant_settings")
+    .update({ company_address: companyAddress, company_phone: companyPhone })
+    .eq("tenant_id", tenantId);
+
+  if (error) throw error;
+  revalidatePath("/settings");
+}
+
 export async function getOrganizationMembers() {
   const supabase = await createClient();
   const tenantId = await getTenantId();

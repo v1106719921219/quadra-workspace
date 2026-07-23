@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Printer, ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -19,6 +19,11 @@ interface EmpInfo {
   account_holder: string | null;
   dependents_count: number;
   tax_column: string;
+  is_active: boolean;
+  resident_tax_city: string | null;
+  resident_tax_city_code: string | null;
+  resident_tax_designation_number: string | null;
+  resident_tax_addressee_number: string | null;
 }
 
 interface PayRecord {
@@ -94,7 +99,15 @@ function num(n: number): string {
   return (n || 0).toLocaleString();
 }
 
-export function DocumentsClient({ orgName }: { orgName: string }) {
+export function DocumentsClient({
+  orgName,
+  companyAddress,
+  companyPhone,
+}: {
+  orgName: string;
+  companyAddress: string;
+  companyPhone: string;
+}) {
   const [reportType, setReportType] = useState<ReportType>("payment_deduction");
   const [year, setYear] = useState(() => jstYearMonth().year);
   const [month, setMonth] = useState(() => jstYearMonth().month);
@@ -233,9 +246,18 @@ export function DocumentsClient({ orgName }: { orgName: string }) {
           {reportType === "payment_deduction" && <PaymentDeductionTable records={monthRecords} />}
           {reportType === "bank_transfer" && <BankTransferTable records={monthRecords} />}
           {reportType === "income_tax" && (
-            <IncomeTaxSheet records={monthRecords} year={year} month={month} orgName={orgName} />
+            <IncomeTaxSheet
+              records={monthRecords}
+              year={year}
+              month={month}
+              orgName={orgName}
+              companyAddress={companyAddress}
+              companyPhone={companyPhone}
+            />
           )}
-          {reportType === "resident_tax" && <ResidentTaxTable records={monthRecords} />}
+          {reportType === "resident_tax" && (
+            <ResidentTaxTable records={monthRecords} year={year} month={month} orgName={orgName} />
+          )}
           {reportType === "wage_ledger" && <WageLedger records={yearRecords} year={year} orgName={orgName} />}
           {reportType === "withholding_book" && (
             <WithholdingBook records={yearRecords} year={year} orgName={orgName} />
@@ -386,8 +408,166 @@ function BankTransferTable({ records }: { records: PayRecord[] }) {
   );
 }
 
-// ===== 所得税徴収高計算書 =====
+// ===== 所得税徴収高計算書（納付書様式） =====
 function IncomeTaxSheet({
+  records,
+  year,
+  month,
+  orgName,
+  companyAddress,
+  companyPhone,
+}: {
+  records: PayRecord[];
+  year: number;
+  month: number;
+  orgName: string;
+  companyAddress: string;
+  companyPhone: string;
+}) {
+  const count = records.filter((r) => r.gross_pay > 0).length;
+  const totalGross = records.reduce((s, r) => s + r.gross_pay, 0);
+  const totalTax = records.reduce((s, r) => s + r.income_tax, 0);
+  // 会計年度（4月〜翌3月）の令和表記
+  const fiscalReiwa = month >= 4 ? year - 2018 : year - 2019;
+  const reiwaYear = year - 2018;
+
+  const cell = "border border-black p-1.5";
+
+  return (
+    <div className="max-w-3xl mx-auto text-sm">
+      <p className="text-center font-bold mb-3">
+        給与所得・退職所得等の所得税徴収高計算書（納付書）
+      </p>
+
+      {/* 上段: 年度・税務署・整理番号・納期等の区分 */}
+      <table className="w-full border-collapse mb-3">
+        <tbody>
+          <tr>
+            <td className={`${cell} bg-muted/50 print:bg-gray-100 w-[80px] text-center`}>年度</td>
+            <td className={`${cell} text-center font-mono w-[100px]`}>令和{fiscalReiwa}年度</td>
+            <td className={`${cell} bg-muted/50 print:bg-gray-100 w-[90px] text-center`}>税務署名</td>
+            <td className={`${cell} w-[120px]`}></td>
+            <td className={`${cell} bg-muted/50 print:bg-gray-100 w-[90px] text-center`}>整理番号</td>
+            <td className={`${cell}`}></td>
+            <td className={`${cell} bg-muted/50 print:bg-gray-100 w-[110px] text-center`}>
+              納期等の区分
+            </td>
+            <td className={`${cell} text-center font-mono w-[130px]`}>
+              令和{reiwaYear}年{String(month).padStart(2, "0")}月分
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      {/* 中段: 区分・支払年月日・人員・支給額・税額 */}
+      <table className="w-full border-collapse mb-3">
+        <thead>
+          <tr className="bg-muted/50 print:bg-gray-100">
+            <th className={`${cell} text-left w-[200px]`}>区分</th>
+            <th className={`${cell} w-[110px]`}>支払年月日</th>
+            <th className={`${cell} w-[70px]`}>人員</th>
+            <th className={`${cell}`}>支給額</th>
+            <th className={`${cell}`}>税額</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td className={cell}>俸給・給料等（01）</td>
+            <td className={`${cell} text-center font-mono`}>
+              令{reiwaYear}.{String(month).padStart(2, "0")}
+            </td>
+            <td className={`${cell} text-right font-mono`}>{count}人</td>
+            <td className={`${cell} text-right font-mono`}>{num(totalGross)}</td>
+            <td className={`${cell} text-right font-mono`}>{num(totalTax)}</td>
+          </tr>
+          <tr>
+            <td className={cell}>賞与（役員賞与を除く）（02）</td>
+            <td className={cell}></td>
+            <td className={cell}></td>
+            <td className={cell}></td>
+            <td className={cell}></td>
+          </tr>
+          <tr>
+            <td className={cell}>日雇労務者の賃金（06）</td>
+            <td className={cell}></td>
+            <td className={cell}></td>
+            <td className={cell}></td>
+            <td className={cell}></td>
+          </tr>
+          <tr>
+            <td className={cell}>退職手当等（07）</td>
+            <td className={cell}></td>
+            <td className={cell}></td>
+            <td className={cell}></td>
+            <td className={cell}></td>
+          </tr>
+          <tr>
+            <td className={cell}>税理士等の報酬（08）</td>
+            <td className={cell}></td>
+            <td className={cell}></td>
+            <td className={cell}></td>
+            <td className={cell}></td>
+          </tr>
+          <tr>
+            <td className={cell} colSpan={4}>年末調整による不足税額（04）</td>
+            <td className={cell}></td>
+          </tr>
+          <tr>
+            <td className={cell} colSpan={4}>年末調整による超過税額（05）</td>
+            <td className={cell}></td>
+          </tr>
+          <tr className="font-bold">
+            <td className={`${cell} bg-muted/50 print:bg-gray-100`} colSpan={4}>
+              本税
+            </td>
+            <td className={`${cell} text-right font-mono`}>{num(totalTax)}</td>
+          </tr>
+          <tr>
+            <td className={cell} colSpan={4}>延滞税</td>
+            <td className={cell}></td>
+          </tr>
+          <tr className="font-bold">
+            <td className={`${cell} bg-muted/50 print:bg-gray-100`} colSpan={4}>
+              合計額
+            </td>
+            <td className={`${cell} text-right font-mono`}>¥{num(totalTax)}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      {/* 下段: 徴収義務者 */}
+      <table className="w-full border-collapse">
+        <tbody>
+          <tr>
+            <td
+              className={`${cell} bg-muted/50 print:bg-gray-100 w-[110px] text-center align-middle`}
+              rowSpan={3}
+            >
+              徴収義務者
+            </td>
+            <td className={`${cell} bg-muted/50 print:bg-gray-100 w-[130px]`}>住所（所在地）</td>
+            <td className={cell}>{companyAddress || ""}</td>
+          </tr>
+          <tr>
+            <td className={`${cell} bg-muted/50 print:bg-gray-100`}>氏名（名称）</td>
+            <td className={cell}>{orgName}</td>
+          </tr>
+          <tr>
+            <td className={`${cell} bg-muted/50 print:bg-gray-100`}>電話番号</td>
+            <td className={cell}>{companyPhone || ""}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p className="text-xs text-muted-foreground mt-3 print:text-black">
+        ※実際の納付書へ転記する際の参考値です。住所・電話番号は設定ページの「会社情報」から登録できます。
+      </p>
+    </div>
+  );
+}
+
+// ===== 住民税徴収額一覧表（自治体別） =====
+function ResidentTaxTable({
   records,
   year,
   month,
@@ -398,70 +578,14 @@ function IncomeTaxSheet({
   month: number;
   orgName: string;
 }) {
-  const count = records.filter((r) => r.gross_pay > 0).length;
-  const totalGross = records.reduce((s, r) => s + r.gross_pay, 0);
-  const totalTax = records.reduce((s, r) => s + r.income_tax, 0);
-
-  return (
-    <div className="max-w-2xl mx-auto border rounded-lg p-6 print:border-black">
-      <p className="text-sm mb-4">
-        給与所得・退職所得等の所得税徴収高計算書（納付書）の記載参考値
-      </p>
-      <div className="grid grid-cols-2 gap-y-2 text-sm mb-6">
-        <span className="text-muted-foreground print:text-black">納期等の区分</span>
-        <span className="font-mono">
-          {year}年{String(month).padStart(2, "0")}月
-        </span>
-        <span className="text-muted-foreground print:text-black">事業所名</span>
-        <span>{orgName}</span>
-      </div>
-      <table className="w-full text-sm border print:border-black">
-        <thead>
-          <tr className="bg-muted/50 border-b print:bg-gray-100">
-            <th className="text-left p-2">区分</th>
-            <th className="text-right p-2">人員</th>
-            <th className="text-right p-2">支給額</th>
-            <th className="text-right p-2">税額</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr className="border-b">
-            <td className="p-2">俸給・給料等（01）</td>
-            <td className="p-2 text-right font-mono">{count}人</td>
-            <td className="p-2 text-right font-mono">{num(totalGross)}円</td>
-            <td className="p-2 text-right font-mono">{num(totalTax)}円</td>
-          </tr>
-          <tr className="border-b">
-            <td className="p-2">賞与（02）</td>
-            <td className="p-2 text-right font-mono">-</td>
-            <td className="p-2 text-right font-mono">-</td>
-            <td className="p-2 text-right font-mono">-</td>
-          </tr>
-          <tr className="border-b">
-            <td className="p-2">年末調整による超過税額（04）</td>
-            <td className="p-2"></td>
-            <td className="p-2"></td>
-            <td className="p-2 text-right font-mono">0円</td>
-          </tr>
-        </tbody>
-        <tfoot>
-          <tr className="bg-muted/50 font-bold print:bg-gray-100">
-            <td colSpan={3} className="p-2 text-right">本税（合計額）</td>
-            <td className="p-2 text-right font-mono">{num(totalTax)}円</td>
-          </tr>
-        </tfoot>
-      </table>
-      <p className="text-xs text-muted-foreground mt-4 print:text-black">
-        ※実際の納付書へ転記する際の参考値です。税理士等にご確認のうえご利用ください。
-      </p>
-    </div>
-  );
-}
-
-// ===== 住民税徴収額一覧表 =====
-function ResidentTaxTable({ records }: { records: PayRecord[] }) {
   const rows = records.filter((r) => (r.resident_tax || 0) > 0);
   const total = rows.reduce((s, r) => s + (r.resident_tax || 0), 0);
+
+  // 納付期限: 翌月10日
+  const dueYear = month === 12 ? year + 1 : year;
+  const dueMonth = month === 12 ? 1 : month + 1;
+  const dueReiwa = dueYear - 2018;
+
   if (rows.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
@@ -469,34 +593,93 @@ function ResidentTaxTable({ records }: { records: PayRecord[] }) {
       </div>
     );
   }
+
+  // 納付先（市区町村）ごとにグループ化
+  const byCity = new Map<string, PayRecord[]>();
+  rows.forEach((r) => {
+    const city = r.employees.resident_tax_city || "（納付先未設定）";
+    const list = byCity.get(city) || [];
+    list.push(r);
+    byCity.set(city, list);
+  });
+
+  const hasUnsetCity = byCity.has("（納付先未設定）");
+
   return (
-    <div className="max-w-xl mx-auto border rounded-lg overflow-x-auto print:border-black">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="bg-muted/50 border-b print:bg-gray-100">
-            <th className="text-left p-2">社員番号</th>
-            <th className="text-left p-2">従業員</th>
-            <th className="text-right p-2">住民税額</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => (
-            <tr key={r.employee_id} className="border-b">
-              <td className="p-2 font-mono">{r.employees.employee_number || "-"}</td>
-              <td className="p-2 font-medium">{r.employees.name}</td>
-              <td className="p-2 text-right font-mono">{yen(r.resident_tax)}</td>
+    <div className="max-w-4xl mx-auto space-y-2">
+      <div className="flex items-baseline justify-between text-sm">
+        <p>
+          対象月: {year}年{month}月分 ／ 納付期限: 令和{dueReiwa}年{dueMonth}月10日
+        </p>
+        <p>{orgName}</p>
+      </div>
+      {hasUnsetCity && (
+        <p className="text-xs text-amber-600 print:hidden">
+          ※納付先が未設定の従業員がいます。従業員管理の「住民税納付先」から登録してください。
+        </p>
+      )}
+      <div className="border rounded-lg overflow-x-auto print:border-black">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-muted/50 border-b print:bg-gray-100">
+              <th className="text-left p-2">住民税納付先</th>
+              <th className="text-left p-2">自治体コード</th>
+              <th className="text-left p-2">指定番号</th>
+              <th className="text-right p-2 w-[60px]">人数</th>
+              <th className="text-left p-2">宛名番号</th>
+              <th className="text-left p-2">従業員名</th>
+              <th className="text-right p-2">徴収税額</th>
+              <th className="text-center p-2 w-[50px]">退職</th>
             </tr>
-          ))}
-        </tbody>
-        <tfoot>
-          <tr className="bg-muted/50 font-bold border-t print:bg-gray-100">
-            <td colSpan={2} className="p-2 text-right">
-              合計（{rows.length}人）
-            </td>
-            <td className="p-2 text-right font-mono">{yen(total)}</td>
-          </tr>
-        </tfoot>
-      </table>
+          </thead>
+          <tbody>
+            {[...byCity.entries()].map(([city, cityRows]) => {
+              const emp0 = cityRows[0].employees;
+              const cityTotal = cityRows.reduce((s, r) => s + (r.resident_tax || 0), 0);
+              return (
+                <React.Fragment key={city}>
+                  <tr className="border-b bg-muted/30 print:bg-gray-50 font-medium">
+                    <td className="p-2">{city}</td>
+                    <td className="p-2 font-mono">{emp0.resident_tax_city_code || ""}</td>
+                    <td className="p-2 font-mono">{emp0.resident_tax_designation_number || ""}</td>
+                    <td className="p-2 text-right font-mono">{cityRows.length}</td>
+                    <td className="p-2"></td>
+                    <td className="p-2"></td>
+                    <td className="p-2 text-right font-mono">{num(cityTotal)}</td>
+                    <td className="p-2"></td>
+                  </tr>
+                  {cityRows.map((r) => (
+                    <tr key={r.employee_id} className="border-b">
+                      <td className="p-2"></td>
+                      <td className="p-2"></td>
+                      <td className="p-2"></td>
+                      <td className="p-2"></td>
+                      <td className="p-2 font-mono">
+                        {r.employees.resident_tax_addressee_number || ""}
+                      </td>
+                      <td className="p-2">{r.employees.name}</td>
+                      <td className="p-2 text-right font-mono">{num(r.resident_tax)}</td>
+                      <td className="p-2 text-center">{!r.employees.is_active ? "退職" : ""}</td>
+                    </tr>
+                  ))}
+                </React.Fragment>
+              );
+            })}
+          </tbody>
+          <tfoot>
+            <tr className="bg-muted/50 font-bold border-t print:bg-gray-100">
+              <td className="p-2">合計</td>
+              <td className="p-2"></td>
+              <td className="p-2"></td>
+              <td className="p-2 text-right font-mono">{rows.length}</td>
+              <td className="p-2"></td>
+              <td className="p-2"></td>
+              <td className="p-2 text-right font-mono">{num(total)}</td>
+              <td className="p-2"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
     </div>
   );
 }
