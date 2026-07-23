@@ -163,6 +163,8 @@ export function TimecardClient({
   // 合計
   const totalHours = dailyData.length > 0 ? dailyData[dailyData.length - 1].cumHours : 0;
   const workDays = dailyData.filter((d) => !d.isOff).length;
+  // 残業合計（1日8時間超過分）
+  const overtimeHours = dailyData.reduce((sum, d) => sum + Math.max(0, d.workHours - 8), 0);
 
   return (
     <div className="space-y-4">
@@ -258,7 +260,7 @@ export function TimecardClient({
           <tfoot>
             <tr className="bg-muted/50 font-bold border-t print:bg-gray-100">
               <td colSpan={6} className="p-2 text-right">
-                出勤日数: {workDays}日
+                出勤日数: {workDays}日 ・ 残業: {overtimeHours.toFixed(2)}h
               </td>
               <td className="p-2 text-right">合計</td>
               <td className="p-2 text-right font-mono">{totalHours.toFixed(2)}h</td>
