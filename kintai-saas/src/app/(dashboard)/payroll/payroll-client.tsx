@@ -554,7 +554,16 @@ export function PayrollClient() {
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>{renderEditableCell(calc, "dailyAllowanceTotal")}</TableCell>
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>{renderEditableCell(calc, "transportationAllowance")}</TableCell>
                   <TableCell className="text-right font-semibold">{formatCurrency(calc.grossPay)}</TableCell>
-                  <TableCell className="text-right" title="クリックで明細を開いて健保・介護・厚年・雇用保険を個別編集できます">{formatCurrency(calc.healthInsurance + calc.careInsurance + calc.pension + calc.childSupportContribution + calc.employmentInsurance)}</TableCell>
+                  <TableCell className="text-right">
+                    <button
+                      className="inline-flex items-center gap-1 hover:text-primary transition-colors"
+                      title="明細を開いて健保・介護・厚年・雇用保険を個別編集"
+                      onClick={() => handleRowClick(calc)}
+                    >
+                      {formatCurrency(calc.healthInsurance + calc.careInsurance + calc.pension + calc.childSupportContribution + calc.employmentInsurance)}
+                      {!isConfirmed && <Pencil className="h-3 w-3 text-muted-foreground print:hidden" />}
+                    </button>
+                  </TableCell>
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>{renderEditableCell(calc, "incomeTax")}</TableCell>
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>{renderEditableCell(calc, "residentTax")}</TableCell>
                   <TableCell className="text-right font-bold text-primary">{formatCurrency(calc.netPay)}</TableCell>
