@@ -326,16 +326,6 @@ export function EmployeeForm({ employee, open, onOpenChange }: EmployeeFormProps
                   placeholder="0"
                 />
               </div>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="can_be_driver"
-                  checked={canBeDriver}
-                  onCheckedChange={(checked) => setCanBeDriver(checked === true)}
-                />
-                <Label htmlFor="can_be_driver" className="cursor-pointer">
-                  ドライバー対象
-                </Label>
-              </div>
             </div>
           </div>
           <div className="border-t pt-4 mt-4">

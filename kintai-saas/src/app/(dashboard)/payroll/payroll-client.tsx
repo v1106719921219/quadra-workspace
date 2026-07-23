@@ -518,7 +518,6 @@ export function PayrollClient() {
                 <TableHead className="text-right">深夜</TableHead>
                 <TableHead className="text-right">休日</TableHead>
                 <TableHead className="text-right">手当</TableHead>
-                <TableHead className="text-right">ドライバー</TableHead>
                 <TableHead className="text-right">通勤</TableHead>
                 <TableHead className="text-right">総支給</TableHead>
                 <TableHead className="text-right">社保</TableHead>
@@ -546,7 +545,6 @@ export function PayrollClient() {
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>{renderEditableCell(calc, "lateNightPay")}</TableCell>
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>{renderEditableCell(calc, "holidayPay")}</TableCell>
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>{renderEditableCell(calc, "dailyAllowanceTotal")}</TableCell>
-                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>{renderEditableCell(calc, "driverAllowance")}</TableCell>
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>{renderEditableCell(calc, "transportationAllowance")}</TableCell>
                   <TableCell className="text-right font-semibold">{formatCurrency(calc.grossPay)}</TableCell>
                   <TableCell className="text-right" title="クリックで明細を開いて健保・介護・厚年・雇用保険を個別編集できます">{formatCurrency(calc.healthInsurance + calc.careInsurance + calc.pension + calc.childSupportContribution + calc.employmentInsurance)}</TableCell>
