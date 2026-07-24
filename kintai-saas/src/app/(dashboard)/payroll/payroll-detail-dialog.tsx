@@ -65,6 +65,21 @@ export function PayrollDetailDialog({ calculation, open, onOpenChange, editable 
   if (!calculation) return null;
   const { employee } = calculation;
 
+  // 単価（現場ごとの時給）別の集計（確認用）
+  const rateGroups = new Map<number, { minutes: number; days: number }>();
+  for (const d of calculation.dailyDetails || []) {
+    const g = rateGroups.get(d.hourlyRate) || { minutes: 0, days: 0 };
+    g.minutes += d.totalMinutes;
+    g.days += 1;
+    rateGroups.set(d.hourlyRate, g);
+  }
+  const rateSummary = Array.from(rateGroups.entries())
+    .map(([rate, g]) => {
+      const hours = Math.round(g.minutes / 60 * 4) / 4;
+      return { rate, days: g.days, hours, amount: Math.round(hours * rate) };
+    })
+    .sort((a, b) => b.rate - a.rate);
+
   function startEdit(field: DeductionField, currentValue: number) {
     setEditingField(field);
     setEditValue(String(currentValue));
@@ -156,6 +171,33 @@ export function PayrollDetailDialog({ calculation, open, onOpenChange, editable 
               </div>
             </div>
           </div>
+
+          {/* 単価ごとの合計（確認用） */}
+          {employee.employee_type === "part_time" && rateSummary.length > 0 && (
+            <div>
+              <h3 className="font-semibold mb-2">単価ごとの合計（確認用）</h3>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>時給単価</TableHead>
+                    <TableHead className="text-right">日数</TableHead>
+                    <TableHead className="text-right">時間</TableHead>
+                    <TableHead className="text-right">金額（割増除く）</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rateSummary.map((r) => (
+                    <TableRow key={r.rate}>
+                      <TableCell>{formatCurrency(r.rate)}</TableCell>
+                      <TableCell className="text-right">{r.days}日</TableCell>
+                      <TableCell className="text-right">{formatHours(r.hours)}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(r.amount)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
 
           {/* 支給明細 */}
           <div>

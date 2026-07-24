@@ -25,7 +25,7 @@ function formatCurrency(amount: number): string {
   return `¥${amount.toLocaleString()}`;
 }
 
-// 現場別内訳（平日は現場ごと、土日勤務は「休日」として集計）
+// 現場別内訳（日曜勤務のみ「休日」として集計、土曜は現場ごと）
 function getSiteBreakdown(calc: PayrollCalculation) {
   const map = new Map<string, { hours: number; days: number }>();
   let holidayHours = 0;
@@ -34,7 +34,7 @@ function getSiteBreakdown(calc: PayrollCalculation) {
     const hours = d.totalMinutes / 60;
     if (hours <= 0) return;
     const dow = jstDayOfWeek(d.date);
-    if (dow === 0 || dow === 6) {
+    if (dow === 0) {
       holidayHours += hours;
       holidayDays += 1;
     } else {

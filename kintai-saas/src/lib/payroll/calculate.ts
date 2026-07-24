@@ -101,8 +101,9 @@ function calculateDailyWork(record: TimeRecordForPayroll, roundingMinutes: numbe
   const overtimeMinutes = Math.max(0, totalMinutes - STANDARD_DAILY_MINUTES);
   const normalMinutes = totalMinutes - overtimeMinutes;
   const lateNightMinutes = calcLateNightMinutes(clockIn, clockOut);
-  // 土日勤務も通常勤務扱い（休日出勤手当は適用しない）
-  const holiday = false;
+  // 休日は日曜のみ（35%割増）。土曜は通常勤務扱い
+  // work_dateはJSTの日付文字列なので、文字列の日付そのものの曜日で判定（TZ非依存）
+  const holiday = new Date(record.work_date + "T00:00:00Z").getUTCDay() === 0;
 
   // 日当加算: 配置ボードの現場日当 → work_typeの日当 の優先順位
   const dailyAllowance = record.site_daily_allowance > 0

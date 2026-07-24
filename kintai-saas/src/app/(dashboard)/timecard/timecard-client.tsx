@@ -166,14 +166,14 @@ export function TimecardClient({
   // 残業合計（1日8時間超過分）
   const overtimeHours = dailyData.reduce((sum, d) => sum + Math.max(0, d.workHours - 8), 0);
 
-  // 現場別内訳（平日は現場ごと、土日勤務は「休日」として集計）
+  // 現場別内訳（日曜勤務のみ「休日」として集計、土曜は現場ごと）
   const siteBreakdown = useMemo(() => {
     const map = new Map<string, { hours: number; days: number }>();
     let holidayHours = 0;
     let holidayDays = 0;
     dailyData.forEach((d) => {
       if (d.isOff || d.workHours <= 0) return;
-      if (d.dayOfWeek === 0 || d.dayOfWeek === 6) {
+      if (d.dayOfWeek === 0) {
         holidayHours += d.workHours;
         holidayDays += 1;
       } else {
