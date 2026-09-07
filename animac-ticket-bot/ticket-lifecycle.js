@@ -16,7 +16,7 @@ const belongs = (name, base) => {
   return name === base || (name?.startsWith(base + ' ') && /^\d+$/.test(name.slice(base.length + 1)));
 };
 
-function createTicketLifecycle(client) {
+function createTicketLifecycle(client, shouldKeepOpen = async () => false) {
   // Serialize category allocation and moves, including timer/message races.
   let queue = Promise.resolve();
   const serial = fn => {
@@ -70,10 +70,17 @@ function createTicketLifecycle(client) {
     for (const entry of moves) await guild.channels.setPositions([entry]);
     console.log(`Ticket lifecycle: moved ${moves.length} channels`);
   }
-  const move = (channel, closed) => moveMany([{channel, closed}]);
+  const keepOpen = async channel => {
+    try { return await shouldKeepOpen(channel); }
+    catch(err) { console.error(`Ticket order check failed: ${channel.id}`,err.message); return true; }
+  };
+  const move = async (channel, closed) => {
+    if(closed && await keepOpen(channel)) throw Error('Ticket requires order review before archiving');
+    return moveMany([{channel, closed}]);
+  };
   async function sweep() {
     for (const guild of client.guilds.cache.values()) {
-      const channels = [...(await guild.channels.fetch()).values()].filter(ch => isTicket(ch) && !belongs(ch.parent?.name, CLOSED) && !isVIP(ch));
+      const channels = [...(await guild.channels.fetch()).values()].filter(ch => isTicket(ch) && (!belongs(ch.parent?.name, CLOSED) || ch.guild.id === '1546607425069518909') && !isVIP(ch));
       for (let i = 0; i < channels.length; i += 10) {
         const batch = channels.slice(i, i + 10);
         const entries = await Promise.all(batch.map(async channel => {
@@ -86,11 +93,11 @@ function createTicketLifecycle(client) {
           }
         }));
         await serial(async () => {
-          const moves = entries.filter(Boolean).map(({channel, lastActivity}) => {
+          const moves = await Promise.all(entries.filter(Boolean).map(async ({channel, lastActivity}) => {
             // Include any message that arrived while history requests were in flight.
             const cachedTime = channel.lastMessageId ? Number((BigInt(channel.lastMessageId) >> 22n) + 1420070400000n) : 0;
-            return {channel, closed: Date.now() - Math.max(lastActivity, cachedTime) >= IDLE_MS};
-          });
+            return {channel, closed: Date.now() - Math.max(lastActivity, cachedTime) >= IDLE_MS && !(await keepOpen(channel))};
+          }));
           await moveMany(moves);
         });
       }
@@ -111,7 +118,7 @@ function createTicketLifecycle(client) {
       let closed = false;
       if (!enabled) {
         const latest = (await channel.messages.fetch({limit: 1})).first();
-        closed = Date.now() - (latest?.createdTimestamp ?? channel.createdTimestamp) >= IDLE_MS;
+        closed = Date.now() - (latest?.createdTimestamp ?? channel.createdTimestamp) >= IDLE_MS && !(await keepOpen(channel));
       }
       await moveMany([{channel, closed, vip: enabled}]);
     }),

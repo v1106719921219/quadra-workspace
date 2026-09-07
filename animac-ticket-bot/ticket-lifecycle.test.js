@@ -2,7 +2,7 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { Collection, ChannelType } = require('discord.js');
 const { createTicketLifecycle, IDLE_MS } = require('./ticket-lifecycle');
-function fixture() {
+function fixture(guard) {
   const channels = new Collection();
   const guild = { id: 'guild', channels: { setPositions: async moves => { assert.equal(moves.length, 1, "Discord permits one parent change per request"); for (const move of moves) { assert.equal(move.lockPermissions, false); channels.get(move.channel).parentId = move.parent; } }, fetch: async () => channels, create: async data => {
     const category = { ...data, id: `cat-${channels.size}` };
@@ -16,7 +16,7 @@ function fixture() {
       async setParent(id, options) { assert.equal(options.lockPermissions, false); this.parentId = id; },
     }; channels.set(id, ch); return ch;
   }
-  return { channels, ticket, lifecycle: createTicketLifecycle({ user: { id: 'bot' }, guilds: { cache: new Collection([['guild', guild]]) } }) };
+  return { channels, ticket, lifecycle: createTicketLifecycle({ user: { id: 'bot' }, guilds: { cache: new Collection([['guild', guild]]) } }, guard) };
 }
 test('archives inactive tickets, keeps recent ones active, and preserves inaccessible channels', async () => {
   const f = fixture();
@@ -64,4 +64,14 @@ test('staff-designated VIP stays in its category across inactivity, messages and
   await f.lifecycle.setVIP(recent,true);
   await f.lifecycle.setVIP(recent,false);
   assert.equal(recent.parent.name,'🎫 Support');
+});
+
+test('unfinished orders and failed lookups block both timed and manual archiving',async()=>{
+ for(const guard of [async()=>true,async()=>{throw Error('offline')}]){
+  const f=fixture(guard);const ch=f.ticket('pending',IDLE_MS*2);
+  await f.lifecycle.sweep();assert.equal(ch.parent.name,'🎫 Support');
+  await assert.rejects(f.lifecycle.close(ch),/order review/);
+  await f.lifecycle.setVIP(ch,true);await f.lifecycle.setVIP(ch,false);
+  assert.equal(ch.parent.name,'🎫 Support');
+ }
 });

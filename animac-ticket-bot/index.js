@@ -55,7 +55,7 @@ const { createTicketCustomers, belongsToUser } = require("./ticket-customers");
 const ticketCustomers = createTicketCustomers(client, supabase, TENANT_ID);
 client.once("ready", () => ticketCustomers.start());
 
-const ticketLifecycle = require("./ticket-lifecycle").createTicketLifecycle(client);
+const ticketLifecycle = require("./ticket-lifecycle").createTicketLifecycle(client, require("./ticket-order-guard").createTicketOrderGuard(supabase, TENANT_ID));
 client.once("ready", () => ticketLifecycle.start());
 
 const anthropic = new Anthropic({
@@ -1323,7 +1323,7 @@ client.on("interactionCreate", async (interaction) => {
           : "📁 Ticket archived. Your history is preserved. Send a message to reopen it.");
       } catch (err) {
         console.error("Error archiving ticket:", err);
-        await interaction.editReply("❌ Could not archive this ticket. Please contact staff.");
+        await interaction.editReply("This conversation stays in Support until our team confirms the order is complete. Please contact staff if you need help.");
       }
       return;
     }
