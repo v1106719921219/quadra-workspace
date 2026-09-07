@@ -1,8 +1,8 @@
 const { ChannelType, PermissionFlagsBits } = require('discord.js');
-const ACTIVE = '🎫 In Progress';
-const CLOSED = '📁 Closed';
+const ACTIVE = '🎫 Support';
+const CLOSED = '📁 Past Conversations';
 const VIP = '⭐ VIP Customers';
-const LEGACY_NAMES = new Map([['🎫 対応中', ACTIVE], ['📁 対応済み', CLOSED], ['⭐ VIP・常連', VIP]]);
+const LEGACY_NAMES = new Map([['🎫 In Progress', ACTIVE], ['📁 Closed', CLOSED], ['🎫 対応中', ACTIVE], ['📁 対応済み', CLOSED], ['⭐ VIP・常連', VIP]]);
 const normalizeName = name => {
   for (const [oldName, newName] of LEGACY_NAMES) {
     if (name === oldName || (name?.startsWith(oldName + ' ') && /^\d+$/.test(name.slice(oldName.length + 1)))) return newName + name.slice(oldName.length);

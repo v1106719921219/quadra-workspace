@@ -1,7 +1,7 @@
 # Ticket lifecycle
 
-- After 7 days without a message, move tickets into 📁 Closed. Run at startup and every 15 minutes.
-- New tickets and human messages move tickets into 🎫 In Progress.
+- After 7 days without a message, move tickets into 📁 Past Conversations. Run at startup and every 15 minutes.
+- New tickets and human messages move tickets into 🎫 Support.
 - Close Ticket archives without deleting history. Opening an existing ticket reactivates it.
 - Preserve channel permissions with lockPermissions: false. Categories overflow after 50 channels.
 - If message history cannot be read, leave the ticket unchanged and log the error.

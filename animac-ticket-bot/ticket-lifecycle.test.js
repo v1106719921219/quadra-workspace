@@ -24,13 +24,13 @@ test('archives inactive tickets, keeps recent ones active, and preserves inacces
   const recent = f.ticket('recent', 1000);
   const unknown = f.ticket('unknown', IDLE_MS * 2, true);
   await f.lifecycle.sweep();
-  assert.equal(old.parent.name, '📁 Closed');
-  assert.equal(recent.parent.name, '🎫 In Progress');
+  assert.equal(old.parent.name, '📁 Past Conversations');
+  assert.equal(recent.parent.name, '🎫 Support');
   assert.equal(unknown.parentId, null);
   await f.lifecycle.activate(old);
-  assert.equal(old.parent.name, '🎫 In Progress');
+  assert.equal(old.parent.name, '🎫 Support');
   await f.lifecycle.close(old);
-  assert.equal(old.parent.name, '📁 Closed');
+  assert.equal(old.parent.name, '📁 Past Conversations');
 });
 test('allocates overflow categories and serializes simultaneous reopens', async () => {
   const f = fixture();
@@ -47,7 +47,7 @@ test('batched history checks with individual moves respect 50-channel category c
   const categories=f.channels.filter(c=>c.type===ChannelType.GuildCategory);
   assert.equal(categories.size,2);
   for(const c of categories.values())assert.ok(tickets.filter(t=>t.parentId===c.id).length<=50);
-  assert.ok(tickets.every(t=>t.parent.name.startsWith('📁 Closed')));
+  assert.ok(tickets.every(t=>t.parent.name.startsWith('📁 Past Conversations')));
 });
 test('staff-designated VIP stays in its category across inactivity, messages and close; removal restores normal lifecycle', async () => {
   const f=fixture();
@@ -59,9 +59,9 @@ test('staff-designated VIP stays in its category across inactivity, messages and
   await f.lifecycle.close(old);
   assert.equal(old.parent.name,'⭐ VIP Customers');
   await f.lifecycle.setVIP(old,false);
-  assert.equal(old.parent.name,'📁 Closed');
+  assert.equal(old.parent.name,'📁 Past Conversations');
   const recent=f.ticket('recent-vip',1000);
   await f.lifecycle.setVIP(recent,true);
   await f.lifecycle.setVIP(recent,false);
-  assert.equal(recent.parent.name,'🎫 In Progress');
+  assert.equal(recent.parent.name,'🎫 Support');
 });
