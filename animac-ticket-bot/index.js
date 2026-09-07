@@ -551,6 +551,10 @@ client.once("ready", async () => {
 
   const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_TOKEN);
   try {
+    // Guild commands are available immediately in the ANIMAC server.
+    await rest.post(Routes.applicationGuildCommands(client.user.id, "1491756246456336554"), {
+      body: vipCommand.toJSON(),
+    });
     await rest.put(Routes.applicationCommands(client.user.id), {
       body: [
         shippingCommand.toJSON(),
@@ -560,7 +564,6 @@ client.once("ready", async () => {
         confirmCommand.toJSON(),
         itemCommand.toJSON(),
         replyEnCommand.toJSON(),
-        vipCommand.toJSON(),
       ],
     });
     console.log("Slash commands registered");
