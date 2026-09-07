@@ -44,6 +44,16 @@ const client = new Client({
   ],
 });
 
+const orderNotifications = require("./order-notifications").createOrderNotifications(client, supabase, TENANT_ID, ORDER_SITE_URL);
+client.once("ready", () => orderNotifications.start());
+
+const { createTicketCustomers, belongsToUser } = require("./ticket-customers");
+const ticketCustomers = createTicketCustomers(client, supabase, TENANT_ID);
+client.once("ready", () => ticketCustomers.start());
+
+const ticketLifecycle = require("./ticket-lifecycle").createTicketLifecycle(client);
+client.once("ready", () => ticketLifecycle.start());
+
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
@@ -730,6 +740,8 @@ client.on("interactionCreate", async (interaction) => {
         .single();
 
       if (customer) {
+        try { await ticketCustomers.bind(interaction.channel, customer); }
+        catch (err) { console.error("Customer ticket naming failed:", err.message); }
         draft.customer_id = customer.id;
         draft.customer_name = customer.name;
         draft.billing_name = customer.name;
@@ -1161,6 +1173,7 @@ client.on("interactionCreate", async (interaction) => {
 
     // --- Ticket Buttons ---
     if (id === "create_ticket") {
+      await interaction.deferReply({ flags: 64 });
       const guild = interaction.guild;
       const member = interaction.member;
 
@@ -1171,10 +1184,11 @@ client.on("interactionCreate", async (interaction) => {
 
       const channels = await guild.channels.fetch();
       const existingTicket = channels.find(
-        (ch) => ch && ch.name === channelName
+        (ch) => belongsToUser(ch, member.id, client.user.id)
       );
       if (existingTicket) {
-        await interaction.reply({
+        await ticketLifecycle.activate(existingTicket);
+        await interaction.editReply({
           content: `You already have an open ticket! → <#${existingTicket.id}>`,
           flags: 64,
         });
@@ -1222,6 +1236,8 @@ client.on("interactionCreate", async (interaction) => {
           permissionOverwrites,
         });
 
+        await ticketLifecycle.activate(ticketChannel);
+
         const embed = new EmbedBuilder()
           .setColor(0x388e3c)
           .setTitle("🎴 animac TCG Support")
@@ -1245,13 +1261,13 @@ client.on("interactionCreate", async (interaction) => {
         // ウェルカムメッセージを即座に送信
         await ticketChannel.send(WELCOME_MESSAGE);
 
-        await interaction.reply({
+        await interaction.editReply({
           content: `✅ Ticket created! → <#${ticketChannel.id}>`,
           flags: 64,
         });
       } catch (err) {
         console.error("Error creating ticket:", err);
-        await interaction.reply({
+        await interaction.editReply({
           content: "❌ Failed to create ticket. Please try again.",
           flags: 64,
         });
@@ -1260,16 +1276,14 @@ client.on("interactionCreate", async (interaction) => {
     }
 
     if (id === "close_ticket") {
-      await interaction.reply(
-        "🔒 This ticket will be closed in 5 seconds..."
-      );
-      setTimeout(async () => {
-        try {
-          await interaction.channel.delete();
-        } catch (err) {
-          console.error("Error closing ticket:", err);
-        }
-      }, 5000);
+      await interaction.deferReply({ flags: 64 });
+      try {
+        await ticketLifecycle.close(interaction.channel);
+        await interaction.editReply("📁 Ticket archived. Your history is preserved. Send a message to reopen it.");
+      } catch (err) {
+        console.error("Error archiving ticket:", err);
+        await interaction.editReply("❌ Could not archive this ticket. Please contact staff.");
+      }
       return;
     }
   }
@@ -1611,6 +1625,10 @@ function lookupShipping(region, weightKg) {
 
 // ========== Message Handler ==========
 client.on("messageCreate", async (message) => {
+  if (!message.author.bot && message.guild) {
+    try { await ticketLifecycle.activate(message.channel); }
+    catch (err) { console.error("Ticket reopen failed:", err.message); }
+  }
   // Shipping command (text-based)
   if (message.content.startsWith("!shipping")) {
     if (!message.channel.name.includes("moderator-only")) return;
