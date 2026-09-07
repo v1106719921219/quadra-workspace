@@ -121,7 +121,7 @@ function createTicketLifecycle(client) {
       if (timer) return;
       void serial(async () => {
         for (const guild of client.guilds.cache.values()) {
-          if (guild.id === '1491756246456336554') {
+          if (['1491756246456336554', '1546607425069518909'].includes(guild.id)) {
             const channels = await guild.channels.fetch();
             for (const channel of channels.values()) {
               if (channel?.type === ChannelType.GuildCategory && normalizeName(channel.name) !== channel.name) {

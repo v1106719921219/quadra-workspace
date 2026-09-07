@@ -36,6 +36,10 @@ const TENANT_ID =
 const ORDER_SITE_URL =
   process.env.ORDER_SITE_URL || "https://animac.intl.shipord.jp";
 
+const VINTAGE_GUILD_ID = "1546607425069518909";
+const TICKET_GUILDS = ["1491756246456336554", VINTAGE_GUILD_ID];
+const VINTAGE_WELCOME = "Welcome to ANIMAC Vintage & Singles! 🇯🇵\n\nPlease share the card name, set/card number, language, preferred condition or grade, and quantity. A listing link or reference photo is welcome. Let us know your shipping country so our team can confirm availability, condition photos, price and shipping.";
+
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -387,6 +391,7 @@ async function createOrderInSupabase(draft) {
       customer_id: draft.customer_id || null,
       created_by: draft.created_by || null,
       channel: "dc",
+      discord_guild_id: draft.discord_guild_id || "1491756246456336554",
       status: "受注",
       billing_name: draft.billing_name,
       billing_country: draft.billing_country,
@@ -552,9 +557,9 @@ client.once("ready", async () => {
   const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_TOKEN);
   try {
     // Guild commands are available immediately in the ANIMAC server.
-    await rest.post(Routes.applicationGuildCommands(client.user.id, "1491756246456336554"), {
-      body: vipCommand.toJSON(),
-    });
+    for (const guildId of TICKET_GUILDS) {
+      if (client.guilds.cache.has(guildId)) await rest.post(Routes.applicationGuildCommands(client.user.id, guildId), {body: vipCommand.toJSON()});
+    }
     await rest.put(Routes.applicationCommands(client.user.id), {
       body: [
         shippingCommand.toJSON(),
@@ -749,6 +754,7 @@ client.on("interactionCreate", async (interaction) => {
     const channelId = interaction.channel.id;
 
     const draft = createEmptyDraft();
+    draft.discord_guild_id = interaction.guildId;
 
     // Set staff
     draft.created_by = staffId;
@@ -1273,7 +1279,7 @@ client.on("interactionCreate", async (interaction) => {
 
         const embed = new EmbedBuilder()
           .setColor(0x388e3c)
-          .setTitle("🎴 animac TCG Support")
+          .setTitle(guild.id === VINTAGE_GUILD_ID ? "🎴 ANIMAC Vintage & Singles Support" : "🎴 animac TCG Support")
           .setDescription(
             `Welcome <@${member.id}>!\n\nA team member will be with you shortly.\nIn the meantime, feel free to describe what you need!`
           )
@@ -1292,7 +1298,7 @@ client.on("interactionCreate", async (interaction) => {
         });
 
         // ウェルカムメッセージを即座に送信
-        await ticketChannel.send(WELCOME_MESSAGE);
+        await ticketChannel.send(guild.id === VINTAGE_GUILD_ID ? VINTAGE_WELCOME : WELCOME_MESSAGE);
 
         await interaction.editReply({
           content: `✅ Ticket created! → <#${ticketChannel.id}>`,
@@ -1757,7 +1763,7 @@ client.on("messageCreate", async (message) => {
   ) {
     const embed = new EmbedBuilder()
       .setColor(0x388e3c)
-      .setTitle("🎴 animac TCG Support")
+      .setTitle(guild.id === VINTAGE_GUILD_ID ? "🎴 ANIMAC Vintage & Singles Support" : "🎴 animac TCG Support")
       .setDescription(
         "Click the button below to open a ticket!\n\n" +
           "🛒 Purchase cards\n" +

@@ -3,6 +3,12 @@ const { randomUUID, createHash } = require('crypto');
 const GUILD_ID = '1491756246456336554';
 const THREAD_ID = '1502702479765147650';
 const PARENT_ID = '1491967299505094716';
+const VINTAGE_GUILD_ID = '1546607425069518909';
+function destinationFor(guildId) {
+  if (!guildId || guildId === GUILD_ID) return {guildId:GUILD_ID, channelId:THREAD_ID, parentId:PARENT_ID, thread:true};
+  if (guildId === VINTAGE_GUILD_ID) return {guildId, channelId:'1546608249657233521', parentId:'1546608242971517019', thread:false};
+  throw new Error('Unknown Discord order source');
+}
 const { linkedCustomerId } = require('./ticket-customers');
 const TABLE = 'discord_order_notifications';
 const footerFor = id => `ANIMAC order ${id}`;
@@ -40,18 +46,35 @@ async function recoverMessage(thread, row, botId) {
   }
 }
 function createOrderNotifications(client, db, tenant, site) {
-  let running=false, timer, verified=false;
+  let running=false, timer;
+  const verified = new Set();
+  async function getDestination(guildId) {
+    const target = destinationFor(guildId);
+    const channel = await client.channels.fetch(target.channelId);
+    if (!channel || channel.guildId !== target.guildId || channel.parentId !== target.parentId || (target.thread ? !channel.isThread() : channel.type !== 0)) throw new Error("Unexpected order notification destination");
+    const permissions=channel.permissionsFor(client.user);
+    if(!permissions?.has([PermissionFlagsBits.ViewChannel,PermissionFlagsBits.ReadMessageHistory,target.thread?PermissionFlagsBits.SendMessagesInThreads:PermissionFlagsBits.SendMessages,PermissionFlagsBits.AddReactions])) throw new Error("Missing order destination permissions");
+    if(!verified.has(target.guildId)) {
+      await channel.guild.emojis.fetch();
+      if(target.thread && (!channel.guild.emojis.cache.some(e=>e.name==="nyurokusumi") || !channel.guild.emojis.cache.some(e=>e.name==="nyukinsumi"))) throw new Error("Required order status emojis missing");
+      console.log(`Order destination verified: ${target.guildId}`);
+      verified.add(target.guildId);
+    }
+    if(target.thread && channel.archived) await channel.setArchived(false);
+    return channel;
+  }
   async function update(row, patch, extraVersion) {
     let query=db.from(TABLE).update(patch).eq('order_id',row.order_id).eq('tenant_id',tenant).eq('lease_token',row.lease_token);
     if (extraVersion) query=query.eq('version',row.version);
     const {error}=await query;
     if(error) throw error;
   }
-  async function deliver(row, thread) {
-    const {data:order,error}=await db.from('orders').select('id,order_number,customer_id,status,channel,currency,billing_name,shipping_name,shipping_fee,discount,handling_fee,total_amount,payment_confirmed_at,created_at,customer:customers(name),order_items(product_name_en,quantity,unit_price,sort_order)').eq('tenant_id',tenant).eq('id',row.order_id).single();
+  async function deliver(row) {
+    const {data:order,error}=await db.from('orders').select('id,order_number,customer_id,status,channel,discord_guild_id,currency,billing_name,shipping_name,shipping_fee,discount,handling_fee,total_amount,payment_confirmed_at,created_at,customer:customers(name),order_items(product_name_en,quantity,unit_price,sort_order)').eq('tenant_id',tenant).eq('id',row.order_id).single();
     if(error)throw error;
     if(order.channel!=='dc' || (order.status==='キャンセル'&&!row.message_id)) {await update(row,{pending:false},true);return;}
     if(!order.order_items?.length) throw new Error('Order items not ready; retry later');
+    const thread = await getDestination(order.discord_guild_id);
     let message;
     if(row.message_id) {
       try { message=await thread.messages.fetch(row.message_id); }
@@ -67,13 +90,13 @@ function createOrderNotifications(client, db, tenant, site) {
     }
     // Persist immediately; a reaction failure must never cause a second post.
     await update(row,{message_id:message.id});
-    const input=thread.guild.emojis.cache.find(e=>e.name==='nyurokusumi');
-    const paid=thread.guild.emojis.cache.find(e=>e.name==='nyukinsumi');
+    const input=thread.guild.emojis.cache.find(e=>e.name==='nyurokusumi')?.id || (thread.guildId===VINTAGE_GUILD_ID?'📝':null);
+    const paid=thread.guild.emojis.cache.find(e=>e.name==='nyukinsumi')?.id || (thread.guildId===VINTAGE_GUILD_ID?'💰':null);
     if(!input||!paid)throw new Error('Required 入力済 / 入金済 emoji missing');
-    await message.react(input.id);
-    if(order.payment_confirmed_at) await message.react(paid.id);
+    await message.react(input);
+    if(order.payment_confirmed_at) await message.react(paid);
     else {
-      const reaction=message.reactions.cache.get(paid.id);
+      const reaction=message.reactions.cache.get(paid);
       if(reaction?.me)await reaction.users.remove(client.user.id);
     }
     await update(row,{pending:false,last_error:null},true);
@@ -86,16 +109,14 @@ function createOrderNotifications(client, db, tenant, site) {
       const now=new Date().toISOString();
       const {data:rows,error}=await db.from(TABLE).select('*').eq('tenant_id',tenant).eq('pending',true).lte('available_after',now).or(`locked_until.is.null,locked_until.lt.${now}`).order('created_at').limit(20);
       if(error)throw error;
-      if(!rows.length && verified)return;
-      const thread=await client.channels.fetch(THREAD_ID);
-      if(!thread?.isThread()||thread.guildId!==GUILD_ID||thread.parentId!==PARENT_ID)throw new Error('Unexpected order notification destination');
-      const permissions=thread.permissionsFor(client.user);
-      if(!permissions?.has([PermissionFlagsBits.ViewChannel,PermissionFlagsBits.ReadMessageHistory,PermissionFlagsBits.SendMessagesInThreads,PermissionFlagsBits.AddReactions])) throw new Error('Missing order thread permissions');
-      if(!verified) await thread.guild.emojis.fetch();
-      if(!thread.guild.emojis.cache.some(e=>e.name==='nyurokusumi') || !thread.guild.emojis.cache.some(e=>e.name==='nyukinsumi')) throw new Error('Required order status emojis missing');
-      if(!verified) { console.log('Order notification destination and status emojis verified'); verified=true; }
-      if(!rows.length)return;
-      if(thread.archived)await thread.setArchived(false);
+      if(!rows.length) {
+        for(const guildId of [GUILD_ID,VINTAGE_GUILD_ID]) {
+          if(!verified.has(guildId)) {
+            try { await getDestination(guildId); } catch(err) { console.error(`Order destination setup failed: ${guildId}`,err.message); }
+          }
+        }
+        return;
+      }
       for(const candidate of rows) {
         const lease=randomUUID();
         const {data:row,error:claimError}=await db.from(TABLE).update({lease_token:lease,locked_until:new Date(Date.now()+10*60000).toISOString()})
@@ -103,7 +124,7 @@ function createOrderNotifications(client, db, tenant, site) {
           .or(`locked_until.is.null,locked_until.lt.${new Date().toISOString()}`).select().maybeSingle();
         if(claimError)throw claimError;
         if(!row)continue;
-        try {await deliver(row,thread);}
+        try {await deliver(row);}
         catch(err){console.error(`Order notification failed: ${row.order_id}`,err.message);await update(row,{last_error:String(err.message).slice(0,500),available_after:new Date(Date.now()+120000).toISOString()});}
         finally {await update(row,{locked_until:null,lease_token:null});}
       }
@@ -112,4 +133,4 @@ function createOrderNotifications(client, db, tenant, site) {
   }
   return {run,start(){if(timer)return;void run();timer=setInterval(run,30000);timer.unref();}};
 }
-module.exports={buildOrderEmbed,recoverMessage,createOrderNotifications};
+module.exports={destinationFor,buildOrderEmbed,recoverMessage,createOrderNotifications};

@@ -24,3 +24,14 @@ test('a sent message is recovered after database acknowledgment failure',async()
  assert.equal(await recoverMessage(thread,{order_id:'order-id',created_at:order.created_at},'bot'),message);
  assert.equal(await recoverMessage(thread,{order_id:'other',created_at:order.created_at},'bot'),null);
 });
+
+test('routes orders by persisted source, keeps legacy orders on original server and rejects unknown sources', () => {
+  const {destinationFor}=require('./order-notifications');
+  const original=destinationFor(null);
+  const vintage=destinationFor('1546607425069518909');
+  assert.equal(original.guildId,'1491756246456336554');
+  assert.equal(original.channelId,'1502702479765147650');
+  assert.equal(vintage.channelId,'1546608249657233521');
+  assert.notEqual(original.channelId,vintage.channelId);
+  assert.throws(()=>destinationFor('unknown'),/Unknown/);
+});
