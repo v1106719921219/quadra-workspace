@@ -49,3 +49,19 @@ test('batched history checks with individual moves respect 50-channel category c
   for(const c of categories.values())assert.ok(tickets.filter(t=>t.parentId===c.id).length<=50);
   assert.ok(tickets.every(t=>t.parent.name.startsWith('📁 対応済み')));
 });
+test('staff-designated VIP stays in its category across inactivity, messages and close; removal restores normal lifecycle', async () => {
+  const f=fixture();
+  const old=f.ticket('vip',IDLE_MS*2);
+  await f.lifecycle.setVIP(old,true);
+  assert.equal(old.parent.name,'⭐ VIP・常連');
+  await f.lifecycle.sweep();
+  await f.lifecycle.activate(old);
+  await f.lifecycle.close(old);
+  assert.equal(old.parent.name,'⭐ VIP・常連');
+  await f.lifecycle.setVIP(old,false);
+  assert.equal(old.parent.name,'📁 対応済み');
+  const recent=f.ticket('recent-vip',1000);
+  await f.lifecycle.setVIP(recent,true);
+  await f.lifecycle.setVIP(recent,false);
+  assert.equal(recent.parent.name,'🎫 対応中');
+});

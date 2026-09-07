@@ -543,6 +543,12 @@ client.once("ready", async () => {
         .setRequired(true)
     );
 
+  const vipCommand = new SlashCommandBuilder()
+    .setName("vip")
+    .setDescription("このチケットをVIP・常連に指定／解除（スタッフ専用）")
+    .addStringOption(option => option.setName("action").setDescription("指定または解除")
+      .addChoices({name: "VIPに指定", value: "on"}, {name: "VIPを解除", value: "off"}));
+
   const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_TOKEN);
   try {
     await rest.put(Routes.applicationCommands(client.user.id), {
@@ -554,6 +560,7 @@ client.once("ready", async () => {
         confirmCommand.toJSON(),
         itemCommand.toJSON(),
         replyEnCommand.toJSON(),
+        vipCommand.toJSON(),
       ],
     });
     console.log("Slash commands registered");
@@ -688,6 +695,29 @@ client.on("interactionCreate", async (interaction) => {
     } catch (err) {
       console.error("Autocomplete error:", err);
       await interaction.respond([]).catch(() => {});
+    }
+    return;
+  }
+
+  if (interaction.isChatInputCommand() && interaction.commandName === "vip") {
+    if (!interaction.guild || !isStaffOrAdmin(interaction.member)) {
+      await interaction.reply({content: "スタッフのみ使用できます。", flags: 64});
+      return;
+    }
+    if (interaction.channel.type !== ChannelType.GuildText || !interaction.channel.name.startsWith("ticket-")) {
+      await interaction.reply({content: "お客様のチケット内で使用してください。", flags: 64});
+      return;
+    }
+    const enabled = interaction.options.getString("action") !== "off";
+    await interaction.deferReply({flags: 64});
+    try {
+      await ticketLifecycle.setVIP(interaction.channel, enabled);
+      await interaction.editReply(enabled
+        ? "⭐ VIP・常連に指定しました。自動アーカイブの対象外になり、VIPカテゴリに残ります。"
+        : "VIP指定を解除しました。最終メッセージに応じて通常の対応中／対応済みに戻しました。");
+    } catch (err) {
+      console.error("VIP designation failed:", err.message);
+      await interaction.editReply("変更できませんでした。権限や通信状態を確認して再度お試しください。");
     }
     return;
   }
@@ -1279,7 +1309,9 @@ client.on("interactionCreate", async (interaction) => {
       await interaction.deferReply({ flags: 64 });
       try {
         await ticketLifecycle.close(interaction.channel);
-        await interaction.editReply("📁 Ticket archived. Your history is preserved. Send a message to reopen it.");
+        await interaction.editReply(ticketLifecycle.isVIP(interaction.channel)
+          ? "⭐ This ticket stays in the VIP category. Your message history is preserved."
+          : "📁 Ticket archived. Your history is preserved. Send a message to reopen it.");
       } catch (err) {
         console.error("Error archiving ticket:", err);
         await interaction.editReply("❌ Could not archive this ticket. Please contact staff.");

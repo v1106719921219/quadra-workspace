@@ -34,3 +34,12 @@ The table has RLS enabled and no client access; service_role and database trigge
 Run `node --test *.test.js` to validate formatting, identity safety, archive handling and message recovery.
 
 History reads run in batches of 10; category moves must be sent individually because Discord rejects multiple parent changes in one request.
+
+## Staff-designated VIP customers
+
+The `⭐ VIP・常連` category is created at startup in TCG_ANIMAC. No customer is designated automatically.
+In a ticket, staff/admin can use `/vip` (or `/vip action:on`) and `/vip action:off` to remove the designation.
+Membership of the VIP category is the persistent designation; manually moving a ticket into that category also works.
+VIP tickets remain there on messages, inactivity and Close Ticket. They are exempt from the seven-day archive rule.
+Removing VIP restores the normal active/closed category according to the last message timestamp.
+Individual customer access remains unchanged; this does not grant VIP customers access to one another's tickets.

@@ -1,6 +1,7 @@
 const { ChannelType, PermissionFlagsBits } = require('discord.js');
 const ACTIVE = '🎫 対応中';
 const CLOSED = '📁 対応済み';
+const VIP = '⭐ VIP・常連';
 const IDLE_MS = 7 * 24 * 60 * 60 * 1000;
 const isTicket = ch => ch && ch.type === ChannelType.GuildText && ch.name.startsWith('ticket-');
 const belongs = (name, base) => name === base || (name?.startsWith(base + ' ') && /^\d+$/.test(name.slice(base.length + 1)));
@@ -13,16 +14,32 @@ function createTicketLifecycle(client) {
     queue = result.catch(() => {});
     return result;
   };
+  const isVIP = channel => belongs(channel?.parent?.name, VIP);
+  const destination = ({channel, closed, vip}) => (vip === true || (vip !== false && isVIP(channel))) ? VIP : closed ? CLOSED : ACTIVE;
+  async function ensureVIP(guild) {
+    const channels = await guild.channels.fetch();
+    if (channels.some(ch => ch?.type === ChannelType.GuildCategory && ch.name === VIP)) return;
+    const staff = guild.roles?.cache.find(r => r.name === 'スタッフ');
+    await guild.channels.create({name: VIP, type: ChannelType.GuildCategory, position: 0,
+      permissionOverwrites: [
+        {id: guild.id, deny: [PermissionFlagsBits.ViewChannel]},
+        {id: client.user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ManageChannels]},
+        ...(staff ? [{id: staff.id, allow: [PermissionFlagsBits.ViewChannel]}] : []),
+      ],
+    });
+    console.log('VIP customer category ready');
+  }
   async function moveMany(entries) {
-    const needed = entries.filter(({channel, closed}) => !belongs(channel.parent?.name, closed ? CLOSED : ACTIVE));
+    const needed = entries.filter(entry => !belongs(entry.channel.parent?.name, destination(entry)));
     if (!needed.length) return;
     const guild = needed[0].channel.guild;
     const channels = await guild.channels.fetch();
     const counts = new Map();
     for (const ch of channels.values()) if (ch?.parentId) counts.set(ch.parentId, (counts.get(ch.parentId) || 0) + 1);
     const moves = [];
-    for (const {channel, closed} of needed) {
-      const base = closed ? CLOSED : ACTIVE;
+    for (const entry of needed) {
+      const {channel} = entry;
+      const base = destination(entry);
       let category = channels.find(ch => ch?.type === ChannelType.GuildCategory && belongs(ch.name, base) && (counts.get(ch.id) || 0) < 50);
       if (!category) {
         let name = base;
@@ -46,7 +63,7 @@ function createTicketLifecycle(client) {
   const move = (channel, closed) => moveMany([{channel, closed}]);
   async function sweep() {
     for (const guild of client.guilds.cache.values()) {
-      const channels = [...(await guild.channels.fetch()).values()].filter(ch => isTicket(ch) && !belongs(ch.parent?.name, CLOSED));
+      const channels = [...(await guild.channels.fetch()).values()].filter(ch => isTicket(ch) && !belongs(ch.parent?.name, CLOSED) && !isVIP(ch));
       for (let i = 0; i < channels.length; i += 10) {
         const batch = channels.slice(i, i + 10);
         const entries = await Promise.all(batch.map(async channel => {
@@ -78,11 +95,25 @@ function createTicketLifecycle(client) {
     finally { sweeping = false; }
   }
   return {
+    isVIP,
+    setVIP: (channel, enabled) => serial(async () => {
+      if (!isTicket(channel)) throw new Error('Not a ticket');
+      let closed = false;
+      if (!enabled) {
+        const latest = (await channel.messages.fetch({limit: 1})).first();
+        closed = Date.now() - (latest?.createdTimestamp ?? channel.createdTimestamp) >= IDLE_MS;
+      }
+      await moveMany([{channel, closed, vip: enabled}]);
+    }),
     activate: channel => isTicket(channel) ? serial(() => move(channel, false)) : Promise.resolve(),
     close: channel => isTicket(channel) ? serial(() => move(channel, true)) : Promise.reject(new Error('Not a ticket')),
     start() {
       if (timer) return;
-      void run();
+      void serial(async () => {
+        for (const guild of client.guilds.cache.values()) {
+          if (guild.id === '1491756246456336554') await ensureVIP(guild);
+        }
+      }).catch(err => console.error('VIP category setup failed:', err.message)).then(run);
       timer = setInterval(run, 15 * 60 * 1000);
       timer.unref();
     },
