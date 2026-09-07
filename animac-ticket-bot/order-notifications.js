@@ -72,8 +72,9 @@ function createOrderNotifications(client, db, tenant, site) {
   async function deliver(row) {
     const {data:order,error}=await db.from('orders').select('id,order_number,customer_id,status,channel,discord_guild_id,currency,billing_name,shipping_name,shipping_fee,discount,handling_fee,total_amount,payment_confirmed_at,created_at,customer:customers(name),order_items(product_name_en,quantity,unit_price,sort_order)').eq('tenant_id',tenant).eq('id',row.order_id).single();
     if(error)throw error;
-    if(order.channel!=='dc' || (order.status==='キャンセル'&&!row.message_id)) {await update(row,{pending:false},true);return;}
+    if(!['dc','sv'].includes(order.channel) || (order.status==='キャンセル'&&!row.message_id)) {await update(row,{pending:false},true);return;}
     if(!order.order_items?.length) throw new Error('Order items not ready; retry later');
+    if (order.channel === 'sv' && order.discord_guild_id !== VINTAGE_GUILD_ID) throw new Error('Single / Vintage source mismatch');
     const thread = await getDestination(order.discord_guild_id);
     let message;
     if(row.message_id) {

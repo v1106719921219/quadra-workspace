@@ -390,7 +390,7 @@ async function createOrderInSupabase(draft) {
       tenant_id: TENANT_ID,
       customer_id: draft.customer_id || null,
       created_by: draft.created_by || null,
-      channel: "dc",
+      channel: draft.discord_guild_id === VINTAGE_GUILD_ID ? "sv" : "dc",
       discord_guild_id: draft.discord_guild_id || "1491756246456336554",
       status: "受注",
       billing_name: draft.billing_name,
@@ -618,6 +618,7 @@ client.on("interactionCreate", async (interaction) => {
           .from("customers")
           .select("id, name, account_name, country")
           .eq("tenant_id", TENANT_ID)
+          .eq("channel", interaction.guildId === VINTAGE_GUILD_ID ? "sv" : "dc")
           .ilike("name", `%${query}%`)
           .order("name")
           .limit(25);
@@ -776,6 +777,7 @@ client.on("interactionCreate", async (interaction) => {
         .select("*")
         .eq("id", customerValue)
         .eq("tenant_id", TENANT_ID)
+        .eq("channel", interaction.guildId === VINTAGE_GUILD_ID ? "sv" : "dc")
         .single();
 
       if (customer) {

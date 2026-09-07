@@ -10,7 +10,7 @@ function createTicketOrderGuard(db,tenant){
     if(!customer)return true;
     for(let offset=0;;offset+=500){
       const {data,error}=await db.from('orders').select('id,status,payment_confirmed_at')
-        .eq('tenant_id',tenant).eq('channel','dc').eq('discord_guild_id',VINTAGE)
+        .eq('tenant_id',tenant).in('channel',['dc','sv']).eq('discord_guild_id',VINTAGE)
         .or(`customer_id.eq.${customer},customer_id.is.null`).order('id').range(offset,offset+499);
       if(error)throw error;
       if(!Array.isArray(data))throw Error('Order state unavailable');

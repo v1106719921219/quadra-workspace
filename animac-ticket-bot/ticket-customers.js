@@ -59,7 +59,7 @@ function createTicketCustomers(client, db, tenant) {
         for (const channel of channels) {
           if (!isTicket(channel)) continue;
           const hasMarker = MARKER.test(channel.topic || '');
-          const customer = resolveCustomer(channel, hasMarker ? customers : customers.filter(c => c.channel === 'dc'), channels);
+          const customer = resolveCustomer(channel, guild.id === '1546607425069518909' ? customers.filter(c => c.channel === 'sv') : (hasMarker ? customers.filter(c => c.channel !== 'sv') : customers.filter(c => c.channel === 'dc')), channels);
           if (!customer) continue;
           try { await bind(channel, customer); linked++; }
           catch (err) { console.error(`Ticket customer sync failed: ${channel.id}`, err.message); }

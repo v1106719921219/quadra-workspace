@@ -1,7 +1,7 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');
 const {createTicketOrderGuard,isComplete}=require('./ticket-order-guard');
 const channel={guild:{id:'1546607425069518909'},topic:'顧客情報: https://animac.intl.shipord.jp/customers/11111111-1111-4111-8111-111111111111\nDiscord: @test'};
-function db(rows,error){const q={select(){return this},eq(){return this},or(){return this},order(){return this},async range(){return {data:rows,error}}};return {from:()=>q};}
+function db(rows,error){const q={select(){return this},eq(){return this},in(){return this},or(){return this},order(){return this},async range(){return {data:rows,error}}};return {from:()=>q};}
 test('unpaid and unshipped orders remain open; only paid shipped or cancelled complete',()=>{
  assert.equal(isComplete({status:'出荷完了',payment_confirmed_at:null}),false);
  assert.equal(isComplete({status:'出荷準備中',payment_confirmed_at:'now'}),false);
