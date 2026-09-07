@@ -1,10 +1,20 @@
 const { ChannelType, PermissionFlagsBits } = require('discord.js');
-const ACTIVE = '🎫 対応中';
-const CLOSED = '📁 対応済み';
-const VIP = '⭐ VIP・常連';
+const ACTIVE = '🎫 In Progress';
+const CLOSED = '📁 Closed';
+const VIP = '⭐ VIP Customers';
+const LEGACY_NAMES = new Map([['🎫 対応中', ACTIVE], ['📁 対応済み', CLOSED], ['⭐ VIP・常連', VIP]]);
+const normalizeName = name => {
+  for (const [oldName, newName] of LEGACY_NAMES) {
+    if (name === oldName || (name?.startsWith(oldName + ' ') && /^\d+$/.test(name.slice(oldName.length + 1)))) return newName + name.slice(oldName.length);
+  }
+  return name;
+};
 const IDLE_MS = 7 * 24 * 60 * 60 * 1000;
 const isTicket = ch => ch && ch.type === ChannelType.GuildText && ch.name.startsWith('ticket-');
-const belongs = (name, base) => name === base || (name?.startsWith(base + ' ') && /^\d+$/.test(name.slice(base.length + 1)));
+const belongs = (name, base) => {
+  name = normalizeName(name);
+  return name === base || (name?.startsWith(base + ' ') && /^\d+$/.test(name.slice(base.length + 1)));
+};
 
 function createTicketLifecycle(client) {
   // Serialize category allocation and moves, including timer/message races.
@@ -111,7 +121,15 @@ function createTicketLifecycle(client) {
       if (timer) return;
       void serial(async () => {
         for (const guild of client.guilds.cache.values()) {
-          if (guild.id === '1491756246456336554') await ensureVIP(guild);
+          if (guild.id === '1491756246456336554') {
+            const channels = await guild.channels.fetch();
+            for (const channel of channels.values()) {
+              if (channel?.type === ChannelType.GuildCategory && normalizeName(channel.name) !== channel.name) {
+                await channel.setName(normalizeName(channel.name), 'Use English ticket category names');
+              }
+            }
+            await ensureVIP(guild);
+          }
         }
       }).catch(err => console.error('VIP category setup failed:', err.message)).then(run);
       timer = setInterval(run, 15 * 60 * 1000);

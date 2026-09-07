@@ -1,7 +1,7 @@
 # Ticket lifecycle
 
-- After 7 days without a message, move tickets into 📁 対応済み. Run at startup and every 15 minutes.
-- New tickets and human messages move tickets into 🎫 対応中.
+- After 7 days without a message, move tickets into 📁 Closed. Run at startup and every 15 minutes.
+- New tickets and human messages move tickets into 🎫 In Progress.
 - Close Ticket archives without deleting history. Opening an existing ticket reactivates it.
 - Preserve channel permissions with lockPermissions: false. Categories overflow after 50 channels.
 - If message history cannot be read, leave the ticket unchanged and log the error.
@@ -37,7 +37,7 @@ History reads run in batches of 10; category moves must be sent individually bec
 
 ## Staff-designated VIP customers
 
-The `⭐ VIP・常連` category is created at startup in TCG_ANIMAC. No customer is designated automatically.
+The `⭐ VIP Customers` category is created at startup in TCG_ANIMAC. No customer is designated automatically.
 In a ticket, staff/admin can use `/vip` (or `/vip action:on`) and `/vip action:off` to remove the designation.
 Membership of the VIP category is the persistent designation; manually moving a ticket into that category also works.
 VIP tickets remain there on messages, inactivity and Close Ticket. They are exempt from the seven-day archive rule.
