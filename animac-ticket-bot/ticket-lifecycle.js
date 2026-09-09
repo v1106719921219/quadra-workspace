@@ -9,6 +9,8 @@ const normalizeName = name => {
   }
   return name;
 };
+const CLOSED_MARKER = /\n?\[ticket-closed-at:(\d+)\]/g;
+const closedAt = channel => Number(/\[ticket-closed-at:(\d+)\]/.exec(channel.topic || '')?.[1] || 0);
 const IDLE_MS = 7 * 24 * 60 * 60 * 1000;
 const isTicket = ch => ch && ch.type === ChannelType.GuildText && ch.name.startsWith('ticket-');
 const belongs = (name, base) => {
@@ -40,10 +42,13 @@ function createTicketLifecycle(client, shouldKeepOpen = async () => false) {
     console.log('VIP customer category ready');
   }
   async function moveMany(entries) {
-    const needed = entries.filter(entry => !belongs(entry.channel.parent?.name, destination(entry)));
-    if (!needed.length) return;
-    const guild = needed[0].channel.guild;
+    if (!entries.length) return;
+    const guild = entries[0].channel.guild;
     const channels = await guild.channels.fetch();
+    // Decide from Discord's current parent, not a possibly stale gateway cache.
+    const needed = entries.map(entry => ({...entry, channel: channels.get(entry.channel.id) || entry.channel}))
+      .filter(entry => !belongs(entry.channel.parent?.name, destination(entry)));
+    if (!needed.length) return;
     const counts = new Map();
     for (const ch of channels.values()) if (ch?.parentId) counts.set(ch.parentId, (counts.get(ch.parentId) || 0) + 1);
     const moves = [];
@@ -65,9 +70,12 @@ function createTicketLifecycle(client, shouldKeepOpen = async () => false) {
       counts.set(category.id, (counts.get(category.id) || 0) + 1);
       moves.push({channel: channel.id, parent: category.id, lockPermissions: false});
     }
-    // Discord accepts only one parent change per request. Read history in batches,
-    // but apply moves individually while retaining private channel permissions.
-    for (const entry of moves) await guild.channels.setPositions([entry]);
+    // Use the channel update response and verify the parent with a fresh read.
+    for (const entry of moves) {
+      await channels.get(entry.channel).setParent(entry.parent, {lockPermissions: false});
+      const verified = await guild.channels.fetch(entry.channel, {force: true});
+      if (verified.parentId !== entry.parent) throw Error(`Ticket move not applied: ${entry.channel}`);
+    }
     console.log(`Ticket lifecycle: moved ${moves.length} channels`);
   }
   const keepOpen = async channel => {
@@ -80,22 +88,25 @@ function createTicketLifecycle(client, shouldKeepOpen = async () => false) {
   };
   async function sweep() {
     for (const guild of client.guilds.cache.values()) {
-      const channels = [...(await guild.channels.fetch()).values()].filter(ch => isTicket(ch) && (!belongs(ch.parent?.name, CLOSED) || ch.guild.id === '1546607425069518909') && !isVIP(ch));
+      const channels = [...(await guild.channels.fetch()).values()].filter(ch => isTicket(ch) && !isVIP(ch));
       for (let i = 0; i < channels.length; i += 10) {
         const batch = channels.slice(i, i + 10);
         const entries = await Promise.all(batch.map(async channel => {
           try {
-            const latest = (await channel.messages.fetch({limit: 1})).first();
-            return {channel, lastActivity: latest?.createdTimestamp ?? channel.createdTimestamp};
+            const history = await channel.messages.fetch({limit: closedAt(channel) ? 100 : 1});
+            const latest = history.first();
+            const human = history.find(m => !m.author?.bot);
+            return {channel, lastActivity: latest?.createdTimestamp ?? channel.createdTimestamp, humanActivity: human?.createdTimestamp || 0};
           } catch (err) {
             console.error(`Ticket lifecycle failed: ${channel.id}`, err.message);
             return null;
           }
         }));
         await serial(async () => {
-          const moves = await Promise.all(entries.filter(Boolean).map(async ({channel, lastActivity}) => {
+          const moves = await Promise.all(entries.filter(Boolean).map(async ({channel, lastActivity, humanActivity}) => {
             // Include any message that arrived while history requests were in flight.
             const cachedTime = channel.lastMessageId ? Number((BigInt(channel.lastMessageId) >> 22n) + 1420070400000n) : 0;
+            if (belongs(channel.parent?.name, CLOSED) && closedAt(channel) && humanActivity <= closedAt(channel)) return {channel, closed: true};
             return {channel, closed: Date.now() - Math.max(lastActivity, cachedTime) >= IDLE_MS && !(await keepOpen(channel))};
           }));
           await moveMany(moves);
@@ -123,7 +134,16 @@ function createTicketLifecycle(client, shouldKeepOpen = async () => false) {
       await moveMany([{channel, closed, vip: enabled}]);
     }),
     activate: channel => isTicket(channel) ? serial(() => move(channel, false)) : Promise.resolve(),
-    close: channel => isTicket(channel) ? serial(() => move(channel, true)) : Promise.reject(new Error('Not a ticket')),
+    close: channel => isTicket(channel) ? serial(async () => {
+      if (isVIP(channel)) return;
+      if (await keepOpen(channel)) throw Error('Ticket requires order review before archiving');
+      // Persist manual closure so recovery does not undo Close Ticket after a restart.
+      const topic = (channel.topic || '').replace(CLOSED_MARKER, '');
+      const marked = `${topic}\n[ticket-closed-at:${Date.now()}]`;
+      if (marked.length > 1024) throw Error('Ticket topic has no room for closure state');
+      await channel.setTopic(marked);
+      await move(channel, true);
+    }) : Promise.reject(new Error('Not a ticket')),
     start() {
       if (timer) return;
       void serial(async () => {

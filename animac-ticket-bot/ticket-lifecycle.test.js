@@ -4,7 +4,7 @@ const { Collection, ChannelType } = require('discord.js');
 const { createTicketLifecycle, IDLE_MS } = require('./ticket-lifecycle');
 function fixture(guard) {
   const channels = new Collection();
-  const guild = { id: 'guild', channels: { setPositions: async moves => { assert.equal(moves.length, 1, "Discord permits one parent change per request"); for (const move of moves) { assert.equal(move.lockPermissions, false); channels.get(move.channel).parentId = move.parent; } }, fetch: async () => channels, create: async data => {
+  const guild = { id: 'guild', channels: { setPositions: async moves => { assert.equal(moves.length, 1, "Discord permits one parent change per request"); for (const move of moves) { assert.equal(move.lockPermissions, false); channels.get(move.channel).parentId = move.parent; } }, cache: channels, fetch: async id => id ? channels.get(id) : channels, create: async data => {
     const category = { ...data, id: `cat-${channels.size}` };
     channels.set(category.id, category); return category;
   } } };
@@ -13,6 +13,7 @@ function fixture(guard) {
       get parent() { return channels.get(this.parentId); },
       createdTimestamp: Date.now() - age,
       messages: { fetch: async () => { if (fail) throw Error('no access'); return new Collection([['m', { createdTimestamp: Date.now() - age }]]); } },
+      async setTopic(topic) { this.topic = topic; },
       async setParent(id, options) { assert.equal(options.lockPermissions, false); this.parentId = id; },
     }; channels.set(id, ch); return ch;
   }
@@ -74,4 +75,24 @@ test('unfinished orders and failed lookups block both timed and manual archiving
   await f.lifecycle.setVIP(ch,true);await f.lifecycle.setVIP(ch,false);
   assert.equal(ch.parent.name,'🎫 Support');
  }
+});
+
+test('recovery sweeps reopen recent Past tickets but retain manual closure until a new human message', async () => {
+  const f=fixture(); const ch=f.ticket('missed',1000);
+  await f.lifecycle.close(ch); await f.lifecycle.sweep();
+  assert.equal(ch.parent.name,'📁 Past Conversations');
+  ch.messages.fetch=async()=>new Collection([['new',{createdTimestamp:Date.now()+100,author:{bot:false}}]]);
+  await f.lifecycle.sweep(); assert.equal(ch.parent.name,'🎫 Support');
+  const other=f.ticket('unmarked',1000); other.parentId=f.channels.find(c=>c.name==='📁 Past Conversations').id;
+  await f.lifecycle.sweep(); assert.equal(other.parent.name,'🎫 Support');
+});
+test('silent parent update failures are surfaced',async()=>{
+ const f=fixture(); const ch=f.ticket('silent',0); ch.setParent=async()=>ch;
+ await assert.rejects(f.lifecycle.activate(ch),/move not applied/);
+});
+
+test('activation consults current Discord parent instead of stale Support cache',async()=>{
+ const f=fixture(); const ch=f.ticket('stale',0); await f.lifecycle.activate(ch);
+ const stale={...ch,parent:ch.parent}; await f.lifecycle.close(ch);
+ await f.lifecycle.activate(stale); assert.equal(ch.parent.name,'🎫 Support');
 });
